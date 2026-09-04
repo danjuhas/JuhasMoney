@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import type { Expense } from '../types';
 import { Plus, ChevronLeft, ChevronRight, Calendar, Filter } from 'lucide-react';
 import { SummaryCards } from '../components/SummaryCards';
@@ -19,7 +20,7 @@ export default function Dashboard() {
     expenses, 
     categories, 
     loading, 
-    saveExpenses, 
+    upsertExpenses, 
     addCategory, 
     deleteCategory, 
     deleteExpense, 
@@ -59,11 +60,11 @@ export default function Dashboard() {
   }, []);
 
   const checkUser = async () => {
-    const mockUser = localStorage.getItem('juhas_mock_user');
-    if (!mockUser) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
       navigate('/login');
     } else {
-      setUserId(mockUser);
+      setUserId(session.user.id);
     }
   };
 
@@ -72,7 +73,7 @@ export default function Dashboard() {
     if (!userId || !newCategoryName.trim()) return;
 
     addCategory({
-      id: Math.random().toString(36).substring(7),
+      id: crypto.randomUUID(),
       user_id: userId,
       name: newCategoryName.trim(),
       type: newCategoryType,
@@ -90,7 +91,7 @@ export default function Dashboard() {
     const numericAmount = parseInt(amount || '0', 10) / 100;
     if (!userId || !description || numericAmount <= 0) return;
 
-    let newExpenses = [...expenses];
+    let expensesToUpsert: Expense[] = [];
     const parsedDueDay = dueDay ? parseInt(dueDay, 10) : undefined;
 
     if (editingId) {
@@ -109,7 +110,7 @@ export default function Dashboard() {
             end_month: prevMonth
           };
           const newFixedExpense: Expense = {
-            id: Math.random().toString(36).substring(7),
+            id: crypto.randomUUID(),
             user_id: userId,
             description,
             amount: numericAmount,
@@ -119,8 +120,7 @@ export default function Dashboard() {
             is_fixed: true,
             due_day: parsedDueDay,
           };
-          newExpenses = expenses.map(e => e.id === editingId ? updatedOriginal : e);
-          newExpenses = [newFixedExpense, ...newExpenses];
+          expensesToUpsert.push(updatedOriginal, newFixedExpense);
         } else {
           // We are editing a fixed expense from a different (future) month. Create a one-off override.
           const updatedOriginal = {
@@ -128,7 +128,7 @@ export default function Dashboard() {
             excluded_months: [...(originalExpense.excluded_months || []), selectedMonth]
           };
           const overrideExpense: Expense = {
-            id: Math.random().toString(36).substring(7),
+            id: crypto.randomUUID(),
             user_id: userId,
             description,
             amount: numericAmount,
@@ -138,29 +138,27 @@ export default function Dashboard() {
             is_fixed: false, // Override applies only to this month
             due_day: parsedDueDay,
           };
-          newExpenses = expenses.map(e => e.id === editingId ? updatedOriginal : e);
-          newExpenses = [overrideExpense, ...newExpenses];
+          expensesToUpsert.push(updatedOriginal, overrideExpense);
         }
       } else {
         // Normal edit of the base expense
-        newExpenses = expenses.map(exp => 
-          exp.id === editingId 
-            ? { ...exp, description, amount: numericAmount, type: transactionType,
-            category_id: categoryId || undefined, is_fixed: isFixed, due_day: isFixed ? parsedDueDay : undefined }
-            : exp
-        );
+        if (originalExpense) {
+          expensesToUpsert.push({
+            ...originalExpense, description, amount: numericAmount, type: transactionType,
+            category_id: categoryId || undefined, is_fixed: isFixed, due_day: isFixed ? parsedDueDay : undefined
+          });
+        }
       }
     } else {
       if (isInstallment) {
         const count = parseInt(installmentsCount, 10) || 1;
-        const generatedExpenses: Expense[] = [];
         for (let i = 0; i < count; i++) {
           const [yearStr, monthStr] = selectedMonth.split('-');
           const date = new Date(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1 + i, 1);
           const targetMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
           
-          generatedExpenses.push({
-            id: Math.random().toString(36).substring(7) + i,
+          expensesToUpsert.push({
+            id: crypto.randomUUID(),
             user_id: userId,
             description: `${description} (${i + 1}/${count})`,
             amount: numericAmount,
@@ -172,25 +170,23 @@ export default function Dashboard() {
             is_paid: false,
           });
         }
-        newExpenses = [...generatedExpenses, ...expenses];
       } else {
-        const newExpense: Expense = {
-          id: Math.random().toString(36).substring(7),
+        expensesToUpsert.push({
+          id: crypto.randomUUID(),
           user_id: userId,
           description,
           amount: numericAmount,
           type: transactionType,
-            category_id: categoryId || undefined,
+          category_id: categoryId || undefined,
           created_at: `${selectedMonth}-01T12:00:00.000Z`,
           is_fixed: isFixed,
           due_day: isFixed ? parsedDueDay : undefined,
           is_paid: !isFixed,
-        };
-        newExpenses = [newExpense, ...expenses];
+        });
       }
     }
     
-    saveExpenses(newExpenses);
+    upsertExpenses(expensesToUpsert);
 
     handleCancelEdit();
   };
@@ -238,7 +234,7 @@ export default function Dashboard() {
   };
 
   const handleSignOut = async () => {
-    localStorage.removeItem('juhas_mock_user');
+    await supabase.auth.signOut();
     navigate('/login');
   };
 

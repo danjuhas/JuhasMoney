@@ -163,16 +163,54 @@ export const SettingsOverview = ({
         {/* Conta Section */}
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <LogOut className="w-5 h-5 text-red-500" />
+            <LogOut className="w-5 h-5 text-gray-500" />
             <h3 className="font-medium text-gray-800">Conta</h3>
           </div>
           
-          <button
-            onClick={handleSignOut}
-            className="w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-3 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium text-sm"
-          >
-            Sair da Conta
-          </button>
+          <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-6">
+            
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const newPassword = (e.currentTarget.elements.namedItem('new_password') as HTMLInputElement).value;
+              if (newPassword.length < 6) {
+                alert('A senha deve ter pelo menos 6 caracteres.');
+                return;
+              }
+              const { supabase } = await import('../lib/supabase');
+              const { error } = await supabase.auth.updateUser({ password: newPassword });
+              if (error) {
+                alert('Erro ao alterar senha: ' + error.message);
+              } else {
+                alert('Senha alterada com sucesso!');
+                (e.target as HTMLFormElement).reset();
+              }
+            }} className="space-y-4">
+              <h4 className="text-sm font-medium text-gray-800">Alterar Senha</h4>
+              <div className="flex gap-2">
+                <input
+                  type="password"
+                  name="new_password"
+                  placeholder="Nova senha (mín. 6 caracteres)"
+                  className="flex-1 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-3 border outline-none"
+                  required
+                  minLength={6}
+                />
+                <button type="submit" className="bg-gray-800 text-white px-5 py-2 rounded-lg hover:bg-gray-900 text-sm font-medium transition-colors">
+                  Atualizar
+                </button>
+              </div>
+            </form>
+
+            <hr className="border-gray-200" />
+
+            <button
+              onClick={handleSignOut}
+              className="w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-3 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium text-sm"
+            >
+              <LogOut className="w-4 h-4" />
+              Sair da Conta
+            </button>
+          </div>
         </section>
 
       </div>
