@@ -1,108 +1,145 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Expense, Category } from '../types';
+import { supabase } from '../lib/supabase';
 
 export function useTransactions(userId: string | null) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!userId) return;
-    setLoading(true);
-    
-    const localData = localStorage.getItem(`juhas_expenses_${userId}`);
-    if (localData) {
-      setExpenses(JSON.parse(localData));
-    } else {
+  const fetchAll = useCallback(async () => {
+    if (!userId) {
       setExpenses([]);
-    }
-    
-    const localCategories = localStorage.getItem(`juhas_categories_${userId}`);
-    if (localCategories) {
-      setCategories(JSON.parse(localCategories));
-    } else {
       setCategories([]);
+      return;
     }
-    
-    setLoading(false);
+    setLoading(true);
+
+    try {
+      const [expRes, catRes] = await Promise.all([
+        supabase.from('transactions').select('*').eq('user_id', userId),
+        supabase.from('categories').select('*').eq('user_id', userId)
+      ]);
+
+      if (expRes.error) throw expRes.error;
+      if (catRes.error) throw catRes.error;
+
+      setExpenses((expRes.data as unknown as Expense[]) || []);
+      setCategories((catRes.data as unknown as Category[]) || []);
+    } catch (err) {
+      console.error('Error fetching data from Supabase:', err);
+    } finally {
+      setLoading(false);
+    }
   }, [userId]);
 
-  const saveExpenses = useCallback((newExpenses: Expense[]) => {
-    setExpenses(newExpenses);
-    if (userId) {
-      localStorage.setItem(`juhas_expenses_${userId}`, JSON.stringify(newExpenses));
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
+
+  const addCategory = useCallback(async (category: Category) => {
+    setCategories(prev => [...prev, category]);
+    try {
+      const { error } = await supabase.from('categories').insert(category);
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error adding category:', err);
+      fetchAll();
     }
-  }, [userId]);
+  }, [fetchAll]);
 
-  const saveCategories = useCallback((newCategories: Category[]) => {
-    setCategories(newCategories);
-    if (userId) {
-      localStorage.setItem(`juhas_categories_${userId}`, JSON.stringify(newCategories));
+  const deleteCategory = useCallback(async (id: string) => {
+    setCategories(prev => prev.filter(c => c.id !== id));
+    try {
+      const { error } = await supabase.from('categories').delete().eq('id', id);
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error deleting category:', err);
+      fetchAll();
     }
-  }, [userId]);
+  }, [fetchAll]);
 
-  const addCategory = useCallback((category: Category) => {
-    const newCategories = [...categories, category];
-    saveCategories(newCategories);
-  }, [categories, saveCategories]);
+  const upsertExpenses = useCallback(async (items: Expense[]) => {
+    setExpenses(prev => {
+      let newArray = [...prev];
+      items.forEach(item => {
+        const idx = newArray.findIndex(x => x.id === item.id);
+        if (idx >= 0) newArray[idx] = item;
+        else newArray.push(item);
+      });
+      return newArray;
+    });
 
-  const deleteCategory = useCallback((id: string) => {
-    const newCategories = categories.filter(c => c.id !== id);
-    saveCategories(newCategories);
-  }, [categories, saveCategories]);
+    try {
+      const { error } = await supabase.from('transactions').upsert(items);
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error upserting expenses:', err);
+      fetchAll();
+    }
+  }, [fetchAll]);
 
-  const deleteExpense = useCallback((id: string, selectedMonth: string, deleteAll: boolean = false) => {
+  const deleteExpense = useCallback(async (id: string, selectedMonth: string, deleteAll: boolean = false) => {
     const expenseToDelete = expenses.find(e => e.id === id);
     if (!expenseToDelete) return;
 
     const isDifferentMonth = !expenseToDelete.created_at.startsWith(selectedMonth);
-    let newExpenses;
 
     if (expenseToDelete.is_fixed && isDifferentMonth && !deleteAll) {
       const updated = {
         ...expenseToDelete,
         excluded_months: [...(expenseToDelete.excluded_months || []), selectedMonth]
       };
-      newExpenses = expenses.map(e => e.id === id ? updated : e);
-    } else {
-      newExpenses = expenses.filter(e => e.id !== id);
-    }
-    
-    saveExpenses(newExpenses);
-  }, [expenses, saveExpenses]);
-
-  const togglePaid = useCallback((expense: Expense, selectedMonth: string) => {
-    const newExpenses = expenses.map(e => {
-      if (e.id === expense.id) {
-        if (e.is_fixed) {
-          const paidMonths = e.paid_months || [];
-          const isPaid = paidMonths.includes(selectedMonth);
-          return {
-            ...e,
-            paid_months: isPaid
-              ? paidMonths.filter(m => m !== selectedMonth)
-              : [...paidMonths, selectedMonth]
-          };
-        } else {
-          return { ...e, is_paid: !e.is_paid };
-        }
+      setExpenses(prev => prev.map(e => e.id === id ? updated : e));
+      try {
+        const { error } = await supabase.from('transactions').update({ excluded_months: updated.excluded_months }).eq('id', id);
+        if (error) throw error;
+      } catch (err) {
+        fetchAll();
       }
-      return e;
-    });
-    
-    saveExpenses(newExpenses);
-  }, [expenses, saveExpenses]);
+    } else {
+      setExpenses(prev => prev.filter(e => e.id !== id));
+      try {
+        const { error } = await supabase.from('transactions').delete().eq('id', id);
+        if (error) throw error;
+      } catch (err) {
+        fetchAll();
+      }
+    }
+  }, [expenses, fetchAll]);
+
+  const togglePaid = useCallback(async (expense: Expense, selectedMonth: string) => {
+    let updated: Expense;
+    if (expense.is_fixed) {
+      const paidMonths = expense.paid_months || [];
+      const isPaid = paidMonths.includes(selectedMonth);
+      updated = {
+        ...expense,
+        paid_months: isPaid
+          ? paidMonths.filter(m => m !== selectedMonth)
+          : [...paidMonths, selectedMonth]
+      };
+    } else {
+      updated = { ...expense, is_paid: !expense.is_paid };
+    }
+
+    setExpenses(prev => prev.map(e => e.id === expense.id ? updated : e));
+    try {
+      const { error } = await supabase.from('transactions').upsert(updated);
+      if (error) throw error;
+    } catch (err) {
+      fetchAll();
+    }
+  }, [fetchAll]);
 
   return {
     expenses,
     categories,
     loading,
-    saveExpenses,
-    saveCategories,
+    upsertExpenses,
     addCategory,
     deleteCategory,
     deleteExpense,
     togglePaid,
   };
 }
-
