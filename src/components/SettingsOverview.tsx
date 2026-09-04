@@ -58,7 +58,7 @@ export const SettingsOverview = ({
                   <span className="ml-2 text-sm text-gray-900">Receita</span>
                 </label>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={newCategoryName}
@@ -186,7 +186,7 @@ export const SettingsOverview = ({
               }
             }} className="space-y-4">
               <h4 className="text-sm font-medium text-gray-800">Alterar Senha</h4>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="password"
                   name="new_password"

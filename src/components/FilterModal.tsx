@@ -20,7 +20,7 @@ export function FilterModal({ isOpen, onClose, filterType, setFilterType, filter
   };
 
   return (
-    <div className="fixed inset-0 bg-transparent flex flex-col justify-end sm:justify-center items-center z-50 p-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 bg-transparent flex flex-col justify-end sm:justify-center items-center z-[60] p-4 backdrop-blur-sm" onClick={onClose}>
       <div 
         className="bg-white rounded-t-2xl sm:rounded-xl shadow-[0_20px_50px_rgba(8,_112,_184,_0.1)] ring-1 ring-gray-900/5 w-full max-w-md transform transition-all animate-in slide-in-from-bottom-10 sm:slide-in-from-bottom-0 sm:fade-in"
         onClick={(e) => e.stopPropagation()}

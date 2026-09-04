@@ -8,7 +8,7 @@ export function DeleteConfirmModal({ isOpen, onClose, onConfirm }: DeleteConfirm
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose}></div>
       <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm relative z-10 animate-in zoom-in-95 duration-200">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">Excluir lançamento</h3>

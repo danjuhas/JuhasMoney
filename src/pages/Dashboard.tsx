@@ -533,7 +533,7 @@ export default function Dashboard() {
         </div>
       
       {isModalOpen && (
-        <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={handleCancelEdit}>
+        <div className="fixed inset-0 bg-transparent flex items-center justify-center z-[60] p-4 backdrop-blur-sm" onClick={handleCancelEdit}>
           <div 
             className="bg-white rounded-xl shadow-[0_20px_50px_rgba(8,_112,_184,_0.07)] ring-1 ring-gray-900/5 w-full max-w-md max-h-[90vh] overflow-y-auto transform transition-all"
             onClick={(e) => e.stopPropagation()}
