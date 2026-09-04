@@ -1,5 +1,6 @@
 
 import { Home, PieChart, Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   activeTab: 'home' | 'insights' | 'settings';
@@ -7,6 +8,7 @@ type Props = {
 };
 
 export const MobileNav = ({ activeTab, setActiveTab }: Props) => {
+  const { t } = useTranslation();
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-[env(safe-area-inset-bottom)] z-50 sm:hidden">
       <div className="flex justify-around items-center h-16">
@@ -17,7 +19,7 @@ export const MobileNav = ({ activeTab, setActiveTab }: Props) => {
           }`}
         >
           <Home className="w-5 h-5" />
-          <span className="text-[10px] font-medium">Início</span>
+          <span className="text-[10px] font-medium">{t('nav.home')}</span>
         </button>
         <button
           onClick={() => setActiveTab('insights')}
@@ -26,7 +28,7 @@ export const MobileNav = ({ activeTab, setActiveTab }: Props) => {
           }`}
         >
           <PieChart className="w-5 h-5" />
-          <span className="text-[10px] font-medium">Insights</span>
+          <span className="text-[10px] font-medium">{t('nav.insights')}</span>
         </button>
         <button
           onClick={() => setActiveTab('settings')}
@@ -35,7 +37,7 @@ export const MobileNav = ({ activeTab, setActiveTab }: Props) => {
           }`}
         >
           <Settings className="w-5 h-5" />
-          <span className="text-[10px] font-medium">Ajustes</span>
+          <span className="text-[10px] font-medium">{t('nav.settings')}</span>
         </button>
       </div>
     </div>

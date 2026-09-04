@@ -1,3 +1,5 @@
+import { generateUUID } from '../utils/uuid';
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -11,6 +13,8 @@ import { TransactionItem } from '../components/TransactionItem';
 import { DeleteConfirmModal } from '../components/DeleteConfirmModal';
 import { MobileNav } from '../components/MobileNav';
 import { useTransactions } from '../hooks/useTransactions';
+import { usePreferences } from '../contexts/PreferencesContext';
+import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -54,10 +58,19 @@ export default function Dashboard() {
   const isFilterActive = filterType !== 'all' || filterStatus !== 'all';
 
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { preferences, loading: prefsLoading } = usePreferences();
 
   useEffect(() => {
     checkUser();
   }, []);
+
+  useEffect(() => {
+    if (!prefsLoading && userId && !preferences.onboarding_completed) {
+      navigate('/onboarding');
+    }
+  }, [prefsLoading, preferences.onboarding_completed, userId, navigate]);
+
 
   const checkUser = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -73,7 +86,7 @@ export default function Dashboard() {
     if (!userId || !newCategoryName.trim()) return;
 
     addCategory({
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       user_id: userId,
       name: newCategoryName.trim(),
       type: newCategoryType,
@@ -110,7 +123,7 @@ export default function Dashboard() {
             end_month: prevMonth
           };
           const newFixedExpense: Expense = {
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             user_id: userId,
             description,
             amount: numericAmount,
@@ -128,7 +141,7 @@ export default function Dashboard() {
             excluded_months: [...(originalExpense.excluded_months || []), selectedMonth]
           };
           const overrideExpense: Expense = {
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             user_id: userId,
             description,
             amount: numericAmount,
@@ -158,7 +171,7 @@ export default function Dashboard() {
           const targetMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
           
           expensesToUpsert.push({
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             user_id: userId,
             description: `${description} (${i + 1}/${count})`,
             amount: numericAmount,
@@ -172,7 +185,7 @@ export default function Dashboard() {
         }
       } else {
         expensesToUpsert.push({
-          id: crypto.randomUUID(),
+          id: generateUUID(),
           user_id: userId,
           description,
           amount: numericAmount,
@@ -337,12 +350,16 @@ export default function Dashboard() {
   const formatMonthYear = (monthStr: string) => {
     const [year, month] = monthStr.split('-');
     const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
-    const monthName = date.toLocaleDateString('pt-BR', { month: 'long' });
+    const monthName = date.toLocaleDateString(t('dashboard.locale') || 'pt-BR', { month: 'long' });
     return `${monthName.charAt(0).toUpperCase() + monthName.slice(1)}/${year}`;
   };
   const now = new Date();
   const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const isCurrentMonth = selectedMonth === currentMonthStr;
+
+  if (prefsLoading) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">{t('dashboard.loading')}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -350,25 +367,25 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-14 sm:h-16 items-center">
             <div className="flex items-center gap-8">
-              <h1 className="text-xl font-bold text-gray-900">JuhasMoney</h1>
+              <h1 className="text-xl font-bold text-gray-900">{t('dashboard.app_name')}</h1>
               <div className="hidden sm:flex items-center gap-4">
                 <button
                   onClick={() => setActiveTab('home')}
                   className={`text-sm font-medium transition-colors ${activeTab === 'home' ? 'text-emerald-600' : 'text-gray-500 hover:text-gray-900'}`}
                 >
-                  Início
+                  {t('nav.home')}
                 </button>
                 <button
                   onClick={() => setActiveTab('insights')}
                   className={`text-sm font-medium transition-colors ${activeTab === 'insights' ? 'text-emerald-600' : 'text-gray-500 hover:text-gray-900'}`}
                 >
-                  Insights
+                  {t('nav.insights')}
                 </button>
                 <button
                   onClick={() => setActiveTab('settings')}
                   className={`text-sm font-medium transition-colors ${activeTab === 'settings' ? 'text-emerald-600' : 'text-gray-500 hover:text-gray-900'}`}
                 >
-                  Ajustes
+                  {t('nav.settings')}
                 </button>
               </div>
             </div>
@@ -392,7 +409,7 @@ export default function Dashboard() {
                 <button
                   onClick={handlePreviousMonth}
                   className="p-1.5 hover:bg-white rounded-md text-gray-600 transition-colors shadow-sm"
-                  title="Mês anterior"
+                  title={t('dashboard.prev_month')}
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
@@ -402,7 +419,7 @@ export default function Dashboard() {
                 <button
                   onClick={handleNextMonth}
                   className="p-1.5 hover:bg-white rounded-md text-gray-600 transition-colors shadow-sm"
-                  title="Próximo mês"
+                  title={t('dashboard.next_month')}
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>
@@ -416,7 +433,7 @@ export default function Dashboard() {
                     ? 'text-gray-400 cursor-not-allowed'
                     : 'text-blue-600 hover:bg-blue-50'
                 }`}
-                title="Voltar para mês atual"
+                title={t('dashboard.back_to_current')}
               >
                 <Calendar className="h-5 w-5" />
               </button>
@@ -432,7 +449,7 @@ export default function Dashboard() {
                     ? 'text-gray-400 cursor-not-allowed'
                     : 'text-blue-600 hover:bg-blue-50'
                 }`}
-                title="Voltar para mês atual"
+                title={t('dashboard.back_to_current')}
               >
                 <Calendar className="h-5 w-5" />
               </button>
@@ -491,7 +508,7 @@ export default function Dashboard() {
             <div className="bg-white shadow rounded-lg p-4 sm:p-6 h-full flex flex-col">
               
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-800">Transações do Mês</h3>
+                <h3 className="font-semibold text-gray-800">{t('dashboard.month_transactions')}</h3>
                 {isFilterActive && (
                   <span className="text-xs font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                     Filtrado
@@ -501,15 +518,15 @@ export default function Dashboard() {
               
               
               {loading ? (
-                <div className="text-center py-10 text-gray-500">Carregando...</div>
+                <div className="text-center py-10 text-gray-500">{t('dashboard.loading')}</div>
               ) : filteredExpenses.length === 0 ? (
                 <div className="text-center py-10 text-gray-500">
                   Nenhum lançamento registrado ainda neste mês.
                 </div>
               ) : finalExpenses.length === 0 ? (
                 <div className="text-center py-10 text-gray-500">
-                  <p>Nenhum resultado encontrado para os filtros selecionados.</p>
-                  <button onClick={() => { setFilterType('all'); setFilterStatus('all'); }} className="mt-4 text-blue-600 hover:text-blue-800 font-medium">Limpar filtros</button>
+                  <p>{t('dashboard.no_filter_results')}</p>
+                  <button onClick={() => { setFilterType('all'); setFilterStatus('all'); }} className="mt-4 text-blue-600 hover:text-blue-800 font-medium">{t('dashboard.clear_filters')}</button>
                 </div>
               ) : (
                 <div className="flow-root">
@@ -542,8 +559,8 @@ export default function Dashboard() {
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-gray-900">
                   {editingId
-                    ? (transactionType === 'income' ? 'Editar Receita' : 'Editar Despesa')
-                    : (transactionType === 'income' ? 'Nova Receita' : 'Nova Despesa')}
+                    ? (transactionType === 'income' ? t('dashboard.edit_income') : t('dashboard.edit_expense'))
+                    : (transactionType === 'income' ? t('dashboard.new_income') : t('dashboard.new_expense'))}
                 </h2>
                 <button onClick={handleCancelEdit} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
               </div>
@@ -562,7 +579,7 @@ export default function Dashboard() {
                         transactionType === 'expense' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                       }`}
                     >
-                      Despesa
+                      {t('dashboard.expenses')}
                     </button>
                     <button
                       type="button"
@@ -574,12 +591,12 @@ export default function Dashboard() {
                         transactionType === 'income' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                       }`}
                     >
-                      Receita
+                      {t('dashboard.incomes')}
                     </button>
                   </div>
                 )}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Descrição</label>
+                  <label className="block text-sm font-medium text-gray-700">{t('dashboard.description')}</label>
                   <input
                     type="text"
                     value={description}
@@ -591,13 +608,13 @@ export default function Dashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Categoria (opcional)</label>
+                  <label className="block text-sm font-medium text-gray-700">{t('dashboard.category_optional')}</label>
                   <select
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2 border bg-white"
                   >
-                    <option value="">Sem categoria</option>
+                    <option value="">{t('dashboard.no_category')}</option>
                     {categories.filter(cat => cat.type === transactionType).map(cat => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
@@ -605,7 +622,7 @@ export default function Dashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Valor (€)</label>
+                  <label className="block text-sm font-medium text-gray-700">{t('dashboard.value')}</label>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -630,7 +647,7 @@ export default function Dashboard() {
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
                       <label htmlFor="isInstallment" className="ml-2 block text-sm text-gray-500 hover:text-gray-900 cursor-pointer transition-colors">
-                        Parcelar / Repetir compra
+                        {t('dashboard.repeat_purchase')}
                       </label>
                     </div>
                   )}
@@ -638,7 +655,7 @@ export default function Dashboard() {
 
                 {(isFixed || isInstallment) && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Dia de Vencimento</label>
+                    <label className="block text-sm font-medium text-gray-700">{t('dashboard.due_day')}</label>
                     <input
                       type="number"
                       min="1"
@@ -654,7 +671,7 @@ export default function Dashboard() {
                 
                 {isInstallment && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Quantidade de Meses</label>
+                    <label className="block text-sm font-medium text-gray-700">{t('dashboard.months_quantity')}</label>
                     <input
                       type="number"
                       min="2"
@@ -677,7 +694,7 @@ export default function Dashboard() {
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
                     <label htmlFor="applyToFuture" className="ml-2 block text-sm text-gray-900">
-                      Aplicar para este e os próximos meses
+                      {t('dashboard.apply_future')}
                     </label>
                   </div>
                 )}
@@ -687,7 +704,7 @@ export default function Dashboard() {
                     className="flex-1 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
                   >
                     <Plus className="h-4 w-4 mr-1" />
-                    {editingId ? 'Salvar' : 'Adicionar'}
+                    {editingId ? t('dashboard.save') : t('dashboard.add')}
                   </button>
                   {editingId && (
                     <button
@@ -695,7 +712,7 @@ export default function Dashboard() {
                       onClick={handleCancelEdit}
                       className="flex-1 flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                     >
-                      Cancelar
+                      {t('dashboard.cancel')}
                     </button>
                   )}
                 </div>
@@ -735,14 +752,14 @@ export default function Dashboard() {
                   onClick={() => { setIsFabMenuOpen(false); openModal('income'); }} 
                   className="flex items-center gap-3 bg-white shadow-lg pl-4 pr-2 py-2 rounded-full text-green-600 hover:bg-green-50 font-medium transition-colors"
                 >
-                   <span>Nova Receita</span>
+                   <span>{t('dashboard.new_income')}</span>
                    <div className="bg-green-100 p-2 rounded-full"><Plus className="h-5 w-5" /></div>
                 </button>
                 <button 
                   onClick={() => { setIsFabMenuOpen(false); openModal('expense'); }} 
                   className="flex items-center gap-3 bg-white shadow-lg pl-4 pr-2 py-2 rounded-full text-red-600 hover:bg-red-50 font-medium transition-colors"
                 >
-                   <span>Nova Despesa</span>
+                   <span>{t('dashboard.new_expense')}</span>
                    <div className="bg-red-100 p-2 rounded-full"><Plus className="h-5 w-5" /></div>
                 </button>
               </div>

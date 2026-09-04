@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { useMemo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { PieChart as PieChartIcon } from 'lucide-react';
@@ -13,7 +15,9 @@ type Props = {
 // Pastel colors for the donut chart
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
-export const AnalyticsOverview = ({ expenses, categories, totalReceitas, totalDespesas }: Props) => {
+export const AnalyticsOverview = ({
+  expenses, categories, totalReceitas, totalDespesas }: Props) => {
+  const { t } = useTranslation();
   const expenseData = useMemo(() => {
     // Filter only expenses (not income)
     const onlyExpenses = expenses.filter(e => e.type !== 'income');
@@ -54,20 +58,20 @@ export const AnalyticsOverview = ({ expenses, categories, totalReceitas, totalDe
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mt-6">
       <div className="flex items-center gap-2 mb-6">
         <PieChartIcon className="w-5 h-5 text-gray-500" />
-        <h2 className="text-lg font-semibold text-gray-800">Insights do Mês</h2>
+        <h2 className="text-lg font-semibold text-gray-800">{t('analytics.insights_month')}</h2>
       </div>
 
       <div className="flex flex-col gap-8">
         
         {/* Income vs Expense Progress */}
         <div className="flex flex-col justify-center">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Comprometimento de Receita</h3>
+          <h3 className="text-sm font-medium text-gray-500 mb-2">{t('analytics.income_commitment')}</h3>
           <div className="flex justify-between items-end mb-2">
             <div>
               <p className="text-2xl font-bold text-gray-800">
                 {progressPercent.toFixed(1)}%
               </p>
-              <p className="text-xs text-gray-400">da receita já gasta</p>
+              <p className="text-xs text-gray-400">{t('analytics.of_income_spent')}</p>
             </div>
           </div>
           
@@ -113,7 +117,7 @@ export const AnalyticsOverview = ({ expenses, categories, totalReceitas, totalDe
             </ResponsiveContainer>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-gray-400">
-              <p className="text-sm">Nenhuma despesa registrada.</p>
+              <p className="text-sm">{t('analytics.no_expenses_recorded')}</p>
             </div>
           )}
         </div>
