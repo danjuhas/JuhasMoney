@@ -48,7 +48,7 @@ export default function Dashboard() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'pending'>('all');
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<{ id: string, deleteAll: boolean } | null>(null);
   
   const isFilterActive = filterType !== 'all' || filterStatus !== 'all';
 
@@ -229,8 +229,8 @@ export default function Dashboard() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteExpense = (id: string) => {
-    deleteExpense(id, selectedMonth);
+  const handleDeleteExpense = (id: string, deleteAll: boolean = false) => {
+    deleteExpense(id, selectedMonth, deleteAll);
   };
 
   const handleTogglePaid = (expense: Expense) => {
@@ -384,7 +384,77 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-24 sm:py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-24 sm:py-8">
+        
+        {/* Global Controls (Month & Filters) */}
+        {(activeTab === 'home' || activeTab === 'insights') && (
+          <div className="flex justify-between items-center mb-6 bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100">
+            {/* Left side: Month Nav + Desktop Current Month Button */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 sm:flex-none">
+              
+              <div className="flex items-center gap-1 sm:gap-2 bg-gray-50 p-1.5 rounded-lg border border-gray-200 shadow-sm flex-1 sm:flex-none justify-between sm:justify-start">
+                <button
+                  onClick={handlePreviousMonth}
+                  className="p-1.5 hover:bg-white rounded-md text-gray-600 transition-colors shadow-sm"
+                  title="Mês anterior"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <span className="w-28 sm:w-36 text-center font-bold text-gray-800 text-sm sm:text-base whitespace-nowrap">
+                  {formatMonthYear(selectedMonth)}
+                </span>
+                <button
+                  onClick={handleNextMonth}
+                  className="p-1.5 hover:bg-white rounded-md text-gray-600 transition-colors shadow-sm"
+                  title="Próximo mês"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </div>
+
+              <button
+                onClick={handleCurrentMonth}
+                disabled={isCurrentMonth}
+                className={`hidden sm:flex p-2 rounded-lg transition-colors ${
+                  isCurrentMonth
+                    ? 'text-gray-400 cursor-not-allowed'
+                    : 'text-blue-600 hover:bg-blue-50'
+                }`}
+                title="Voltar para mês atual"
+              >
+                <Calendar className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Right side: Mobile Current Month Button + Filter */}
+            <div className="flex items-center gap-2 ml-3 sm:ml-4">
+              <button
+                onClick={handleCurrentMonth}
+                disabled={isCurrentMonth}
+                className={`sm:hidden flex p-2 rounded-lg transition-colors ${
+                  isCurrentMonth
+                    ? 'text-gray-400 cursor-not-allowed'
+                    : 'text-blue-600 hover:bg-blue-50'
+                }`}
+                title="Voltar para mês atual"
+              >
+                <Calendar className="h-5 w-5" />
+              </button>
+              
+              <button 
+                onClick={() => setIsFilterModalOpen(true)} 
+                className="relative p-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors shadow-sm"
+                title="Filtros"
+              >
+                <Filter className="h-5 w-5" />
+                {isFilterActive && (
+                  <span className="absolute -top-1 -right-1 h-3.5 w-3.5 bg-blue-500 rounded-full ring-2 ring-white"></span>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-3 sm:gap-6 md:grid-cols-3">
           {/* Adicionar Gasto Form */}
           <div className={`md:col-span-1 ${activeTab !== 'home' ? 'hidden' : ''}`}>
@@ -409,7 +479,7 @@ export default function Dashboard() {
               fixedExpenses={expenses.filter(e => e.is_fixed)}
               openFixedModal={() => openModal('expense', 'fixed')}
               handleEditFixedExpense={handleEditExpense}
-              handleDeleteFixedExpense={(id) => setDeleteConfirmId(id)}
+              handleDeleteFixedExpense={(id) => setDeleteConfirmId({ id, deleteAll: true })}
               newCategoryName={newCategoryName}
               setNewCategoryName={setNewCategoryName}
               newCategoryType={newCategoryType}
@@ -422,74 +492,17 @@ export default function Dashboard() {
 
           {/* Lista de Gastos */}
           <div className={`md:col-span-2 ${activeTab !== 'home' ? 'hidden' : ''}`}>
-            <div className="bg-white shadow rounded-lg p-4 sm:p-6 h-full">
-              <div className="flex justify-between items-center mb-4 sm:mb-6">
-                
-                {/* Left side: Month Nav + Desktop Current Month Button */}
-                <div className="flex items-center gap-2 sm:gap-3 flex-1 sm:flex-none">
-                  
-                  <div className="flex items-center gap-1 sm:gap-2 bg-gray-50 p-1.5 rounded-lg border border-gray-200 shadow-sm flex-1 sm:flex-none justify-between sm:justify-start">
-                    <button
-                      onClick={handlePreviousMonth}
-                      className="p-1.5 hover:bg-white rounded-md text-gray-600 transition-colors shadow-sm"
-                      title="Mês anterior"
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-                    <span className="w-28 sm:w-36 text-center font-bold text-gray-800 text-sm sm:text-base whitespace-nowrap">
-                      {formatMonthYear(selectedMonth)}
-                    </span>
-                    <button
-                      onClick={handleNextMonth}
-                      className="p-1.5 hover:bg-white rounded-md text-gray-600 transition-colors shadow-sm"
-                      title="Próximo mês"
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={handleCurrentMonth}
-                    disabled={isCurrentMonth}
-                    className={`hidden sm:flex p-2 rounded-lg transition-colors ${
-                      isCurrentMonth
-                        ? 'text-gray-400 cursor-not-allowed'
-                        : 'text-blue-600 hover:bg-blue-50'
-                    }`}
-                    title="Voltar para mês atual"
-                  >
-                    <Calendar className="h-5 w-5" />
-                  </button>
-                </div>
-
-                {/* Right side: Mobile Current Month Button + Filter */}
-                <div className="flex items-center gap-2 ml-3 sm:ml-4">
-                  <button
-                    onClick={handleCurrentMonth}
-                    disabled={isCurrentMonth}
-                    className={`sm:hidden flex p-2 rounded-lg transition-colors ${
-                      isCurrentMonth
-                        ? 'text-gray-400 cursor-not-allowed'
-                        : 'text-blue-600 hover:bg-blue-50'
-                    }`}
-                    title="Voltar para mês atual"
-                  >
-                    <Calendar className="h-5 w-5" />
-                  </button>
-                  
-                  <button 
-                    onClick={() => setIsFilterModalOpen(true)} 
-                    className="relative p-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors shadow-sm"
-                    title="Filtros"
-                  >
-                    <Filter className="h-5 w-5" />
-                    {isFilterActive && (
-                      <span className="absolute -top-1 -right-1 h-3.5 w-3.5 bg-blue-500 rounded-full ring-2 ring-white"></span>
-                    )}
-                  </button>
-                </div>
+            <div className="bg-white shadow rounded-lg p-4 sm:p-6 h-full flex flex-col">
+              
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-800">Transações do Mês</h3>
+                {isFilterActive && (
+                  <span className="text-xs font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                    Filtrado
+                  </span>
+                )}
               </div>
-
+              
               
               {loading ? (
                 <div className="text-center py-10 text-gray-500">Carregando...</div>
@@ -513,7 +526,7 @@ export default function Dashboard() {
                         category={categories.find(c => c.id === expense.category_id)}
                         onTogglePaid={handleTogglePaid}
                         onEdit={handleEditExpense}
-                        onDelete={(id) => setDeleteConfirmId(id)}
+                        onDelete={(id) => setDeleteConfirmId({ id, deleteAll: false })}
                       />
                     ))}
                   </ul>
@@ -702,7 +715,7 @@ export default function Dashboard() {
         onClose={() => setDeleteConfirmId(null)}
         onConfirm={() => {
           if (deleteConfirmId) {
-            handleDeleteExpense(deleteConfirmId);
+            handleDeleteExpense(deleteConfirmId.id, deleteConfirmId.deleteAll);
             setDeleteConfirmId(null);
           }
         }}

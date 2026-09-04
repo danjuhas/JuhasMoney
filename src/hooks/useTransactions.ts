@@ -51,14 +51,14 @@ export function useTransactions(userId: string | null) {
     saveCategories(newCategories);
   }, [categories, saveCategories]);
 
-  const deleteExpense = useCallback((id: string, selectedMonth: string) => {
+  const deleteExpense = useCallback((id: string, selectedMonth: string, deleteAll: boolean = false) => {
     const expenseToDelete = expenses.find(e => e.id === id);
     if (!expenseToDelete) return;
 
     const isDifferentMonth = !expenseToDelete.created_at.startsWith(selectedMonth);
     let newExpenses;
 
-    if (expenseToDelete.is_fixed && isDifferentMonth) {
+    if (expenseToDelete.is_fixed && isDifferentMonth && !deleteAll) {
       const updated = {
         ...expenseToDelete,
         excluded_months: [...(expenseToDelete.excluded_months || []), selectedMonth]
