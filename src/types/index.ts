@@ -4,5 +4,20 @@ export type Expense = {
   description: string;
   amount: number;
   created_at: string;
+  is_fixed?: boolean;
+  excluded_months?: string[];
+  due_day?: number;
+  end_month?: string;
+  is_paid?: boolean;
+  paid_months?: string[];
+  type?: 'income' | 'expense';
+  category_id?: string;
+};
+
+export type Category = {
+  id: string;
+  user_id: string;
+  name: string;
+  type: 'income' | 'expense';
 };
 
