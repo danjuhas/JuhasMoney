@@ -126,6 +126,9 @@
     "expenses_by_category": "Despesas por Categoria",
     "insights_month": "Insights do Mês",
     "income_commitment": "Comprometimento de Receita",
+    "no_income": "Sem Receita",
+    "top_expenses": "Top 3 Maiores Despesas",
+    "historical": "Evolução (6 Meses)",
     "no_expenses_recorded": "Nenhuma despesa registrada.",
     "of_income_spent": "da receita já gasta"
   },

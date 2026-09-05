@@ -14,6 +14,7 @@ import { DeleteConfirmModal } from '../components/DeleteConfirmModal';
 import { MobileNav } from '../components/MobileNav';
 import { useTransactions } from '../hooks/useTransactions';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { isActiveInMonth, isExpensePaid } from '../utils/transactions';
 import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
@@ -287,24 +288,9 @@ export default function Dashboard() {
     setAmount(digits);
   };
 
-  const filteredExpenses = expenses.filter(exp => {
-    const expDate = new Date(exp.created_at);
-    const expMonth = `${expDate.getFullYear()}-${String(expDate.getMonth() + 1).padStart(2, '0')}`;
-    
-    if (exp.is_fixed) {
-      if (exp.excluded_months?.includes(selectedMonth)) return false;
-      if (exp.end_month && selectedMonth > exp.end_month) return false;
-      return expMonth <= selectedMonth;
-    }
-    return expMonth === selectedMonth;
-  });
-
-  const isExpensePaid = (exp: Expense, monthStr: string) => {
-    if (exp.is_fixed) {
-      return exp.paid_months?.includes(monthStr) || false;
-    }
-    return exp.is_paid || false;
-  };
+  const filteredExpenses = React.useMemo(() => {
+    return expenses.filter(exp => isActiveInMonth(exp, selectedMonth));
+  }, [expenses, selectedMonth]);
 
   const { totalReceitas, totalDespesas, saldo, totalPendente } = React.useMemo(() => {
     const totalReceitas = filteredExpenses.reduce((acc, curr) => curr.type === 'income' ? acc + curr.amount : acc, 0);
@@ -478,7 +464,7 @@ export default function Dashboard() {
           {/* Analytics (Insights Tab) */}
           <div className={`md:col-span-3 ${activeTab !== 'insights' ? 'hidden' : ''}`}>
             <AnalyticsOverview 
-              expenses={filteredExpenses} 
+              expenses={filteredExpenses} allExpenses={expenses} selectedMonth={selectedMonth} 
               categories={categories} 
               totalReceitas={totalReceitas} 
               totalDespesas={totalDespesas} 

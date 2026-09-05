@@ -126,6 +126,9 @@
     "expenses_by_category": "Gastos por Categoría",
     "insights_month": "Insights del Mes",
     "income_commitment": "Compromiso de Ingresos",
+    "no_income": "Sin Ingresos",
+    "top_expenses": "Top 3 Mayores Gastos",
+    "historical": "Evolución (6 Meses)",
     "no_expenses_recorded": "Ningún gasto registrado.",
     "of_income_spent": "de los ingresos ya gastados"
   },

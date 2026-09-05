@@ -126,6 +126,9 @@
     "expenses_by_category": "Expenses by Category",
     "insights_month": "Month's Insights",
     "income_commitment": "Income Commitment",
+    "no_income": "No Income",
+    "top_expenses": "Top 3 Highest Expenses",
+    "historical": "6-Month Trend",
     "no_expenses_recorded": "No expenses recorded.",
     "of_income_spent": "of income already spent"
   },
