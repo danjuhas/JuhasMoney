@@ -12,9 +12,11 @@ import { FilterModal } from '../components/FilterModal';
 import { TransactionItem } from '../components/TransactionItem';
 import { DeleteConfirmModal } from '../components/DeleteConfirmModal';
 import { MobileNav } from '../components/MobileNav';
+import { NotificationBell } from '../components/NotificationBell';
 import { useTransactions } from '../hooks/useTransactions';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { isActiveInMonth, isExpensePaid } from '../utils/transactions';
+import { NotificationService } from '../utils/NotificationService';
 import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
@@ -55,6 +57,7 @@ export default function Dashboard() {
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<{ id: string, deleteAll: boolean } | null>(null);
+  const [highlightedIds, setHighlightedIds] = useState<string[]>([]);
   
   const isFilterActive = filterType !== 'all' || filterStatus !== 'all';
 
@@ -71,6 +74,14 @@ export default function Dashboard() {
       navigate('/onboarding');
     }
   }, [prefsLoading, preferences.onboarding_completed, userId, navigate]);
+
+  useEffect(() => {
+    if (userId && expenses.length > 0 && !loading) {
+      NotificationService.syncUpcomingExpenses(userId, expenses);
+      // Dispatch a custom event so the hook can reload if it's already mounted
+      window.dispatchEvent(new Event('storage'));
+    }
+  }, [userId, expenses, loading]);
 
 
   const checkUser = async () => {
@@ -377,7 +388,14 @@ export default function Dashboard() {
             </div>
             {/* The right action buttons were removed as they are now in the Settings view */}
             <div className="flex items-center gap-4">
-              
+              <NotificationBell 
+                userId={userId} 
+                onNotificationClick={(ids) => {
+                  setHighlightedIds(ids);
+                  // Remove highlight after 3 seconds
+                  setTimeout(() => setHighlightedIds([]), 3000);
+                }}
+              />
             </div>
           </div>
         </div>
@@ -526,6 +544,7 @@ export default function Dashboard() {
                         onTogglePaid={handleTogglePaid}
                         onEdit={handleEditExpense}
                         onDelete={(id) => setDeleteConfirmId({ id, deleteAll: false })}
+                        isHighlighted={highlightedIds.includes(expense.id)}
                       />
                     ))}
                   </ul>
