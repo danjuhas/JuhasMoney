@@ -24,16 +24,19 @@ export default function Dashboard() {
   const [userId, setUserId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'home' | 'insights' | 'settings'>('home');
   
+  const [toastMessage, setToastMessage] = useState('');
+
   const { 
     expenses, 
     categories, 
     loading, 
     upsertExpenses, 
-    addCategory, 
+    addCategory,
+    updateCategory,
     deleteCategory, 
     deleteExpense, 
     togglePaid 
-  } = useTransactions(userId);
+  } = useTransactions(userId, setToastMessage);
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense');
@@ -41,8 +44,7 @@ export default function Dashboard() {
   const [isFixed, setIsFixed] = useState(false);
   const [dueDay, setDueDay] = useState('');
   const [transactionDate, setTransactionDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [toastMessage, setToastMessage] = useState('');
-  
+
   const [isInstallment, setIsInstallment] = useState(false);
   const [installmentsCount, setInstallmentsCount] = useState('');
   const [applyToFuture, setApplyToFuture] = useState(false);
@@ -54,8 +56,7 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [transactionMode, setTransactionMode] = useState<'quick' | 'fixed'>('quick');
 
-  const [newCategoryName, setNewCategoryName] = useState('');
-  const [newCategoryType, setNewCategoryType] = useState<'income' | 'expense'>('expense');
+
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'pending'>('all');
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
@@ -86,19 +87,6 @@ export default function Dashboard() {
     } else {
       setUserId(session.user.id);
     }
-  };
-
-  const handleAddCategory = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!userId || !newCategoryName.trim()) return;
-
-    addCategory({
-      id: generateUUID(),
-      user_id: userId,
-      name: newCategoryName.trim(),
-      type: newCategoryType,
-    });
-    setNewCategoryName('');
   };
 
   const handleDeleteCategory = (id: string) => {
@@ -374,14 +362,14 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-900">
       <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Infinity className="w-8 h-8 text-emerald-500" />
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">{t('dashboard.app_name')}</h1>
+        <div className="flex justify-center sm:justify-between items-center">
+          <div className="flex items-center gap-2.5 sm:gap-2">
+            <Infinity className="w-10 h-10 sm:w-8 sm:h-8 text-emerald-500" />
+            <h1 className="text-2xl sm:text-2xl font-bold tracking-tight text-white">{t('dashboard.app_name')}</h1>
           </div>
           {/* Top right actions */}
-          <div className="flex items-center gap-3">
-             <div className="hidden sm:flex bg-slate-800 p-1 rounded-full border border-slate-700/60">
+          <div className="hidden sm:flex items-center gap-3">
+             <div className="bg-slate-800 p-1 rounded-full border border-slate-700/60 flex">
                 <button
                   onClick={() => setActiveTab('home')}
                   className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === 'home' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-slate-300'}`}
@@ -501,13 +489,11 @@ export default function Dashboard() {
               openFixedModal={() => openModal('expense', 'fixed')}
               handleEditFixedExpense={handleEditExpense}
               handleDeleteFixedExpense={(id) => setDeleteConfirmId({ id, deleteAll: true })}
-              newCategoryName={newCategoryName}
-              setNewCategoryName={setNewCategoryName}
-              newCategoryType={newCategoryType}
-              setNewCategoryType={setNewCategoryType}
-              handleAddCategory={handleAddCategory}
-              handleDeleteCategory={handleDeleteCategory}
+              addCategory={addCategory}
+              updateCategory={updateCategory}
+              deleteCategory={handleDeleteCategory}
               handleSignOut={handleSignOut}
+              userId={userId || ''}
             />
           </div>
 

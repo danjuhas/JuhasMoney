@@ -1,6 +1,7 @@
 import { formatCurrency } from '../utils/format';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { useTranslation } from 'react-i18next';
+import { getCategoryStyle } from '../constants/categories';
 
 import { Pencil, Trash2, CheckCircle, Circle, MoreVertical } from 'lucide-react';
 import { useState } from 'react';
@@ -55,12 +56,17 @@ export function TransactionItem({
         {/* Bottom Line: Badges and Actions */}
         <div className="flex justify-between items-center gap-2">
           <div className="flex flex-wrap items-center gap-1.5 min-w-0">
-            {category && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">
-                {category.name}
-              </span>
-            )}
-            {expense.is_fixed && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">{t('item.fixed')}</span>}
+            {category && (() => {
+              const { Icon: IconComponent, bgColor, textColor } = getCategoryStyle(category);
+              
+              return (
+                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-normal ${bgColor} ${textColor}`}>
+                  {IconComponent && <IconComponent className="w-3 h-3" />}
+                  {category.name}
+                </span>
+              );
+            })()}
+
             {expense.due_day && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">{t('item.day')} {expense.due_day}</span>}
             <span className="text-xs text-slate-500 hidden sm:inline-block ml-1">
               {new Date(expense.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
