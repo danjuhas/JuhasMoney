@@ -1,10 +1,11 @@
 import { generateUUID } from '../utils/uuid';
+import { getCurrencySymbol } from '../utils/format';
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Expense } from '../types';
-import { Plus, ChevronLeft, ChevronRight, Calendar, Filter } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Calendar, Filter, Infinity } from 'lucide-react';
 import { SummaryCards } from '../components/SummaryCards';
 import { AnalyticsOverview } from '../components/AnalyticsOverview';
 import { SettingsOverview } from '../components/SettingsOverview';
@@ -23,16 +24,19 @@ export default function Dashboard() {
   const [userId, setUserId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'home' | 'insights' | 'settings'>('home');
   
+  const [toastMessage, setToastMessage] = useState('');
+
   const { 
     expenses, 
     categories, 
     loading, 
     upsertExpenses, 
-    addCategory, 
+    addCategory,
+    updateCategory,
     deleteCategory, 
     deleteExpense, 
     togglePaid 
-  } = useTransactions(userId);
+  } = useTransactions(userId, setToastMessage);
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense');
@@ -40,8 +44,7 @@ export default function Dashboard() {
   const [isFixed, setIsFixed] = useState(false);
   const [dueDay, setDueDay] = useState('');
   const [transactionDate, setTransactionDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [toastMessage, setToastMessage] = useState('');
-  
+
   const [isInstallment, setIsInstallment] = useState(false);
   const [installmentsCount, setInstallmentsCount] = useState('');
   const [applyToFuture, setApplyToFuture] = useState(false);
@@ -53,8 +56,7 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [transactionMode, setTransactionMode] = useState<'quick' | 'fixed'>('quick');
 
-  const [newCategoryName, setNewCategoryName] = useState('');
-  const [newCategoryType, setNewCategoryType] = useState<'income' | 'expense'>('expense');
+
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'pending'>('all');
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
@@ -85,19 +87,6 @@ export default function Dashboard() {
     } else {
       setUserId(session.user.id);
     }
-  };
-
-  const handleAddCategory = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!userId || !newCategoryName.trim()) return;
-
-    addCategory({
-      id: generateUUID(),
-      user_id: userId,
-      name: newCategoryName.trim(),
-      type: newCategoryType,
-    });
-    setNewCategoryName('');
   };
 
   const handleDeleteCategory = (id: string) => {
@@ -367,67 +356,65 @@ export default function Dashboard() {
   const isCurrentMonth = selectedMonth === currentMonthStr;
 
   if (prefsLoading) {
-    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">{t('dashboard.loading')}</div>;
+    return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-400">{t('dashboard.loading')}</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-14 sm:h-16 items-center">
-            <div className="flex items-center gap-8">
-              <h1 className="text-xl font-bold text-gray-900">{t('dashboard.app_name')}</h1>
-              <div className="hidden sm:flex items-center gap-4">
+    <div className="min-h-screen bg-slate-900">
+      <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+        <div className="flex justify-center sm:justify-between items-center">
+          <div className="flex items-center gap-2.5 sm:gap-2">
+            <Infinity className="w-10 h-10 sm:w-8 sm:h-8 text-emerald-500" />
+            <h1 className="text-2xl sm:text-2xl font-bold tracking-tight text-white">{t('dashboard.app_name')}</h1>
+          </div>
+          {/* Top right actions */}
+          <div className="hidden sm:flex items-center gap-3">
+             <div className="bg-slate-800 p-1 rounded-full border border-slate-700/60 flex">
                 <button
                   onClick={() => setActiveTab('home')}
-                  className={`text-sm font-medium transition-colors ${activeTab === 'home' ? 'text-emerald-600' : 'text-gray-500 hover:text-gray-900'}`}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === 'home' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-slate-300'}`}
                 >
                   {t('nav.home')}
                 </button>
                 <button
                   onClick={() => setActiveTab('insights')}
-                  className={`text-sm font-medium transition-colors ${activeTab === 'insights' ? 'text-emerald-600' : 'text-gray-500 hover:text-gray-900'}`}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === 'insights' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-slate-300'}`}
                 >
                   {t('nav.insights')}
                 </button>
                 <button
                   onClick={() => setActiveTab('settings')}
-                  className={`text-sm font-medium transition-colors ${activeTab === 'settings' ? 'text-emerald-600' : 'text-gray-500 hover:text-gray-900'}`}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === 'settings' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-slate-300'}`}
                 >
                   {t('nav.settings')}
                 </button>
-              </div>
-            </div>
-            {/* The right action buttons were removed as they are now in the Settings view */}
-            <div className="flex items-center gap-4">
-              
-            </div>
+             </div>
           </div>
         </div>
-      </nav>
+      </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-24 sm:py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-40 sm:pb-24 pt-2">
         
         {/* Global Controls (Month & Filters) */}
         {(activeTab === 'home' || activeTab === 'insights') && (
-          <div className="flex justify-between items-center mb-6 bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100">
+          <div className="flex justify-between items-center mb-6 pt-2">
             {/* Left side: Month Nav + Desktop Current Month Button */}
             <div className="flex items-center gap-2 sm:gap-3 flex-1 sm:flex-none">
               
-              <div className="flex items-center gap-1 sm:gap-2 bg-gray-50 p-1.5 rounded-lg border border-gray-200 shadow-sm flex-1 sm:flex-none justify-between sm:justify-start">
+              <div className="flex items-center gap-2 flex-1 sm:flex-none justify-between sm:justify-start">
                 <button
                   onClick={handlePreviousMonth}
-                  className="p-1.5 hover:bg-white rounded-md text-gray-600 transition-colors shadow-sm"
+                  className="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700/60 rounded-full text-slate-300 transition-colors shrink-0"
                   title={t('dashboard.prev_month')}
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-                <span className="w-28 sm:w-36 text-center font-bold text-gray-800 text-sm sm:text-base whitespace-nowrap">
+                <span className="w-auto min-w-[130px] sm:min-w-[150px] text-center font-bold text-white text-lg sm:text-xl whitespace-nowrap tracking-tight capitalize">
                   {formatMonthYear(selectedMonth)}
                 </span>
                 <button
                   onClick={handleNextMonth}
-                  className="p-1.5 hover:bg-white rounded-md text-gray-600 transition-colors shadow-sm"
+                  className="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700/60 rounded-full text-slate-300 transition-colors shrink-0"
                   title={t('dashboard.next_month')}
                 >
                   <ChevronRight className="h-5 w-5" />
@@ -439,8 +426,8 @@ export default function Dashboard() {
                 disabled={isCurrentMonth}
                 className={`hidden sm:flex p-2 rounded-lg transition-colors ${
                   isCurrentMonth
-                    ? 'text-gray-400 cursor-not-allowed'
-                    : 'text-blue-600 hover:bg-blue-50'
+                    ? 'text-slate-600 cursor-not-allowed'
+                    : 'text-emerald-500 hover:bg-slate-800'
                 }`}
                 title={t('dashboard.back_to_current')}
               >
@@ -455,8 +442,8 @@ export default function Dashboard() {
                 disabled={isCurrentMonth}
                 className={`sm:hidden flex p-2 rounded-lg transition-colors ${
                   isCurrentMonth
-                    ? 'text-gray-400 cursor-not-allowed'
-                    : 'text-blue-600 hover:bg-blue-50'
+                    ? 'text-slate-600 cursor-not-allowed'
+                    : 'text-emerald-500 hover:bg-slate-800'
                 }`}
                 title={t('dashboard.back_to_current')}
               >
@@ -465,12 +452,12 @@ export default function Dashboard() {
               
               <button 
                 onClick={() => setIsFilterModalOpen(true)} 
-                className="relative p-2.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors shadow-sm"
+                className="relative p-2.5 rounded-lg bg-slate-800 border border-slate-700/60 text-slate-300 hover:bg-slate-700 transition-colors shadow-sm"
                 title="Filtros"
               >
                 <Filter className="h-5 w-5" />
                 {isFilterActive && (
-                  <span className="absolute -top-1 -right-1 h-3.5 w-3.5 bg-blue-500 rounded-full ring-2 ring-white"></span>
+                  <span className="absolute -top-1 -right-1 h-3.5 w-3.5 bg-emerald-500 rounded-full ring-2 ring-slate-900"></span>
                 )}
               </button>
             </div>
@@ -502,24 +489,22 @@ export default function Dashboard() {
               openFixedModal={() => openModal('expense', 'fixed')}
               handleEditFixedExpense={handleEditExpense}
               handleDeleteFixedExpense={(id) => setDeleteConfirmId({ id, deleteAll: true })}
-              newCategoryName={newCategoryName}
-              setNewCategoryName={setNewCategoryName}
-              newCategoryType={newCategoryType}
-              setNewCategoryType={setNewCategoryType}
-              handleAddCategory={handleAddCategory}
-              handleDeleteCategory={handleDeleteCategory}
+              addCategory={addCategory}
+              updateCategory={updateCategory}
+              deleteCategory={handleDeleteCategory}
               handleSignOut={handleSignOut}
+              userId={userId || ''}
             />
           </div>
 
           {/* Lista de Gastos */}
           <div className={`md:col-span-2 ${activeTab !== 'home' ? 'hidden' : ''}`}>
-            <div className="bg-white shadow rounded-lg p-4 sm:p-6 h-full flex flex-col">
+            <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-4 h-full flex flex-col">
               
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-800">{t('dashboard.month_transactions')}</h3>
+                <h3 className="font-semibold text-slate-100">{t('dashboard.month_transactions')}</h3>
                 {isFilterActive && (
-                  <span className="text-xs font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                  <span className="text-xs font-medium bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full">
                     Filtrado
                   </span>
                 )}
@@ -527,19 +512,19 @@ export default function Dashboard() {
               
               
               {loading ? (
-                <div className="text-center py-10 text-gray-500">{t('dashboard.loading')}</div>
+                <div className="text-center py-10 text-slate-400">{t('dashboard.loading')}</div>
               ) : filteredExpenses.length === 0 ? (
-                <div className="text-center py-10 text-gray-500">
+                <div className="text-center py-10 text-slate-400">
                   Nenhum lançamento registrado ainda neste mês.
                 </div>
               ) : finalExpenses.length === 0 ? (
-                <div className="text-center py-10 text-gray-500">
+                <div className="text-center py-10 text-slate-500">
                   <p>{t('dashboard.no_filter_results')}</p>
-                  <button onClick={() => { setFilterType('all'); setFilterStatus('all'); }} className="mt-4 text-blue-600 hover:text-blue-800 font-medium">{t('dashboard.clear_filters')}</button>
+                  <button onClick={() => { setFilterType('all'); setFilterStatus('all'); }} className="mt-4 text-emerald-500 hover:text-emerald-400 font-medium">{t('dashboard.clear_filters')}</button>
                 </div>
               ) : (
                 <div className="flow-root">
-                  <ul className="-my-5 divide-y divide-gray-200">
+                  <ul className="-my-5 divide-y divide-slate-700/40">
                     {finalExpenses.map((expense) => (
                       <TransactionItem
                         key={expense.id}
@@ -559,33 +544,33 @@ export default function Dashboard() {
         </div>
       
       {isModalOpen && (
-        <div className="fixed inset-0 bg-transparent flex items-center justify-center z-[60] p-4 backdrop-blur-sm" onClick={handleCancelEdit}>
+        <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center z-[60] p-4 backdrop-blur-sm" onClick={handleCancelEdit}>
           <div 
-            className="bg-white rounded-xl shadow-[0_20px_50px_rgba(8,_112,_184,_0.07)] ring-1 ring-gray-900/5 w-full max-w-md max-h-[90vh] overflow-y-auto transform transition-all"
+            className="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto transform transition-all"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-white">
                   {editingId
                     ? (transactionType === 'income' ? t('dashboard.edit_income') : t('dashboard.edit_expense'))
                     : (transactionType === 'income' ? t('dashboard.new_income') : t('dashboard.new_expense'))}
                 </h2>
-                <button onClick={handleCancelEdit} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+                <button onClick={handleCancelEdit} className="text-slate-400 hover:text-slate-300 text-2xl leading-none">&times;</button>
               </div>
 
-              <form onSubmit={handleAddExpense} className="space-y-4">
+              <form onSubmit={handleAddExpense} className="space-y-5">
                 
                 {!editingId && transactionMode === 'fixed' && (
-                  <div className="flex bg-gray-100 p-1 rounded-lg">
+                  <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700/60">
                     <button
                       type="button"
                       onClick={() => {
                         setTransactionType('expense');
                         setCategoryId('');
                       }}
-                      className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                        transactionType === 'expense' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                      className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                        transactionType === 'expense' ? 'bg-slate-700 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-300'
                       }`}
                     >
                       {t('dashboard.expenses')}
@@ -596,17 +581,50 @@ export default function Dashboard() {
                         setTransactionType('income');
                         setCategoryId('');
                       }}
-                      className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                        transactionType === 'income' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                      className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                        transactionType === 'income' ? 'bg-slate-700 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-300'
                       }`}
                     >
                       {t('dashboard.incomes')}
                     </button>
                   </div>
                 )}
+                
+                {/* Valor em Destaque */}
+                <div className="flex flex-col items-center justify-center py-4 bg-slate-800/30 rounded-2xl border border-slate-700/50 overflow-hidden px-4">
+                  <div className="flex items-center gap-2 max-w-full">
+                    {getCurrencySymbol(preferences.currency || 'BRL').position === 'left' && (
+                      <span className="text-slate-400 text-3xl font-medium shrink-0">
+                        {getCurrencySymbol(preferences.currency || 'BRL').symbol}
+                      </span>
+                    )}
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={amount ? (parseInt(amount, 10) / 100).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''}
+                      onChange={handleAmountChange}
+                      className={`bg-transparent border-none text-4xl font-bold text-white focus:ring-0 outline-none p-0 placeholder-slate-600 min-w-0 ${
+                        getCurrencySymbol(preferences.currency || 'BRL').position === 'left' ? 'text-left' : 'text-right'
+                      }`}
+                      style={{
+                        width: amount
+                          ? `${(parseInt(amount, 10) / 100).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).length}ch`
+                          : '4ch'
+                      }}
+                      required
+                      placeholder="0,00"
+                    />
+                    {getCurrencySymbol(preferences.currency || 'BRL').position === 'right' && (
+                      <span className="text-slate-400 text-3xl font-medium shrink-0">
+                        {getCurrencySymbol(preferences.currency || 'BRL').symbol}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Data da Transação</label>
-                  <div className="mt-1 flex items-center gap-2">
+                  <label className="block text-sm font-medium text-slate-400 mb-1.5">Data da Transação</label>
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => {
@@ -614,7 +632,7 @@ export default function Dashboard() {
                         d.setDate(d.getDate() - 1);
                         setTransactionDate(d.toISOString().split('T')[0]);
                       }}
-                      className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
+                      className="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-xl hover:bg-slate-700 transition-colors"
                     >
                       Ontem
                     </button>
@@ -624,7 +642,7 @@ export default function Dashboard() {
                         const d = new Date();
                         setTransactionDate(d.toISOString().split('T')[0]);
                       }}
-                      className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
+                      className="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-xl hover:bg-slate-700 transition-colors"
                     >
                       Hoje
                     </button>
@@ -632,49 +650,36 @@ export default function Dashboard() {
                       type="date"
                       value={transactionDate}
                       onChange={(e) => setTransactionDate(e.target.value)}
-                      className="flex-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm p-1.5 border"
+                      className="flex-1 block w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">{t('dashboard.description')}</label>
+                  <label className="block text-sm font-medium text-slate-400 mb-1.5">{t('dashboard.description')}</label>
                   <input
                     type="text"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2 border"
+                    className="block w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
                     required
                     placeholder={transactionType === 'income' ? 'Ex: Ordenado' : 'Ex: Almoço'}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">{t('dashboard.category_optional')}</label>
+                  <label className="block text-sm font-medium text-slate-400 mb-1.5">{t('dashboard.category_optional')}</label>
                   <select
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2 border bg-white"
+                    className="block w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none appearance-none"
                   >
                     <option value="">{t('dashboard.no_category')}</option>
                     {categories.filter(cat => cat.type === transactionType).map(cat => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
                   </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">{t('dashboard.value')}</label>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={amount ? (parseInt(amount, 10) / 100).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''}
-                    onChange={handleAmountChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2 border"
-                    required
-                    placeholder="0,00"
-                  />
                 </div>
                 <div className="flex flex-col gap-3">
                   {/* In quick mode, we only optionally show installment for expenses */}
@@ -687,9 +692,9 @@ export default function Dashboard() {
                         onChange={(e) => {
                           setIsInstallment(e.target.checked);
                         }}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-emerald-500 focus:ring-emerald-500 bg-slate-800 border-slate-700 rounded"
                       />
-                      <label htmlFor="isInstallment" className="ml-2 block text-sm text-gray-500 hover:text-gray-900 cursor-pointer transition-colors">
+                      <label htmlFor="isInstallment" className="ml-2 block text-sm text-slate-400 hover:text-slate-300 cursor-pointer transition-colors">
                         {t('dashboard.repeat_purchase')}
                       </label>
                     </div>
@@ -698,14 +703,14 @@ export default function Dashboard() {
 
                 {(isFixed || isInstallment) && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">{t('dashboard.due_day')}</label>
+                    <label className="block text-sm font-medium text-slate-400 mb-1.5">{t('dashboard.due_day')}</label>
                     <input
                       type="number"
                       min="1"
                       max="31"
                       value={dueDay}
                       onChange={(e) => setDueDay(e.target.value)}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2 border"
+                      className="block w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
                       required={isFixed || isInstallment}
                       placeholder="Ex: 5"
                     />
@@ -714,14 +719,14 @@ export default function Dashboard() {
                 
                 {isInstallment && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">{t('dashboard.months_quantity')}</label>
+                    <label className="block text-sm font-medium text-slate-400 mb-1.5">{t('dashboard.months_quantity')}</label>
                     <input
                       type="number"
                       min="2"
                       max="120"
                       value={installmentsCount}
                       onChange={(e) => setInstallmentsCount(e.target.value)}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2 border"
+                      className="block w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
                       required={isInstallment}
                       placeholder="Ex: 3"
                     />
@@ -734,30 +739,27 @@ export default function Dashboard() {
                       type="checkbox"
                       checked={applyToFuture}
                       onChange={(e) => setApplyToFuture(e.target.checked)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-emerald-500 focus:ring-emerald-500 bg-slate-800 border-slate-700 rounded"
                     />
-                    <label htmlFor="applyToFuture" className="ml-2 block text-sm text-gray-900">
+                    <label htmlFor="applyToFuture" className="ml-2 block text-sm text-slate-400">
                       {t('dashboard.apply_future')}
                     </label>
                   </div>
                 )}
-                <div className="flex gap-2">
+                <div className="flex gap-3 pt-2">
                   <button
                     type="submit"
-                    className="flex-1 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                    className="flex-1 flex justify-center items-center py-2.5 px-4 border border-transparent rounded-xl shadow-lg shadow-emerald-500/25 text-sm font-semibold text-white bg-emerald-500 hover:bg-emerald-600 transition-colors"
                   >
-                    <Plus className="h-4 w-4 mr-1" />
                     {editingId ? t('dashboard.save') : t('dashboard.add')}
                   </button>
-                  {editingId && (
-                    <button
-                      type="button"
-                      onClick={handleCancelEdit}
-                      className="flex-1 flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                    >
-                      {t('dashboard.cancel')}
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="flex-1 flex justify-center items-center py-2.5 px-4 border border-slate-700 rounded-xl text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors"
+                  >
+                    {t('dashboard.cancel')}
+                  </button>
                 </div>
               </form>
             </div>
@@ -790,26 +792,26 @@ export default function Dashboard() {
         <>
           <div className="fixed bottom-24 sm:bottom-6 right-6 flex flex-col items-end gap-3 z-40">
             {isFabMenuOpen && (
-              <div className="flex flex-col gap-3 mb-2">
+              <div className="flex flex-col gap-3 mb-2 w-full">
                 <button 
                   onClick={() => { setIsFabMenuOpen(false); openModal('income'); }} 
-                  className="flex items-center gap-3 bg-white shadow-lg pl-4 pr-2 py-2 rounded-full text-green-600 hover:bg-green-50 font-medium transition-colors"
+                  className="flex items-center justify-between gap-4 w-full bg-slate-800 border border-slate-700 shadow-md pl-4 pr-1.5 py-1.5 rounded-full text-slate-100 hover:bg-slate-700 transition-colors"
                 >
-                   <span>{t('dashboard.new_income')}</span>
-                   <div className="bg-green-100 p-2 rounded-full"><Plus className="h-5 w-5" /></div>
+                   <span className="font-medium">{t('dashboard.new_income')}</span>
+                   <div className="bg-emerald-500/20 text-emerald-400 p-1.5 rounded-full shrink-0"><Plus className="h-5 w-5" /></div>
                 </button>
                 <button 
                   onClick={() => { setIsFabMenuOpen(false); openModal('expense'); }} 
-                  className="flex items-center gap-3 bg-white shadow-lg pl-4 pr-2 py-2 rounded-full text-red-600 hover:bg-red-50 font-medium transition-colors"
+                  className="flex items-center justify-between gap-4 w-full bg-slate-800 border border-slate-700 shadow-md pl-4 pr-1.5 py-1.5 rounded-full text-slate-100 hover:bg-slate-700 transition-colors"
                 >
-                   <span>{t('dashboard.new_expense')}</span>
-                   <div className="bg-red-100 p-2 rounded-full"><Plus className="h-5 w-5" /></div>
+                   <span className="font-medium">{t('dashboard.new_expense')}</span>
+                   <div className="bg-rose-500/20 text-rose-400 p-1.5 rounded-full shrink-0"><Plus className="h-5 w-5" /></div>
                 </button>
               </div>
             )}
             <button 
               onClick={() => setIsFabMenuOpen(!isFabMenuOpen)}
-              className={`bg-blue-600 text-white p-4 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-blue-700 hover:shadow-xl transition-all active:scale-95 flex items-center justify-center ${isFabMenuOpen ? 'rotate-45 bg-gray-800 hover:bg-gray-900' : ''}`}
+              className={`bg-emerald-500 text-white p-4 rounded-full shadow-lg shadow-emerald-500/25 hover:bg-emerald-600 active:scale-95 transition-all flex items-center justify-center ${isFabMenuOpen ? 'rotate-45 bg-slate-800 hover:bg-slate-700 shadow-none' : ''}`}
             >
               <Plus className="h-6 w-6 transition-transform" />
             </button>
