@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Wallet } from 'lucide-react';
+import { Infinity } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function Login() {
@@ -78,7 +78,6 @@ export default function Login() {
       });
       if (error) throw error;
       
-      // Some Supabase configurations require email confirmation.
       if (data.session === null) {
         setError('Cadastro realizado! Verifique sua caixa de e-mail para confirmar a conta.');
       }
@@ -90,25 +89,25 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-4">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <Wallet className="h-12 w-12 text-blue-600" />
+        <div className="flex justify-center items-center gap-2">
+          <Infinity className="h-12 w-12 text-emerald-500" />
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-white tracking-tight">
           JuhasMoney
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p className="mt-2 text-center text-sm text-slate-400">
           O seu controle financeiro simples e direto.
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-slate-900 py-8 px-4 shadow-xl border border-slate-800 sm:rounded-2xl sm:px-10">
           <form className="space-y-6" onSubmit={handleLogin}>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-slate-300">
                 E-mail
               </label>
               <div className="mt-1">
@@ -116,7 +115,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition-colors"
                   required
                 />
               </div>
@@ -124,13 +123,13 @@ export default function Login() {
 
             <div>
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-slate-300">
                   Senha
                 </label>
                 <button 
                   type="button" 
                   onClick={handleResetPassword}
-                  className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                  className="text-sm font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
                 >
                   Esqueceu a senha?
                 </button>
@@ -140,7 +139,7 @@ export default function Login() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition-colors"
                   required
                   minLength={6}
                 />
@@ -148,16 +147,16 @@ export default function Login() {
             </div>
 
             {error && (
-              <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md border border-red-200">
+              <div className="text-sm text-rose-400 bg-rose-500/10 p-4 rounded-xl border border-rose-500/20">
                 {error}
               </div>
             )}
 
-            <div className="flex flex-col gap-3 mt-4">
+            <div className="flex flex-col gap-3 mt-4 pt-2">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-emerald-500/25 text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-slate-900 disabled:opacity-50 transition-all"
               >
                 {loading ? 'Carregando...' : 'Entrar'}
               </button>
@@ -166,7 +165,7 @@ export default function Login() {
                 type="button"
                 onClick={handleSignUp}
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-blue-600 rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+                className="w-full flex justify-center py-3 px-4 border border-slate-700 rounded-xl shadow-sm text-sm font-medium text-emerald-400 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-slate-900 disabled:opacity-50 transition-all"
               >
                 Cadastrar-se
               </button>

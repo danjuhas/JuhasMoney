@@ -55,9 +55,9 @@ export function CategoryModal({ isOpen, onClose, onSave, editingCategory, userId
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] flex justify-center items-end sm:items-center p-4">
+    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] flex justify-center items-center p-4">
       <div 
-        className="bg-slate-900 border border-slate-700/50 w-full max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:fade-in duration-300 max-h-[90vh] overflow-y-auto"
+        className="bg-slate-900 border border-slate-700/50 w-full max-w-md rounded-2xl shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">

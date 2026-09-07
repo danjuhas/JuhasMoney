@@ -111,6 +111,7 @@ export const SettingsOverview = ({
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">{t('settings.add')}</span>
+              <span className="sm:hidden">{t('settings.new_short')}</span>
             </button>
           </div>
           
@@ -266,7 +267,7 @@ export const SettingsOverview = ({
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-400/10 rounded-lg transition-colors"
               >
                 <LogOut className="w-4 h-4" />
-                {t('settings.logout')}
+                {t('settings.sign_out')}
               </button>
             </div>
           </div>
