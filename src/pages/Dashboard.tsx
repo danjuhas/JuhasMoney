@@ -17,6 +17,8 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { isActiveInMonth, isExpensePaid } from '../utils/transactions';
 import { useTranslation } from 'react-i18next';
 
+import { Toast } from '../components/Toast';
+
 export default function Dashboard() {
   const [userId, setUserId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'home' | 'insights' | 'settings'>('home');
@@ -37,6 +39,9 @@ export default function Dashboard() {
   const [categoryId, setCategoryId] = useState('');
   const [isFixed, setIsFixed] = useState(false);
   const [dueDay, setDueDay] = useState('');
+  const [transactionDate, setTransactionDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [toastMessage, setToastMessage] = useState('');
+  
   const [isInstallment, setIsInstallment] = useState(false);
   const [installmentsCount, setInstallmentsCount] = useState('');
   const [applyToFuture, setApplyToFuture] = useState(false);
@@ -164,11 +169,13 @@ export default function Dashboard() {
         }
       }
     } else {
+      const [tYear, tMonth, tDay] = transactionDate.split('-');
+      const targetMonthStr = `${tYear}-${tMonth}`;
+      
       if (isInstallment) {
         const count = parseInt(installmentsCount, 10) || 1;
         for (let i = 0; i < count; i++) {
-          const [yearStr, monthStr] = selectedMonth.split('-');
-          const date = new Date(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1 + i, 1);
+          const date = new Date(parseInt(tYear, 10), parseInt(tMonth, 10) - 1 + i, 1);
           const targetMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
           
           expensesToUpsert.push({
@@ -178,13 +185,16 @@ export default function Dashboard() {
             amount: numericAmount,
             type: transactionType,
             category_id: categoryId || undefined,
-            created_at: `${targetMonth}-01T12:00:00.000Z`,
+            created_at: `${targetMonth}-${tDay}T12:00:00.000Z`,
             is_fixed: false,
             due_day: parsedDueDay,
             is_paid: false,
           });
         }
       } else {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const isFuture = transactionDate > todayStr;
+        
         expensesToUpsert.push({
           id: generateUUID(),
           user_id: userId,
@@ -192,12 +202,16 @@ export default function Dashboard() {
           amount: numericAmount,
           type: transactionType,
           category_id: categoryId || undefined,
-          created_at: `${selectedMonth}-01T12:00:00.000Z`,
+          created_at: `${transactionDate}T12:00:00.000Z`,
           is_fixed: isFixed,
-          due_day: isFixed ? parsedDueDay : undefined,
-          is_paid: !isFixed,
+          due_day: isFixed ? parsedDueDay : parseInt(tDay, 10),
+          is_paid: !isFixed && !isFuture,
         });
       }
+      
+      // Update the dashboard to show the month of the newly added expense
+      setSelectedMonth(targetMonthStr);
+      setToastMessage('Salvo com sucesso!');
     }
     
     upsertExpenses(expensesToUpsert);
@@ -582,6 +596,40 @@ export default function Dashboard() {
                   </div>
                 )}
                 <div>
+                  <label className="block text-sm font-medium text-gray-700">Data da Transação</label>
+                  <div className="mt-1 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const d = new Date();
+                        d.setDate(d.getDate() - 1);
+                        setTransactionDate(d.toISOString().split('T')[0]);
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
+                    >
+                      Ontem
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const d = new Date();
+                        setTransactionDate(d.toISOString().split('T')[0]);
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
+                    >
+                      Hoje
+                    </button>
+                    <input
+                      type="date"
+                      value={transactionDate}
+                      onChange={(e) => setTransactionDate(e.target.value)}
+                      className="flex-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm p-1.5 border"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-gray-700">{t('dashboard.description')}</label>
                   <input
                     type="text"
@@ -767,6 +815,7 @@ export default function Dashboard() {
         </>
       )}
 </main>
+      <Toast message={toastMessage} onClose={() => setToastMessage('')} />
       <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
