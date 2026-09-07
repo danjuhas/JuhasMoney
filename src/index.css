@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@layer base {
+  body {
+    @apply bg-slate-900 text-slate-100;
+  }
+}
+
 @layer utilities {
   .hide-scrollbar {
     -ms-overflow-style: none;  /* IE and Edge */

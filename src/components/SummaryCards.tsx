@@ -17,28 +17,28 @@ export function SummaryCards({ totalReceitas, totalDespesas, saldo, totalPendent
   const { t } = useTranslation();
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4">
-      <div className="bg-white shadow rounded-xl p-4 flex flex-col justify-center border border-gray-50 hover:shadow-md transition-shadow">
-         <h2 className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">{t('summary.incomes')}</h2>
-         <p className="text-lg sm:text-xl font-bold text-green-600 truncate" title={totalReceitas.toString()}>
-            {formatCurrency(totalReceitas, preferences.currency)}
+      <div className="bg-slate-800 border border-slate-700/60 shadow-lg shadow-black/20 rounded-2xl p-4 flex flex-col justify-center">
+         <h2 className="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">{t('summary.incomes')}</h2>
+         <p className="text-2xl sm:text-2xl font-bold text-emerald-400 truncate" title={totalReceitas.toString()}>
+            + {formatCurrency(totalReceitas, preferences.currency)}
          </p>
       </div>
-      <div className="bg-white shadow rounded-xl p-4 flex flex-col justify-center border border-gray-50 hover:shadow-md transition-shadow">
-         <h2 className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">{t('summary.expenses')}</h2>
-         <p className="text-lg sm:text-xl font-bold text-red-600 truncate" title={totalDespesas.toString()}>
-            {formatCurrency(totalDespesas, preferences.currency)}
+      <div className="bg-slate-800 border border-slate-700/60 shadow-lg shadow-black/20 rounded-2xl p-4 flex flex-col justify-center">
+         <h2 className="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">{t('summary.expenses')}</h2>
+         <p className="text-2xl sm:text-2xl font-bold text-rose-400 truncate" title={totalDespesas.toString()}>
+            - {formatCurrency(totalDespesas, preferences.currency)}
          </p>
       </div>
-      <div className="bg-white shadow rounded-xl p-4 flex flex-col justify-center border border-gray-50 hover:shadow-md transition-shadow">
-         <h2 className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">{t('summary.balance')}</h2>
-         <p className={`text-lg sm:text-xl font-bold truncate ${saldo >= 0 ? 'text-blue-600' : 'text-red-600'}`} title={saldo.toString()}>
-            {formatCurrency(saldo, preferences.currency)}
+      <div className="bg-slate-800 border border-slate-700/60 shadow-lg shadow-black/20 rounded-2xl p-4 flex flex-col justify-center">
+         <h2 className="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">{t('summary.balance')}</h2>
+         <p className={`text-2xl sm:text-2xl font-bold truncate ${saldo >= 0 ? 'text-emerald-400' : 'text-rose-400'}`} title={saldo.toString()}>
+            {saldo >= 0 ? '+ ' : ''}{formatCurrency(saldo, preferences.currency)}
          </p>
       </div>
-      <div className="bg-white shadow rounded-xl p-4 flex flex-col justify-center border border-gray-50 hover:shadow-md transition-shadow">
-         <h2 className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wider">{t('summary.pending')}</h2>
-         <p className="text-lg sm:text-xl font-bold text-orange-600 truncate" title={totalPendente.toString()}>
-            {formatCurrency(totalPendente, preferences.currency)}
+      <div className="bg-slate-800 border border-slate-700/60 shadow-lg shadow-black/20 rounded-2xl p-4 flex flex-col justify-center">
+         <h2 className="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">{t('summary.pending')}</h2>
+         <p className="text-2xl sm:text-2xl font-bold text-rose-400 truncate" title={totalPendente.toString()}>
+            - {formatCurrency(totalPendente, preferences.currency)}
          </p>
       </div>
     </div>
