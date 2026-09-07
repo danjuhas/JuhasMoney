@@ -162,9 +162,16 @@ export default function Dashboard() {
       } else {
         // Normal edit of the base expense
         if (originalExpense) {
+          const [, , tDay] = transactionDate.split('-');
           expensesToUpsert.push({
-            ...originalExpense, description, amount: numericAmount, type: transactionType,
-            category_id: categoryId || undefined, is_fixed: isFixed, due_day: isFixed ? parsedDueDay : undefined
+            ...originalExpense, 
+            description, 
+            amount: numericAmount, 
+            type: transactionType,
+            category_id: categoryId || undefined, 
+            is_fixed: isFixed, 
+            due_day: isFixed ? parsedDueDay : parseInt(tDay, 10),
+            created_at: `${transactionDate}T${originalExpense.created_at.split('T')[1] || '12:00:00.000Z'}`
           });
         }
       }
@@ -227,6 +234,7 @@ export default function Dashboard() {
     setCategoryId(expense.category_id || '');
     setIsFixed(expense.is_fixed || false);
     setDueDay(expense.due_day ? expense.due_day.toString() : '');
+    setTransactionDate(expense.created_at.split('T')[0]);
     setTransactionMode(expense.is_fixed ? 'fixed' : 'quick');
     setIsModalOpen(true);
   };
@@ -236,6 +244,7 @@ export default function Dashboard() {
     setDescription('');
     setAmount('');
     setTransactionType('expense');
+    setTransactionDate(new Date().toISOString().split('T')[0]);
     setCategoryId('');
     setIsFixed(false);
     setIsInstallment(false);
