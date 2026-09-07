@@ -1,4 +1,5 @@
 import { generateUUID } from '../utils/uuid';
+import { getCurrencySymbol } from '../utils/format';
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -604,18 +605,34 @@ export default function Dashboard() {
                 )}
                 
                 {/* Valor em Destaque */}
-                <div className="flex flex-col items-center justify-center py-4 bg-slate-800/30 rounded-2xl border border-slate-700/50">
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400 text-2xl font-medium">{preferences.currency}</span>
+                <div className="flex flex-col items-center justify-center py-4 bg-slate-800/30 rounded-2xl border border-slate-700/50 overflow-hidden px-4">
+                  <div className="flex items-center gap-2 max-w-full">
+                    {getCurrencySymbol(preferences.currency || 'BRL').position === 'left' && (
+                      <span className="text-slate-400 text-3xl font-medium shrink-0">
+                        {getCurrencySymbol(preferences.currency || 'BRL').symbol}
+                      </span>
+                    )}
                     <input
                       type="text"
                       inputMode="numeric"
                       value={amount ? (parseInt(amount, 10) / 100).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''}
                       onChange={handleAmountChange}
-                      className="bg-transparent border-none text-4xl font-bold text-white text-center w-36 focus:ring-0 outline-none p-0 placeholder-slate-600"
+                      className={`bg-transparent border-none text-4xl font-bold text-white focus:ring-0 outline-none p-0 placeholder-slate-600 min-w-0 ${
+                        getCurrencySymbol(preferences.currency || 'BRL').position === 'left' ? 'text-left' : 'text-right'
+                      }`}
+                      style={{
+                        width: amount
+                          ? `${(parseInt(amount, 10) / 100).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).length}ch`
+                          : '4ch'
+                      }}
                       required
                       placeholder="0,00"
                     />
+                    {getCurrencySymbol(preferences.currency || 'BRL').position === 'right' && (
+                      <span className="text-slate-400 text-3xl font-medium shrink-0">
+                        {getCurrencySymbol(preferences.currency || 'BRL').symbol}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -748,7 +765,7 @@ export default function Dashboard() {
                     type="submit"
                     className="flex-1 flex justify-center items-center py-2.5 px-4 border border-transparent rounded-xl shadow-lg shadow-emerald-500/25 text-sm font-semibold text-white bg-emerald-500 hover:bg-emerald-600 transition-colors"
                   >
-                    {editingId ? t('dashboard.save_changes') : t('dashboard.add')}
+                    {editingId ? t('dashboard.save') : t('dashboard.add')}
                   </button>
                   <button
                     type="button"
@@ -789,20 +806,20 @@ export default function Dashboard() {
         <>
           <div className="fixed bottom-24 sm:bottom-6 right-6 flex flex-col items-end gap-3 z-40">
             {isFabMenuOpen && (
-              <div className="flex flex-col gap-3 mb-2">
+              <div className="flex flex-col gap-3 mb-2 w-full">
                 <button 
                   onClick={() => { setIsFabMenuOpen(false); openModal('income'); }} 
-                  className="flex items-center gap-2 bg-slate-800 border border-slate-700 shadow-md pl-4 pr-1.5 py-1.5 rounded-full text-slate-100 hover:bg-slate-700 transition-colors"
+                  className="flex items-center justify-between gap-4 w-full bg-slate-800 border border-slate-700 shadow-md pl-4 pr-1.5 py-1.5 rounded-full text-slate-100 hover:bg-slate-700 transition-colors"
                 >
                    <span className="font-medium">{t('dashboard.new_income')}</span>
-                   <div className="bg-emerald-500/20 text-emerald-400 p-1.5 rounded-full"><Plus className="h-5 w-5" /></div>
+                   <div className="bg-emerald-500/20 text-emerald-400 p-1.5 rounded-full shrink-0"><Plus className="h-5 w-5" /></div>
                 </button>
                 <button 
                   onClick={() => { setIsFabMenuOpen(false); openModal('expense'); }} 
-                  className="flex items-center gap-2 bg-slate-800 border border-slate-700 shadow-md pl-4 pr-1.5 py-1.5 rounded-full text-slate-100 hover:bg-slate-700 transition-colors"
+                  className="flex items-center justify-between gap-4 w-full bg-slate-800 border border-slate-700 shadow-md pl-4 pr-1.5 py-1.5 rounded-full text-slate-100 hover:bg-slate-700 transition-colors"
                 >
                    <span className="font-medium">{t('dashboard.new_expense')}</span>
-                   <div className="bg-rose-500/20 text-rose-400 p-1.5 rounded-full"><Plus className="h-5 w-5" /></div>
+                   <div className="bg-rose-500/20 text-rose-400 p-1.5 rounded-full shrink-0"><Plus className="h-5 w-5" /></div>
                 </button>
               </div>
             )}
