@@ -82,7 +82,14 @@
     "locale": "en-US",
     "loading": "Loading...",
     "quick_add": "Quick",
-    "fixed_add": "Monthly Fixed"
+    "fixed_add": "Monthly Fixed",
+    "description_placeholder": "Ex: Groceries, Rent...",
+    "date": "Date",
+    "installments": "Installments?",
+    "yes": "Yes",
+    "no": "No",
+    "fixed_expense_help": "This transaction will be recreated on this day every month.",
+    "fixed_edit_warning": "You are editing a fixed transaction from a different month."
   },
   "filter": {
     "filters": "Filters",

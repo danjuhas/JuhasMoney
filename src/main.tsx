@@ -6,6 +6,7 @@ import App from './App';
 import './index.css';
 import './lib/i18n';
 import { PreferencesProvider } from './contexts/PreferencesContext';
+import { ToastProvider } from './contexts/ToastContext';
 
 Sentry.init({
   dsn: "https://78cf9f3a75814948559f6ff7cb4dfd85@o4512052444790784.ingest.de.sentry.io/4512052478476368",
@@ -21,7 +22,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
       <PreferencesProvider>
-        <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </PreferencesProvider>
     </BrowserRouter>
   </React.StrictMode>

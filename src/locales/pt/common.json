@@ -82,7 +82,14 @@
     "locale": "pt-BR",
     "loading": "Carregando...",
     "quick_add": "Rápido",
-    "fixed_add": "Mensal Fixo"
+    "fixed_add": "Mensal Fixo",
+    "description_placeholder": "Ex: Mercado, Aluguel...",
+    "date": "Data",
+    "installments": "Parcelar?",
+    "yes": "Sim",
+    "no": "Não",
+    "fixed_expense_help": "O lançamento será recriado neste dia todos os meses.",
+    "fixed_edit_warning": "Você está editando uma despesa de um mês diferente do atual."
   },
   "filter": {
     "filters": "Filtros",

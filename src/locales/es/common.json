@@ -82,7 +82,14 @@
     "locale": "es-ES",
     "loading": "Cargando...",
     "quick_add": "Rápido",
-    "fixed_add": "Fijo Mensual"
+    "fixed_add": "Fijo Mensual",
+    "description_placeholder": "Ej: Supermercado, Alquiler...",
+    "date": "Fecha",
+    "installments": "¿Cuotas?",
+    "yes": "Sí",
+    "no": "No",
+    "fixed_expense_help": "Esta transacción se recreará este día todos los meses.",
+    "fixed_edit_warning": "Estás editando una transacción fija de otro mes."
   },
   "filter": {
     "filters": "Filtros",
