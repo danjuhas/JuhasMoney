@@ -152,6 +152,9 @@ export default function Dashboard() {
         // Normal edit of the base expense
         if (originalExpense) {
           const [, , tDay] = transactionDate.split('-');
+          const todayStr = new Date().toISOString().split('T')[0];
+          const isFuture = transactionDate > todayStr;
+          
           expensesToUpsert.push({
             ...originalExpense, 
             description, 
@@ -160,7 +163,8 @@ export default function Dashboard() {
             category_id: categoryId || undefined, 
             is_fixed: isFixed, 
             due_day: isFixed ? parsedDueDay : parseInt(tDay, 10),
-            created_at: `${transactionDate}T${originalExpense.created_at.split('T')[1] || '12:00:00.000Z'}`
+            created_at: `${transactionDate}T${originalExpense.created_at.split('T')[1] || '12:00:00.000Z'}`,
+            is_paid: isFuture ? false : originalExpense.is_paid
           });
         }
       }

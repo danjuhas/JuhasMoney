@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { generateUUID } from '../utils/uuid';
 import type { Category } from '../types';
-import { AVAILABLE_ICONS, AVAILABLE_COLORS } from '../constants/categories';
+import { EXPENSE_ICONS, INCOME_ICONS, AVAILABLE_COLORS } from '../constants/categories';
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -73,7 +73,10 @@ export function CategoryModal({ isOpen, onClose, onSave, editingCategory, userId
           <div className="flex bg-slate-800 p-1 rounded-xl">
             <button
               type="button"
-              onClick={() => setType('expense')}
+              onClick={() => {
+                setType('expense');
+                if (!(icon in EXPENSE_ICONS)) setIcon('Tag');
+              }}
               className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
                 type === 'expense' ? 'bg-slate-700 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-300'
               }`}
@@ -82,7 +85,10 @@ export function CategoryModal({ isOpen, onClose, onSave, editingCategory, userId
             </button>
             <button
               type="button"
-              onClick={() => setType('income')}
+              onClick={() => {
+                setType('income');
+                if (!(icon in INCOME_ICONS)) setIcon('DollarSign');
+              }}
               className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
                 type === 'income' ? 'bg-slate-700 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-300'
               }`}
@@ -106,7 +112,7 @@ export function CategoryModal({ isOpen, onClose, onSave, editingCategory, userId
           <div>
             <label className="block text-sm font-medium text-slate-400 mb-2">Ícone</label>
             <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
-              {Object.entries(AVAILABLE_ICONS).map(([key, Icon]) => (
+              {Object.entries(type === 'income' ? INCOME_ICONS : EXPENSE_ICONS).map(([key, Icon]) => (
                 <button
                   key={key}
                   type="button"

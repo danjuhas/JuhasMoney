@@ -11,7 +11,7 @@ import { CategoryModal } from '../components/CategoryModal';
 import { getCategoryStyle } from '../constants/categories';
 
 export default function Onboarding() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { preferences, updatePreferences } = usePreferences();
   
@@ -19,18 +19,31 @@ export default function Onboarding() {
   const { categories, addCategory, deleteCategory, upsertExpenses } = useTransactions(userId);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
+  const [name, setName] = useState(preferences.name || '');
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) navigate('/login');
-      else setUserId(session.user.id);
+      if (!session) {
+        navigate('/login');
+      } else {
+        setUserId(session.user.id);
+        if (!preferences.name && session.user.user_metadata?.name) {
+          setName(session.user.user_metadata.name);
+        }
+      }
     });
-  }, [navigate]);
+  }, [navigate, preferences.name]);
 
   const [step, setStep] = useState(1);
-  const [name, setName] = useState(preferences.name || '');
   const [language, setLanguage] = useState(preferences.language || 'pt');
   const [currency, setCurrency] = useState(preferences.currency || 'BRL');
   
+  useEffect(() => {
+    if (i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
+  }, [language, i18n]);
+
   const [incomeAmount, setIncomeAmount] = useState('');
   
   const handleNext = async () => {
@@ -41,10 +54,10 @@ export default function Onboarding() {
         
         // Default categories
         if (userId && categories.length === 0) {
-          addCategory({ id: generateUUID(), user_id: userId, name: t('onboarding.cat_housing'), type: 'expense', icon: 'Home', color: 'bg-indigo-500' });
-          addCategory({ id: generateUUID(), user_id: userId, name: t('onboarding.cat_food'), type: 'expense', icon: 'ShoppingCart', color: 'bg-orange-500' });
-          addCategory({ id: generateUUID(), user_id: userId, name: t('onboarding.cat_transport'), type: 'expense', icon: 'Car', color: 'bg-sky-500' });
-          addCategory({ id: generateUUID(), user_id: userId, name: t('onboarding.cat_salary'), type: 'income', icon: 'Briefcase', color: 'bg-emerald-500' });
+          addCategory({ id: generateUUID(), user_id: userId, name: i18n.t('onboarding.cat_housing'), type: 'expense', icon: 'Home', color: 'bg-indigo-500' });
+          addCategory({ id: generateUUID(), user_id: userId, name: i18n.t('onboarding.cat_food'), type: 'expense', icon: 'ShoppingCart', color: 'bg-orange-500' });
+          addCategory({ id: generateUUID(), user_id: userId, name: i18n.t('onboarding.cat_transport'), type: 'expense', icon: 'Car', color: 'bg-sky-500' });
+          addCategory({ id: generateUUID(), user_id: userId, name: i18n.t('onboarding.cat_salary'), type: 'income', icon: 'Briefcase', color: 'bg-emerald-500' });
         }
         setStep(2);
       } else if (step === 2) {
@@ -55,7 +68,7 @@ export default function Onboarding() {
           upsertExpenses([{
             id: generateUUID(),
             user_id: userId,
-            description: t('onboarding.salary_desc'),
+            description: i18n.t('onboarding.salary_desc'),
             amount: amount,
             type: 'income',
             created_at: new Date().toISOString(),
@@ -77,6 +90,12 @@ export default function Onboarding() {
     navigate('/');
   };
 
+  const handleBack = () => {
+    if (step > 1) {
+      setStep(step - 1);
+    }
+  };
+
   const formatAmountInput = (val: string) => {
     const raw = val.replace(/\D/g, '');
     const num = parseInt(raw, 10) || 0;
@@ -92,24 +111,18 @@ export default function Onboarding() {
         
         {step === 1 && (
           <div className="space-y-6 animate-in fade-in zoom-in-95">
-            <h2 className="text-2xl font-bold text-white text-center">{t('onboarding.welcome')}</h2>
-            
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">{t('onboarding.name_placeholder')}</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 shadow-sm p-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-                placeholder="Seu nome"
-              />
-            </div>
+            <h2 className="text-2xl font-bold text-white text-center">
+              {name ? t('onboarding.welcome_name', { name }) : t('onboarding.welcome')}
+            </h2>
 
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">{t('onboarding.language')}</label>
               <select 
                 value={language} 
-                onChange={(e) => setLanguage(e.target.value)}
+                onChange={(e) => {
+                  setLanguage(e.target.value);
+                  i18n.changeLanguage(e.target.value);
+                }}
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl text-slate-100 shadow-sm p-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
               >
                 <option value="pt">Português (BR)</option>
@@ -166,9 +179,14 @@ export default function Onboarding() {
               Adicionar nova categoria
             </button>
 
-            <button onClick={handleNext} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-emerald-500/25 text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-slate-900 transition-all">
-              {t('onboarding.next')}
-            </button>
+            <div className="flex flex-col gap-3">
+              <button onClick={handleNext} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-emerald-500/25 text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-slate-900 transition-all">
+                {t('onboarding.next')}
+              </button>
+              <button onClick={handleBack} className="w-full flex justify-center py-3 px-4 border border-slate-700 rounded-xl text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 focus:ring-offset-slate-900 transition-all">
+                {i18n.language === 'en' ? 'Back' : i18n.language === 'es' ? 'Volver' : 'Voltar'}
+              </button>
+            </div>
           </div>
         )}
 
@@ -199,6 +217,9 @@ export default function Onboarding() {
               </button>
               <button onClick={finishOnboarding} className="w-full flex justify-center py-3 px-4 border border-slate-700 rounded-xl text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 focus:ring-offset-slate-900 transition-all">
                 {t('onboarding.skip')}
+              </button>
+              <button onClick={handleBack} className="w-full flex justify-center py-3 px-4 border border-slate-700 rounded-xl text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 focus:ring-offset-slate-900 transition-all">
+                {i18n.language === 'en' ? 'Back' : i18n.language === 'es' ? 'Volver' : 'Voltar'}
               </button>
             </div>
           </div>

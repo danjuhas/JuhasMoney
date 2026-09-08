@@ -1,9 +1,23 @@
-import { Home, Car, ShoppingCart, Coffee, HeartPulse, GraduationCap, Plane, Gamepad2, Gift, Wrench, Smartphone, Music, Shirt, Book, Tag, Briefcase } from 'lucide-react';
+import { 
+  Home, Car, ShoppingCart, Coffee, HeartPulse, GraduationCap, Plane, Gamepad2, Gift, Wrench, Smartphone, Music, Shirt, Book, Tag, Briefcase,
+  PawPrint, Ticket, Utensils, Flame, Zap, Bus, Scissors, Wine, Tv, Film, Dumbbell, Baby,
+  DollarSign, TrendingUp, Landmark, PiggyBank, HandCoins, Wallet, Handshake
+} from 'lucide-react';
 import type { Category } from '../types';
 
-export const AVAILABLE_ICONS = {
+export const EXPENSE_ICONS = {
   Home, Car, ShoppingCart, Coffee, HeartPulse, GraduationCap, Plane, 
-  Gamepad2, Gift, Wrench, Smartphone, Music, Shirt, Book, Tag, Briefcase
+  Gamepad2, Gift, Wrench, Smartphone, Music, Shirt, Book, Tag,
+  PawPrint, Ticket, Utensils, Flame, Zap, Bus, Scissors, Wine, Tv, Film, Dumbbell, Baby
+};
+
+export const INCOME_ICONS = {
+  DollarSign, TrendingUp, Landmark, PiggyBank, HandCoins, Wallet, Handshake, Briefcase
+};
+
+export const AVAILABLE_ICONS = {
+  ...EXPENSE_ICONS,
+  ...INCOME_ICONS
 };
 
 export const AVAILABLE_COLORS = [

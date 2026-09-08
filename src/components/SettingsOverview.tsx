@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Settings, LogOut, Tags, Trash2, Calendar, Edit2, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Settings, LogOut, Tags, Trash2, Calendar, Edit2, Plus, User } from 'lucide-react';
 import type { Category, Expense } from '../types';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { formatCurrency } from '../utils/format';
@@ -37,6 +37,18 @@ export const SettingsOverview = ({
   
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editNameValue, setEditNameValue] = useState(preferences.name || '');
+
+  useEffect(() => {
+    import('../lib/supabase').then(({ supabase }) => {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data?.user?.email) setUserEmail(data.user.email);
+      });
+    });
+  }, []);
 
   const handleOpenCategoryModal = (cat?: Category) => {
     setEditingCategory(cat || null);
@@ -60,6 +72,98 @@ export const SettingsOverview = ({
       </div>
 
       <div className="space-y-10">
+        
+        {/* Minha Conta Section */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <User className="w-5 h-5 text-emerald-400" />
+            <h3 className="font-medium text-slate-100">Minha Conta</h3>
+          </div>
+          
+          <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 flex flex-col gap-6">
+            <div className="flex items-center gap-4">
+              {/* Avatar */}
+              <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0">
+                <span className="text-xl font-bold text-emerald-400">
+                  {preferences.name ? preferences.name.substring(0, 2).toUpperCase() : userEmail ? userEmail.substring(0, 2).toUpperCase() : 'US'}
+                </span>
+              </div>
+              
+              {/* User Info */}
+              <div className="flex-1 overflow-hidden">
+                {isEditingName ? (
+                  <form className="flex gap-2" onSubmit={(e) => {
+                    e.preventDefault();
+                    updatePreferences({ name: editNameValue });
+                    setIsEditingName(false);
+                  }}>
+                    <input 
+                      type="text" 
+                      value={editNameValue} 
+                      onChange={(e) => setEditNameValue(e.target.value)} 
+                      className="bg-slate-900 border-slate-700 text-slate-100 rounded-lg px-3 py-1.5 text-sm border focus:ring-1 focus:ring-emerald-500 outline-none w-full max-w-[220px]"
+                      autoFocus
+                    />
+                    <button type="submit" className="text-xs bg-emerald-500 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-600 font-medium transition-colors">Salvar</button>
+                    <button type="button" onClick={() => setIsEditingName(false)} className="text-xs text-slate-400 hover:text-white px-2 transition-colors">Cancelar</button>
+                  </form>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-white truncate">{preferences.name || 'Usuário'}</h3>
+                    <button onClick={() => { setEditNameValue(preferences.name || ''); setIsEditingName(true); }} className="text-slate-500 hover:text-emerald-400 p-1 transition-colors" title="Editar nome">
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                <p className="text-sm text-slate-400 truncate mt-0.5">{userEmail}</p>
+              </div>
+            </div>
+
+            <hr className="border-slate-700/50" />
+
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const newPassword = (e.currentTarget.elements.namedItem('new_password') as HTMLInputElement).value;
+              if (newPassword.length < 6) {
+                alert('A senha deve ter pelo menos 6 caracteres.');
+                return;
+              }
+              const { supabase } = await import('../lib/supabase');
+              const { error } = await supabase.auth.updateUser({ password: newPassword });
+              if (error) {
+                alert('Erro ao alterar senha: ' + error.message);
+              } else {
+                alert('Senha alterada com sucesso!');
+                (e.target as HTMLFormElement).reset();
+              }
+            }} className="space-y-3">
+              <h4 className="text-sm font-medium text-slate-200">{t('settings.change_password')}</h4>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="password"
+                  name="new_password"
+                  placeholder={t('settings.new_password_placeholder')}
+                  className="flex-1 bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-500 rounded-lg shadow-sm focus:ring-1 focus:ring-emerald-500 sm:text-sm px-4 py-2.5 border outline-none transition-all"
+                  required
+                  minLength={6}
+                />
+                <button type="submit" className="bg-emerald-500 text-white px-5 py-2.5 rounded-lg hover:bg-emerald-600 shadow-lg shadow-emerald-500/25 text-sm font-medium transition-all">
+                  {t('settings.update')}
+                </button>
+              </div>
+            </form>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                {t('settings.sign_out')}
+              </button>
+            </div>
+          </div>
+        </section>
         
         {/* Preferências Section */}
         <section>
@@ -218,60 +322,7 @@ export const SettingsOverview = ({
           </div>
         </section>
 
-        <hr className="border-slate-700/50" />
 
-        {/* Conta Section */}
-        <section>
-          <div className="flex items-center gap-2 mb-4">
-            <LogOut className="w-5 h-5 text-slate-400" />
-            <h3 className="font-medium text-slate-100">{t('settings.account')}</h3>
-          </div>
-          
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-6">
-            
-            <form onSubmit={async (e) => {
-              e.preventDefault();
-              const newPassword = (e.currentTarget.elements.namedItem('new_password') as HTMLInputElement).value;
-              if (newPassword.length < 6) {
-                alert('A senha deve ter pelo menos 6 caracteres.');
-                return;
-              }
-              const { supabase } = await import('../lib/supabase');
-              const { error } = await supabase.auth.updateUser({ password: newPassword });
-              if (error) {
-                alert('Erro ao alterar senha: ' + error.message);
-              } else {
-                alert('Senha alterada com sucesso!');
-                (e.target as HTMLFormElement).reset();
-              }
-            }} className="space-y-4">
-              <h4 className="text-sm font-medium text-slate-200">{t('settings.change_password')}</h4>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="password"
-                  name="new_password"
-                  placeholder={t('settings.new_password_placeholder')}
-                  className="flex-1 bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-500 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm p-3 border outline-none"
-                  required
-                  minLength={6}
-                />
-                <button type="submit" className="bg-emerald-500 text-white px-5 py-2 rounded-lg hover:bg-emerald-600 shadow-lg shadow-emerald-500/25 text-sm font-medium transition-colors">
-                  {t('settings.update')}
-                </button>
-              </div>
-            </form>
-
-            <div className="mt-8 flex justify-end">
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-400/10 rounded-lg transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                {t('settings.sign_out')}
-              </button>
-            </div>
-          </div>
-        </section>
 
       </div>
     </div>

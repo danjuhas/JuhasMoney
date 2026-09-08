@@ -1,6 +1,7 @@
 {
   "onboarding": {
     "welcome": "¡Bienvenido a JuhasMoney!",
+    "welcome_name": "¡Bienvenido(a), {{name}}!",
     "name_placeholder": "¿Cómo te llamamos?",
     "language": "Idioma",
     "currency": "Moneda Principal",
