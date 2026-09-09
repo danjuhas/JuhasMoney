@@ -89,7 +89,9 @@
     "yes": "Sim",
     "no": "Não",
     "fixed_expense_help": "O lançamento será recriado neste dia todos os meses.",
-    "fixed_edit_warning": "Você está editando uma despesa de um mês diferente do atual."
+    "fixed_edit_warning": "Você está editando uma despesa de um mês diferente do atual.",
+    "yesterday": "Ontem",
+    "today": "Hoje"
   },
   "filter": {
     "filters": "Filtros",
