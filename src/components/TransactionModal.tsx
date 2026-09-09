@@ -272,7 +272,42 @@ export function TransactionModal({
               </div>
             </div>
 
-            <div className="space-y-4">
+                        <div className="space-y-4">
+              {transactionMode === 'quick' && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">{t('dashboard.date')}</label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const d = new Date();
+                        d.setDate(d.getDate() - 1);
+                        setTransactionDate(d.toISOString().split('T')[0]);
+                      }}
+                      className="px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors"
+                    >
+                      {t('dashboard.yesterday')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const d = new Date();
+                        setTransactionDate(d.toISOString().split('T')[0]);
+                      }}
+                      className="px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors"
+                    >
+                      {t('dashboard.today')}
+                    </button>
+                    <input
+                      type="date"
+                      value={transactionDate}
+                      onChange={(e) => setTransactionDate(e.target.value)}
+                      className="flex-1 w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2 sm:p-2.5 border outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.description')}</label>
                 <input
@@ -301,43 +336,30 @@ export function TransactionModal({
                 </select>
               </div>
 
-              {transactionMode === 'quick' && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.date')}</label>
-                    <input
-                      type="date"
-                      value={transactionDate}
-                      onChange={(e) => setTransactionDate(e.target.value)}
-                      className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
-                      required
-                    />
+
+              
+              
+              {transactionMode === 'quick' && !editingExpense && transactionType === 'expense' && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.installments')}</label>
+                  <div className="flex items-center gap-3 h-[42px]">
+                    <button
+                      type="button"
+                      onClick={() => setIsInstallment(!isInstallment)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
+                        isInstallment ? 'bg-emerald-500' : 'bg-slate-700'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          isInstallment ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                    <span className="text-sm text-slate-300">{isInstallment ? t('dashboard.yes') : t('dashboard.no')}</span>
                   </div>
-                  
-                  {!editingExpense && transactionType === 'expense' && (
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.installments')}</label>
-                      <div className="flex items-center gap-3 h-[42px]">
-                        <button
-                          type="button"
-                          onClick={() => setIsInstallment(!isInstallment)}
-                          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
-                            isInstallment ? 'bg-emerald-500' : 'bg-slate-700'
-                          }`}
-                        >
-                          <span
-                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                              isInstallment ? 'translate-x-5' : 'translate-x-0'
-                            }`}
-                          />
-                        </button>
-                        <span className="text-sm text-slate-300">{isInstallment ? t('dashboard.yes') : t('dashboard.no')}</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
-              
               {!editingExpense && transactionMode === 'quick' && isInstallment && transactionType === 'expense' && (
                 <div className="animate-in fade-in slide-in-from-top-2">
                   <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.months_quantity')}</label>

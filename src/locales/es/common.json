@@ -89,7 +89,9 @@
     "yes": "Sí",
     "no": "No",
     "fixed_expense_help": "Esta transacción se recreará este día todos los meses.",
-    "fixed_edit_warning": "Estás editando una transacción fija de otro mes."
+    "fixed_edit_warning": "Estás editando una transacción fija de otro mes.",
+    "yesterday": "Ayer",
+    "today": "Hoy"
   },
   "filter": {
     "filters": "Filtros",

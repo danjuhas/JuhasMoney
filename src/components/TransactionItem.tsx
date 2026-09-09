@@ -68,9 +68,7 @@ export function TransactionItem({
             })()}
 
             {expense.due_day && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">{t('item.day')} {expense.due_day}</span>}
-            <span className="text-xs text-slate-500 hidden sm:inline-block ml-1">
-              {new Date(expense.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-            </span>
+
           </div>
 
           <div className="flex items-center shrink-0 ml-2 relative">
