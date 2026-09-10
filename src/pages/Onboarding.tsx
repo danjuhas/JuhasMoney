@@ -265,7 +265,7 @@ export default function Onboarding() {
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Valor do Salário (Mensal)</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">{t('onboarding.salary_value')}</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <span className="text-slate-500">{currency === 'USD' ? '$' : currency === 'EUR' ? '€' : 'R$'}</span>
@@ -282,7 +282,7 @@ export default function Onboarding() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Dia do Pagamento</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">{t('onboarding.payment_day')}</label>
                 <input
                   type="number"
                   min="1"
@@ -309,8 +309,8 @@ export default function Onboarding() {
         {step === 4 && (
           <div className="space-y-6 animate-in fade-in zoom-in-95">
             <div className="text-center">
-              <h2 className="text-xl font-bold text-white">Despesas Fixas (Opcional)</h2>
-              <p className="text-slate-400 text-sm mt-1">Cadastre as contas que se repetem todo mês (Aluguel, Internet, etc).</p>
+              <h2 className="text-xl font-bold text-white">{t('onboarding.fixed_expenses_title')}</h2>
+              <p className="text-slate-400 text-sm mt-1">{t('onboarding.fixed_expenses_desc')}</p>
             </div>
             
             {/* List of added expenses */}
@@ -336,18 +336,18 @@ export default function Onboarding() {
             {/* Quick Form */}
             <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Nome da Despesa</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1">{t('onboarding.expense_name')}</label>
                 <input
                   type="text"
                   value={draftExpenseName}
                   onChange={(e) => setDraftExpenseName(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-900 border border-slate-700 text-slate-100 rounded-lg text-sm focus:outline-none focus:border-emerald-500"
-                  placeholder="Ex: Aluguel"
+                  placeholder={t("onboarding.expense_name_ph")}
                 />
               </div>
               <div className="flex gap-3">
                 <div className="flex-1">
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Valor</label>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">{t('onboarding.value')}</label>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -358,14 +358,14 @@ export default function Onboarding() {
                   />
                 </div>
                 <div className="w-24">
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Dia</label>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">{t('onboarding.day')}</label>
                   <input
                     type="number"
                     min="1" max="31"
                     value={draftExpenseDay}
                     onChange={(e) => setDraftExpenseDay(e.target.value)}
                     className="w-full px-3 py-2 bg-slate-900 border border-slate-700 text-slate-100 rounded-lg text-sm focus:outline-none focus:border-emerald-500"
-                    placeholder="Venc."
+                    placeholder={t("onboarding.due_ph")}
                   />
                 </div>
               </div>
@@ -374,13 +374,13 @@ export default function Onboarding() {
                 disabled={!draftExpenseName || !draftExpenseAmount || !draftExpenseDay}
                 className="w-full flex justify-center py-2 px-4 rounded-lg text-sm font-medium text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                + Adicionar à lista
+                {t('onboarding.add_to_list')}
               </button>
             </div>
 
             <div className="flex flex-col gap-3 pt-2">
               <button onClick={finishOnboarding} className="w-full flex justify-center py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/25 text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 transition-all">
-                {onboardingExpenses.length > 0 || draftExpenseName ? 'Finalizar e Salvar' : 'Pular e Finalizar'}
+                {onboardingExpenses.length > 0 || draftExpenseName ? t('onboarding.finish_save') : t('onboarding.skip_finish')}
               </button>
               <button onClick={handleBack} className="w-full flex justify-center py-3 px-4 rounded-xl text-sm font-medium text-slate-400 hover:text-white transition-colors">
                 {i18n.language === 'en' ? 'Back' : i18n.language === 'es' ? 'Volver' : 'Voltar'}

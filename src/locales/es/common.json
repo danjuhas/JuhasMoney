@@ -19,7 +19,19 @@
     "cat_food": "Comida",
     "cat_transport": "Transporte",
     "cat_salary": "Salario",
-    "salary_desc": "Salario / Ingreso Principal"
+    "salary_desc": "Salario / Ingreso Principal",
+    "salary_value": "Monto del Salario (Mensual)",
+    "payment_day": "Día de Pago",
+    "fixed_expenses_title": "Gastos Fijos (Opcional)",
+    "fixed_expenses_desc": "Registra las facturas que se repiten cada mes (Alquiler, Internet, etc).",
+    "expense_name": "Nombre del Gasto",
+    "expense_name_ph": "Ej: Alquiler",
+    "value": "Monto",
+    "day": "Día",
+    "due_ph": "Venc.",
+    "add_to_list": "+ Añadir a la lista",
+    "finish_save": "Finalizar y Guardar",
+    "skip_finish": "Omitir y Finalizar"
   },
   "settings": {
     "title": "Ajustes",

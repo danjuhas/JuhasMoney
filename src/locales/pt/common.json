@@ -19,7 +19,19 @@
     "cat_food": "Alimentação",
     "cat_transport": "Transporte",
     "cat_salary": "Salário",
-    "salary_desc": "Salário / Renda Principal"
+    "salary_desc": "Salário / Renda Principal",
+    "salary_value": "Valor do Salário (Mensal)",
+    "payment_day": "Dia do Pagamento",
+    "fixed_expenses_title": "Despesas Fixas (Opcional)",
+    "fixed_expenses_desc": "Cadastre as contas que se repetem todo mês (Aluguel, Internet, etc).",
+    "expense_name": "Nome da Despesa",
+    "expense_name_ph": "Ex: Aluguel",
+    "value": "Valor",
+    "day": "Dia",
+    "due_ph": "Venc.",
+    "add_to_list": "+ Adicionar à lista",
+    "finish_save": "Finalizar e Salvar",
+    "skip_finish": "Pular e Finalizar"
   },
   "settings": {
     "title": "Ajustes",

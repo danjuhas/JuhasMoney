@@ -19,7 +19,19 @@
     "cat_food": "Food",
     "cat_transport": "Transport",
     "cat_salary": "Salary",
-    "salary_desc": "Salary / Main Income"
+    "salary_desc": "Salary / Main Income",
+    "salary_value": "Salary Amount (Monthly)",
+    "payment_day": "Payment Day",
+    "fixed_expenses_title": "Fixed Expenses (Optional)",
+    "fixed_expenses_desc": "Register bills that repeat every month (Rent, Internet, etc).",
+    "expense_name": "Expense Name",
+    "expense_name_ph": "Ex: Rent",
+    "value": "Amount",
+    "day": "Day",
+    "due_ph": "Due",
+    "add_to_list": "+ Add to list",
+    "finish_save": "Finish and Save",
+    "skip_finish": "Skip and Finish"
   },
   "settings": {
     "title": "Settings",
