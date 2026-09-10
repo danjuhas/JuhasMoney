@@ -235,7 +235,7 @@ export const SettingsOverview = ({
                             <IconComponent className="w-4 h-4" />
                           </div>
                           <div>
-                            <span className="text-sm font-medium text-slate-200 block">{cat.name}</span>
+                            <span translate="no" className="text-sm font-medium text-slate-200 block">{cat.name}</span>
                             <span className="text-xs text-slate-400">{cat.type === 'income' ? t('settings.income') : t('settings.expense')}</span>
                           </div>
                         </div>
@@ -291,7 +291,7 @@ export const SettingsOverview = ({
                 {fixedExpenses.map(expense => (
                   <li key={expense.id} className="flex justify-between items-center p-4 hover:bg-slate-700/30 transition-colors">
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium text-slate-100">{expense.description}</span>
+                      <span translate="no" className="text-sm font-medium text-slate-100">{expense.description}</span>
                       <span className="text-xs text-slate-500">
                         {expense.type === 'income' ? 'Receita' : 'Despesa'} • Todo dia {expense.due_day || 1}
                       </span>

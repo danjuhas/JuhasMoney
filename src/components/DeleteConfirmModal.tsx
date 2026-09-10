@@ -2,11 +2,12 @@ import { useTranslation } from 'react-i18next';
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
+  isInstallment?: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }
 
-export function DeleteConfirmModal({ isOpen, onClose, onConfirm }: DeleteConfirmModalProps) {
+export function DeleteConfirmModal({ isOpen, isInstallment, onClose, onConfirm }: DeleteConfirmModalProps) {
   const { t } = useTranslation();
   if (!isOpen) return null;
 
@@ -16,7 +17,7 @@ export function DeleteConfirmModal({ isOpen, onClose, onConfirm }: DeleteConfirm
       <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/40 p-6 w-full max-w-sm relative z-10 animate-in zoom-in-95 duration-200">
         <h3 className="text-lg font-semibold text-slate-100 mb-2">{t('modal.delete_title')}</h3>
         <p className="text-slate-400 text-sm mb-6">
-          {t('modal.delete_desc')}
+          {isInstallment ? t('modal.delete_installment_desc') : t('modal.delete_desc')}
         </p>
         <div className="flex gap-3 justify-end">
           <button

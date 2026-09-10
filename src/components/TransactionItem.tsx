@@ -45,12 +45,18 @@ export function TransactionItem({
       <div className="flex-1 min-w-0 flex flex-col gap-1">
         {/* Top Line: Title and Amount */}
         <div className="flex justify-between items-start gap-2">
-          <p className={`text-base tracking-tight truncate ${isPaid ? 'text-slate-500 line-through font-normal' : 'text-slate-100 font-medium'}`}>
+          <p translate="no" className={`text-base tracking-tight truncate ${isPaid ? 'text-slate-500 line-through font-normal' : 'text-slate-100 font-medium'}`}>
             {expense.description}
           </p>
-          <span className={`text-base font-semibold tracking-tight shrink-0 ${expense.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
-             {expense.type === 'income' ? '' : ''}{formatCurrency(expense.amount, preferences.currency)}
-          </span>
+          {expense.amount === 0 ? (
+            <span className="text-sm font-medium tracking-tight shrink-0 text-amber-500/90 italic bg-amber-500/10 px-2 py-0.5 rounded">
+              {t('item.to_define')}
+            </span>
+          ) : (
+            <span className={`text-base font-semibold tracking-tight shrink-0 ${expense.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
+              {formatCurrency(expense.amount, preferences.currency)}
+            </span>
+          )}
         </div>
 
         {/* Bottom Line: Badges and Actions */}
@@ -60,7 +66,7 @@ export function TransactionItem({
               const { Icon: IconComponent, bgColor, textColor } = getCategoryStyle(category);
               
               return (
-                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-normal ${bgColor} ${textColor}`}>
+                <span translate="no" className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-normal ${bgColor} ${textColor}`}>
                   {IconComponent && <IconComponent className="w-3 h-3" />}
                   {category.name}
                 </span>

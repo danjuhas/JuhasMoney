@@ -19,7 +19,19 @@
     "cat_food": "Comida",
     "cat_transport": "Transporte",
     "cat_salary": "Salario",
-    "salary_desc": "Salario / Ingreso Principal"
+    "salary_desc": "Salario / Ingreso Principal",
+    "salary_value": "Monto del Salario (Mensual)",
+    "payment_day": "Día de Pago",
+    "fixed_expenses_title": "Gastos Fijos (Opcional)",
+    "fixed_expenses_desc": "Registra las facturas que se repiten cada mes (Alquiler, Internet, etc).",
+    "expense_name": "Nombre del Gasto",
+    "expense_name_ph": "Ej: Alquiler",
+    "value": "Monto",
+    "day": "Día",
+    "due_ph": "Venc.",
+    "add_to_list": "+ Añadir a la lista",
+    "finish_save": "Finalizar y Guardar",
+    "skip_finish": "Omitir y Finalizar"
   },
   "settings": {
     "title": "Ajustes",
@@ -91,7 +103,17 @@
     "fixed_expense_help": "Esta transacción se recreará este día todos los meses.",
     "fixed_edit_warning": "Estás editando una transacción fija de otro mes.",
     "yesterday": "Ayer",
-    "today": "Hoy"
+    "today": "Hoy",
+    "payment_day": "Día de Pago",
+    "filter_category": "Categoría",
+    "all_categories": "Todas las categorías",
+    "sort_by": "Ordenar por",
+    "sort_default": "Inteligente (Vencimientos)",
+    "sort_date_desc": "Más recientes",
+    "sort_date_asc": "Más antiguas",
+    "sort_name_asc": "A - Z",
+    "sort_amount_desc": "Mayor valor",
+    "sort_amount_asc": "Menor valor"
   },
   "filter": {
     "filters": "Filtros",
@@ -112,7 +134,8 @@
     "cancel": "Cancelar",
     "delete_only_this": "Solo esta",
     "delete_all": "Todas futuras",
-    "delete": "Eliminar"
+    "delete": "Eliminar",
+    "delete_installment_desc": "Este gasto es parte de un plan de cuotas. Al eliminarlo, esta y todas las cuotas futuras serán eliminadas. Las cuotas pasadas se mantendrán."
   },
   "item": {
     "edit": "Editar",
@@ -121,7 +144,8 @@
     "mark_pending": "Desmarcar",
     "installment": "Cuota",
     "fixed": "Fija",
-    "day": "Día"
+    "day": "Día",
+    "to_define": "A definir"
   },
   "nav": {
     "home": "Inicio",
