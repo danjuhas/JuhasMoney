@@ -91,7 +91,17 @@
     "fixed_expense_help": "O lançamento será recriado neste dia todos os meses.",
     "fixed_edit_warning": "Você está editando uma despesa de um mês diferente do atual.",
     "yesterday": "Ontem",
-    "today": "Hoje"
+    "today": "Hoje",
+    "payment_day": "Dia do Pagamento",
+    "filter_category": "Categoria",
+    "all_categories": "Todas as categorias",
+    "sort_by": "Ordenar por",
+    "sort_default": "Inteligente (Vencimentos)",
+    "sort_date_desc": "Mais recentes",
+    "sort_date_asc": "Mais antigas",
+    "sort_name_asc": "A - Z (Alfabética)",
+    "sort_amount_desc": "Maior valor",
+    "sort_amount_asc": "Menor valor"
   },
   "filter": {
     "filters": "Filtros",
@@ -112,7 +122,8 @@
     "cancel": "Cancelar",
     "delete_only_this": "Apenas esta",
     "delete_all": "Todas futuras",
-    "delete": "Excluir"
+    "delete": "Excluir",
+    "delete_installment_desc": "Esta despesa faz parte de um parcelamento. Ao excluí-la, esta e todas as parcelas futuras também serão apagadas. As parcelas passadas serão mantidas."
   },
   "item": {
     "edit": "Editar",
@@ -121,7 +132,8 @@
     "mark_pending": "Desmarcar",
     "installment": "Parcela",
     "fixed": "Fixa",
-    "day": "Dia"
+    "day": "Dia",
+    "to_define": "A definir"
   },
   "nav": {
     "home": "Início",

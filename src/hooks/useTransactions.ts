@@ -110,6 +110,16 @@ export function useTransactions(userId: string | null, onError?: (message: strin
       } catch (err) {
         fetchAll();
       }
+    } else if (expenseToDelete.group_id) {
+      const groupId = expenseToDelete.group_id;
+      const createdAt = expenseToDelete.created_at;
+      setExpenses(prev => prev.filter(e => !(e.group_id === groupId && e.created_at >= createdAt)));
+      try {
+        const { error } = await supabase.from('transactions').delete().eq('group_id', groupId).gte('created_at', createdAt);
+        if (error) throw error;
+      } catch (err) {
+        fetchAll();
+      }
     } else {
       setExpenses(prev => prev.filter(e => e.id !== id));
       try {

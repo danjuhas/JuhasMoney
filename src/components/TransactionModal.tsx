@@ -75,7 +75,7 @@ export function TransactionModal({
   const handleAddExpense = (e: React.FormEvent) => {
     e.preventDefault();
     const numericAmount = parseInt(amount || '0', 10) / 100;
-    if (!userId || !description || numericAmount <= 0) return;
+    if (!userId || !description || numericAmount < 0) return;
 
     let expensesToUpsert: Expense[] = [];
     const parsedDueDay = dueDay ? parseInt(dueDay, 10) : undefined;
@@ -150,6 +150,7 @@ export function TransactionModal({
       
       if (isInstallment) {
         const count = parseInt(installmentsCount, 10) || 1;
+        const groupId = generateUUID();
         for (let i = 0; i < count; i++) {
           const date = new Date(parseInt(tYear, 10), parseInt(tMonth, 10) - 1 + i, 1);
           const targetMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -163,8 +164,9 @@ export function TransactionModal({
             category_id: categoryId || undefined,
             created_at: `${targetMonth}-${tDay}T12:00:00.000Z`,
             is_fixed: false,
-            due_day: parsedDueDay,
+            due_day: parseInt(tDay, 10),
             is_paid: false,
+            group_id: groupId,
           });
         }
       } else {
@@ -314,6 +316,7 @@ export function TransactionModal({
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                  translate="no"
                   className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
                   required
                   placeholder={t('dashboard.description_placeholder')}
@@ -325,6 +328,7 @@ export function TransactionModal({
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
+                  translate="no"
                   className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
                 >
                   <option value="">{t('dashboard.no_category')}</option>
@@ -378,7 +382,7 @@ export function TransactionModal({
 
               {transactionMode === 'fixed' && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.due_day')}</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">{transactionType === 'income' ? t('dashboard.payment_day') : t('dashboard.due_day')}</label>
                   <input
                     type="number"
                     min="1"

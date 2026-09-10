@@ -50,7 +50,7 @@ export default function Dashboard() {
 
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<{ id: string, deleteAll: boolean } | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<{ id: string, deleteAll: boolean, isInstallment?: boolean } | null>(null);
 
   const {
     filterType,
@@ -61,8 +61,12 @@ export default function Dashboard() {
     clearFilters,
     filteredExpenses,
     finalExpenses,
-    totals: { totalReceitas, totalDespesas, saldo, totalPendente }
-  } = useTransactionFilters(expenses, selectedMonth);
+    totals: { totalReceitas, totalDespesas, saldo, totalPendente },
+    filterCategory,
+    setFilterCategory,
+    sortBy,
+    setSortBy,
+} = useTransactionFilters(expenses, categories, selectedMonth);
   
 
   const navigate = useNavigate();
@@ -95,7 +99,35 @@ export default function Dashboard() {
   };
 
   const handleSaveModal = (expensesToUpsert: Expense[], targetMonthStr?: string) => {
-    upsertExpenses(expensesToUpsert);
+    const editingExpense = expenses.find(e => e.id === editingId);
+    
+    if (editingExpense?.group_id && expensesToUpsert.length === 1 && !editingExpense.is_fixed) {
+      const updatedItem = expensesToUpsert[0];
+      const futureSiblings = expenses.filter(e => 
+         e.group_id === updatedItem.group_id && 
+         e.id !== updatedItem.id &&
+         e.created_at > editingExpense.created_at
+      );
+      
+      const siblingsToUpsert = futureSiblings.map(sib => {
+        const [sibYear, sibMonth] = sib.created_at.split('T')[0].split('-');
+        const [,, updatedDay] = updatedItem.created_at.split('T')[0].split('-');
+        
+        return {
+          ...sib,
+          amount: updatedItem.amount,
+          type: updatedItem.type,
+          category_id: updatedItem.category_id,
+          due_day: updatedItem.due_day,
+          created_at: `${sibYear}-${sibMonth}-${updatedDay}T12:00:00.000Z`,
+        };
+      });
+      
+      upsertExpenses([...expensesToUpsert, ...siblingsToUpsert]);
+    } else {
+      upsertExpenses(expensesToUpsert);
+    }
+
     if (targetMonthStr) {
       setSelectedMonth(targetMonthStr);
     }
@@ -358,7 +390,7 @@ export default function Dashboard() {
                         category={categories.find(c => c.id === expense.category_id)}
                         onTogglePaid={handleTogglePaid}
                         onEdit={handleEditExpense}
-                        onDelete={(id) => setDeleteConfirmId({ id, deleteAll: false })}
+                        onDelete={(id) => { const target = expenses.find(e => e.id === id); setDeleteConfirmId({ id, deleteAll: false, isInstallment: !!target?.group_id }); }}
                       />
                     ))}
                   </ul>
@@ -385,6 +417,7 @@ export default function Dashboard() {
 
       <DeleteConfirmModal
         isOpen={!!deleteConfirmId}
+        isInstallment={deleteConfirmId?.isInstallment}
         onClose={() => setDeleteConfirmId(null)}
         onConfirm={() => {
           if (deleteConfirmId) {
@@ -401,6 +434,12 @@ export default function Dashboard() {
         setFilterType={setFilterType}
         filterStatus={filterStatus}
         setFilterStatus={setFilterStatus}
+        filterCategory={filterCategory}
+        setFilterCategory={setFilterCategory}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        categories={categories}
+        clearFilters={clearFilters}
       />
       {/* Floating Action Button (FAB) */}
       {activeTab === 'home' && (

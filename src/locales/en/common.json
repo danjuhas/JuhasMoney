@@ -91,7 +91,17 @@
     "fixed_expense_help": "This transaction will be recreated on this day every month.",
     "fixed_edit_warning": "You are editing a fixed transaction from a different month.",
     "yesterday": "Yesterday",
-    "today": "Today"
+    "today": "Today",
+    "payment_day": "Payment Day",
+    "filter_category": "Category",
+    "all_categories": "All categories",
+    "sort_by": "Sort by",
+    "sort_default": "Smart (Due dates)",
+    "sort_date_desc": "Newest first",
+    "sort_date_asc": "Oldest first",
+    "sort_name_asc": "A - Z",
+    "sort_amount_desc": "Highest amount",
+    "sort_amount_asc": "Lowest amount"
   },
   "filter": {
     "filters": "Filters",
@@ -112,7 +122,8 @@
     "cancel": "Cancel",
     "delete_only_this": "Only this",
     "delete_all": "All future",
-    "delete": "Delete"
+    "delete": "Delete",
+    "delete_installment_desc": "This expense is part of an installment plan. By deleting it, this and all future installments will be deleted. Past installments will be kept."
   },
   "item": {
     "edit": "Edit",
@@ -121,7 +132,8 @@
     "mark_pending": "Unmark",
     "installment": "Installment",
     "fixed": "Fixed",
-    "day": "Day"
+    "day": "Day",
+    "to_define": "TBD"
   },
   "nav": {
     "home": "Home",

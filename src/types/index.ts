@@ -11,6 +11,7 @@ export type Expense = {
   is_paid?: boolean;
   paid_months?: string[];
   type?: 'income' | 'expense';
+  group_id?: string;
   category_id?: string;
 };
 
