@@ -25,3 +25,6 @@ dist-ssr
 
 # MCP configs
 .mcp.json
+
+# ENV
+.env
