@@ -13,30 +13,30 @@ describe('Transaction Utilities', () => {
   };
 
   describe('isActiveInMonth', () => {
-    it('deve retornar true para transações normais apenas no mês de criação', () => {
+    it('should return true for normal transactions only in the creation month', () => {
       const normalExpense = { ...baseExpense, is_fixed: false };
       expect(isActiveInMonth(normalExpense, '2026-05')).toBe(true);
       expect(isActiveInMonth(normalExpense, '2026-06')).toBe(false);
     });
 
-    it('deve retornar true para despesas fixas em meses futuros', () => {
+    it('should return true for fixed expenses in future months', () => {
       const fixedExpense = { ...baseExpense, is_fixed: true };
       expect(isActiveInMonth(fixedExpense, '2026-05')).toBe(true);
-      expect(isActiveInMonth(fixedExpense, '2026-10')).toBe(true); // Futuro
+      expect(isActiveInMonth(fixedExpense, '2026-10')).toBe(true); // Future
     });
 
-    it('deve retornar false para despesas fixas em meses anteriores à criação', () => {
+    it('should return false for fixed expenses in months prior to creation', () => {
       const fixedExpense = { ...baseExpense, is_fixed: true };
-      expect(isActiveInMonth(fixedExpense, '2026-04')).toBe(false); // Passado
+      expect(isActiveInMonth(fixedExpense, '2026-04')).toBe(false); // Past
     });
 
-    it('deve retornar false se o mês estiver na lista de excluded_months', () => {
+    it('should return false if the month is in the excluded_months list', () => {
       const fixedExpense = { ...baseExpense, is_fixed: true, excluded_months: ['2026-07'] };
       expect(isActiveInMonth(fixedExpense, '2026-07')).toBe(false);
       expect(isActiveInMonth(fixedExpense, '2026-08')).toBe(true);
     });
 
-    it('deve retornar false se o mês for posterior ao end_month', () => {
+    it('should return false if the month is after the end_month', () => {
       const fixedExpense = { ...baseExpense, is_fixed: true, end_month: '2026-08' };
       expect(isActiveInMonth(fixedExpense, '2026-08')).toBe(true);
       expect(isActiveInMonth(fixedExpense, '2026-09')).toBe(false);
@@ -44,7 +44,7 @@ describe('Transaction Utilities', () => {
   });
 
   describe('isExpensePaid', () => {
-    it('deve verificar is_paid para transações normais', () => {
+    it('should check is_paid for normal transactions', () => {
       const normalExpense = { ...baseExpense, is_fixed: false, is_paid: true };
       expect(isExpensePaid(normalExpense, '2026-05')).toBe(true);
       
@@ -52,10 +52,10 @@ describe('Transaction Utilities', () => {
       expect(isExpensePaid(unpaidNormal, '2026-05')).toBe(false);
     });
 
-    it('deve verificar paid_months para transações fixas no mês específico', () => {
+    it('should check paid_months for fixed transactions in the specific month', () => {
       const fixedExpense = { ...baseExpense, is_fixed: true, paid_months: ['2026-06'] };
-      expect(isExpensePaid(fixedExpense, '2026-05')).toBe(false); // Maio não pago
-      expect(isExpensePaid(fixedExpense, '2026-06')).toBe(true);  // Junho pago
+      expect(isExpensePaid(fixedExpense, '2026-05')).toBe(false); // May not paid
+      expect(isExpensePaid(fixedExpense, '2026-06')).toBe(true);  // June paid
     });
   });
 });
