@@ -8,6 +8,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  // @ts-ignore - Vitest adds this property
   test: {
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
