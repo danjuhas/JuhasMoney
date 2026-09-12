@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 
 export default function UpdatePassword() {
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -33,6 +34,11 @@ export default function UpdatePassword() {
     e.preventDefault();
     if (password.length < 6) {
       setError('A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      setError('As senhas não coincidem.');
       return;
     }
     
@@ -88,6 +94,21 @@ export default function UpdatePassword() {
                   required
                   minLength={6}
                   placeholder="No mínimo 6 caracteres"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-slate-300">Confirmar Nova Senha</label>
+              <div className="mt-1">
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="block w-full appearance-none rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-slate-100 placeholder-slate-500 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm transition-colors"
+                  required
+                  minLength={6}
+                  placeholder="Digite a nova senha novamente"
                 />
               </div>
             </div>

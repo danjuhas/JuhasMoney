@@ -119,39 +119,7 @@ export const SettingsOverview = ({
               </div>
             </div>
 
-            <hr className="border-slate-700/50" />
 
-            <form onSubmit={async (e) => {
-              e.preventDefault();
-              const newPassword = (e.currentTarget.elements.namedItem('new_password') as HTMLInputElement).value;
-              if (newPassword.length < 6) {
-                alert('A senha deve ter pelo menos 6 caracteres.');
-                return;
-              }
-              const { supabase } = await import('../lib/supabase');
-              const { error } = await supabase.auth.updateUser({ password: newPassword });
-              if (error) {
-                alert('Erro ao alterar senha: ' + error.message);
-              } else {
-                alert('Senha alterada com sucesso!');
-                (e.target as HTMLFormElement).reset();
-              }
-            }} className="space-y-3">
-              <h4 className="text-sm font-medium text-slate-200">{t('settings.change_password')}</h4>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="password"
-                  name="new_password"
-                  placeholder={t('settings.new_password_placeholder')}
-                  className="flex-1 bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-500 rounded-lg shadow-sm focus:ring-1 focus:ring-emerald-500 sm:text-sm px-4 py-2.5 border outline-none transition-all"
-                  required
-                  minLength={6}
-                />
-                <button type="submit" className="bg-emerald-500 text-white px-5 py-2.5 rounded-lg hover:bg-emerald-600 shadow-lg shadow-emerald-500/25 text-sm font-medium transition-all">
-                  {t('settings.update')}
-                </button>
-              </div>
-            </form>
 
             <div className="pt-2 flex justify-end">
               <button

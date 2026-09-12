@@ -90,6 +90,7 @@ export default function Login() {
                 <input
                   type="email"
                   value={email}
+                  placeholder="seu@email.com"
                   onChange={(e) => setEmail(e.target.value)}
                   className="appearance-none block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition-colors"
                   required
@@ -114,6 +115,7 @@ export default function Login() {
                 <input
                   type="password"
                   value={password}
+                  placeholder="Sua senha"
                   onChange={(e) => setPassword(e.target.value)}
                   className="appearance-none block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition-colors"
                   required
