@@ -10,15 +10,18 @@ export default function UpdatePassword() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // We expect the user to be logged in (via the reset token)
+    // Supabase lê o token da URL assincronamente.
+    // Precisamos evitar expulsar o usuário antes do Supabase processar o hash.
+    const hasRecoveryToken = window.location.hash.includes('access_token') || window.location.hash.includes('type=recovery');
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
+      if (!session && !hasRecoveryToken) {
         navigate('/login');
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session && event === 'SIGNED_OUT') {
         navigate('/login');
       }
     });
