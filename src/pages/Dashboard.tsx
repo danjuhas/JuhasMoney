@@ -16,7 +16,7 @@ import { NotificationBell } from '../components/NotificationBell';
 import { useTransactions } from '../hooks/useTransactions';
 import { useTransactionFilters } from '../hooks/useTransactionFilters';
 import { usePreferences } from '../contexts/PreferencesContext';
-import { isActiveInMonth, isExpensePaid } from '../utils/transactions';
+import { isExpensePaid } from '../utils/transactions';
 import { NotificationService } from '../utils/NotificationService';
 import { useTranslation } from 'react-i18next';
 
@@ -270,7 +270,6 @@ export default function Dashboard() {
               />
             </div>
           </div>
-        </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-40 sm:pb-24 pt-2">
