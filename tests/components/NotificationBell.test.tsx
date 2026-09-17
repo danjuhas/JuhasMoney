@@ -4,9 +4,15 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { NotificationBell } from '../../src/components/NotificationBell';
 import * as useNotificationsHook from '../../src/hooks/useNotifications';
 
-// Mock the hook
+// Mock the hooks
 vi.mock('../../src/hooks/useNotifications', () => ({
   useNotifications: vi.fn()
+}));
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
 }));
 
 describe('NotificationBell', () => {
@@ -65,13 +71,13 @@ describe('NotificationBell', () => {
     render(<NotificationBell userId="user-1" />);
     
     // Dropdown should be hidden initially
-    expect(screen.queryByText('Tudo certo por aqui!')).not.toBeInTheDocument();
+    expect(screen.queryByText('notifications.all_good')).not.toBeInTheDocument();
 
     const button = screen.getByRole('button', { name: /notificações/i });
     fireEvent.click(button);
 
     // Dropdown should be visible
-    expect(screen.getByText('Tudo certo por aqui!')).toBeInTheDocument();
+    expect(screen.getByText('notifications.all_good')).toBeInTheDocument();
   });
 
   it('should render notifications in dropdown and trigger click handlers', () => {
