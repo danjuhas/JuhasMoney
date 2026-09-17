@@ -1,6 +1,7 @@
 import type { AppNotification, Expense } from '../types';
 import { isActiveInMonth, isExpensePaid } from './transactions';
 import { formatCurrency } from './format';
+import i18n from '../lib/i18n';
 
 const NOTIFICATIONS_KEY_PREFIX = 'juhas_notifications_';
 
@@ -16,10 +17,6 @@ export const NotificationService = {
 
   saveNotifications(userId: string, notifications: AppNotification[]) {
     localStorage.setItem(this.getStorageKey(userId), JSON.stringify(notifications));
-  },
-
-  clearAllNotifications(userId: string) {
-    this.saveNotifications(userId, []);
   },
 
   cleanOldNotifications(userId: string) {
@@ -65,9 +62,9 @@ export const NotificationService = {
 
       if (expensesDue.length > 0) {
         let label = '';
-        if (offset === 0) label = 'hoje';
-        else if (offset === 1) label = 'amanhã';
-        else label = `em ${offset} dias`;
+        if (offset === 0) label = i18n.t('notifications.today');
+        else if (offset === 1) label = i18n.t('notifications.tomorrow');
+        else label = i18n.t('notifications.in_days', { count: offset });
 
         const id = `due-${offset}days-${targetDateStr}`;
         const existingIdx = newNotifications.findIndex(n => n.id === id);
@@ -76,12 +73,12 @@ export const NotificationService = {
         const formattedAmount = formatCurrency(totalAmount, currency);
         
         const title = expensesDue.length === 1 
-          ? `Conta vence ${label}!` 
-          : `${expensesDue.length} contas vencem ${label}!`;
+          ? i18n.t('notifications.bill_due_single', { when: label })
+          : i18n.t('notifications.bill_due_multiple', { count: expensesDue.length, when: label });
         
         const message = expensesDue.length === 1 
-          ? `${expensesDue[0].description} no valor de ${formattedAmount} vence ${label}.`
-          : `Você tem contas totalizando ${formattedAmount} vencendo ${label}.`;
+          ? i18n.t('notifications.bill_desc_single', { description: expensesDue[0].description, amount: formattedAmount, when: label })
+          : i18n.t('notifications.bill_desc_multiple', { amount: formattedAmount, when: label });
 
         const related_expense_ids = expensesDue.map(e => e.id);
 
@@ -91,6 +88,7 @@ export const NotificationService = {
             newNotifications[existingIdx].message = message;
             newNotifications[existingIdx].related_expense_ids = related_expense_ids;
             newNotifications[existingIdx].is_read = false;
+            newNotifications[existingIdx].hidden = false;
             updated = true;
           }
         } else {

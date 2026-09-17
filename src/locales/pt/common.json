@@ -171,5 +171,19 @@
     "expenses": "Despesas",
     "balance": "Saldo",
     "pending": "Pendentes"
+  },
+  "notifications": {
+    "title": "Notificações",
+    "mark_read": "Marcar lidas",
+    "clear_history": "Limpar histórico",
+    "all_good": "Tudo certo por aqui!",
+    "no_new": "Você não tem novas notificações.",
+    "today": "hoje",
+    "tomorrow": "amanhã",
+    "in_days": "em {{count}} dias",
+    "bill_due_single": "Conta vence {{when}}!",
+    "bill_due_multiple": "{{count}} contas vencem {{when}}!",
+    "bill_desc_single": "{{description}} no valor de {{amount}} vence {{when}}.",
+    "bill_desc_multiple": "Você tem contas totalizando {{amount}} vencendo {{when}}."
   }
 }

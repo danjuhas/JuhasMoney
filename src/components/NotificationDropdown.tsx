@@ -1,4 +1,5 @@
 import { CheckCircle2, AlertTriangle, Info, Check, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { AppNotification } from '../types';
 
 interface NotificationDropdownProps {
@@ -11,6 +12,8 @@ interface NotificationDropdownProps {
 }
 
 export function NotificationDropdown({ notifications, onMarkAsRead, onMarkAllAsRead, onClose, onClearAll, onNotificationClick }: NotificationDropdownProps) {
+  const { t } = useTranslation();
+
   const getIcon = (type: string) => {
     switch (type) {
       case 'WARNING':
@@ -27,7 +30,7 @@ export function NotificationDropdown({ notifications, onMarkAsRead, onMarkAllAsR
   return (
     <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-900 backdrop-blur-sm rounded-xl shadow-2xl shadow-black/40 border border-slate-700 z-50 overflow-hidden origin-top-right transition-all">
       <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
-        <h3 className="font-semibold text-slate-100">Notificações</h3>
+        <h3 className="font-semibold text-slate-100">{t('notifications.title')}</h3>
         {notifications.length > 0 && (
           hasUnread ? (
             <button 
@@ -35,7 +38,7 @@ export function NotificationDropdown({ notifications, onMarkAsRead, onMarkAllAsR
               className="text-xs text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1"
             >
               <Check className="w-3 h-3" />
-              Marcar lidas
+              {t('notifications.mark_read')}
             </button>
           ) : (
             <button 
@@ -43,7 +46,7 @@ export function NotificationDropdown({ notifications, onMarkAsRead, onMarkAllAsR
               className="text-xs text-slate-400 hover:text-red-400 font-medium flex items-center gap-1 transition-colors"
             >
               <Trash2 className="w-3 h-3" />
-              Limpar histórico
+              {t('notifications.clear_history')}
             </button>
           )
         )}
@@ -53,8 +56,8 @@ export function NotificationDropdown({ notifications, onMarkAsRead, onMarkAllAsR
         {notifications.length === 0 ? (
           <div className="p-8 text-center text-slate-500">
             <CheckCircle2 className="w-8 h-8 mx-auto text-slate-700 mb-2" />
-            <p className="text-sm">Tudo certo por aqui!</p>
-            <p className="text-xs text-slate-600">Você não tem novas notificações.</p>
+            <p className="text-sm">{t('notifications.all_good')}</p>
+            <p className="text-xs text-slate-600">{t('notifications.no_new')}</p>
           </div>
         ) : (
           <div className="divide-y divide-slate-800">

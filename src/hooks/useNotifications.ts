@@ -48,14 +48,18 @@ export function useNotifications(userId: string | null) {
 
   const clearAll = useCallback(() => {
     if (!userId) return;
-    setNotifications([]);
-    NotificationService.clearAllNotifications(userId);
+    setNotifications(prev => {
+      const next = prev.map(n => ({ ...n, hidden: true }));
+      NotificationService.saveNotifications(userId, next);
+      return next;
+    });
   }, [userId]);
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const visibleNotifications = notifications.filter(n => !n.hidden);
+  const unreadCount = visibleNotifications.filter(n => !n.is_read).length;
 
   return {
-    notifications,
+    notifications: visibleNotifications,
     unreadCount,
     markAsRead,
     markAllAsRead,

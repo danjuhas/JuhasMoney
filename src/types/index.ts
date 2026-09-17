@@ -34,5 +34,6 @@ export type AppNotification = {
   type: 'INFO' | 'WARNING' | 'ERROR';
   reference_date?: string;
   related_expense_ids?: string[];
+  hidden?: boolean;
 };
 
