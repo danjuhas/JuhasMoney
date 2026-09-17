@@ -22,6 +22,7 @@ Before writing any code or proposing the final solution, ask strategic questions
 - How does the user expect to interact with this?
 
 ### 2. Focus on User Experience (UX/UI)
+- **Mobile-First & Responsive Design:** ALWAYS think about features and fixes considering BOTH the web (desktop) and app (mobile) versions. Ensure layouts, margins, absolute positions, and interactions scale perfectly across all screen sizes (e.g., using Tailwind's responsive breakpoints like `sm:`).
 - Propose optimized screen flows (fewer clicks, more fluidity).
 - Think about accessibility, visual feedback (loading, success, error), and consistency with the rest of the interface.
 - If the feature proposed by the user is too complex for the interface, suggest cleaner and modern alternatives.

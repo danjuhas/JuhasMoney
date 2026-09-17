@@ -28,7 +28,7 @@ export function NotificationDropdown({ notifications, onMarkAsRead, onMarkAllAsR
   const hasUnread = notifications.some(n => !n.is_read);
 
   return (
-    <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-900 backdrop-blur-sm rounded-xl shadow-2xl shadow-black/40 border border-slate-700 z-50 overflow-hidden origin-top-right transition-all">
+    <div className="absolute -right-2 sm:right-0 mt-2 w-[calc(100vw-2rem)] max-w-[340px] sm:max-w-none sm:w-96 bg-slate-900 backdrop-blur-sm rounded-xl shadow-2xl shadow-black/40 border border-slate-700 z-50 overflow-hidden origin-top-right transition-all">
       <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
         <h3 className="font-semibold text-slate-100">{t('notifications.title')}</h3>
         {notifications.length > 0 && (

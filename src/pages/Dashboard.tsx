@@ -230,7 +230,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-900">
       <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
-        <div className="flex justify-center sm:justify-between items-center">
+        <div className="flex justify-between items-center relative">
           <div className="flex items-center gap-2.5 sm:gap-2">
             <Infinity className="w-10 h-10 sm:w-8 sm:h-8 text-emerald-500" />
             <h1 className="text-2xl sm:text-2xl font-bold tracking-tight text-white">{t('dashboard.app_name')}</h1>
