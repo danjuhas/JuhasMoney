@@ -171,5 +171,19 @@
     "expenses": "Gastos",
     "balance": "Saldo",
     "pending": "Pendientes"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "mark_read": "Marcar como leídas",
+    "clear_history": "Borrar historial",
+    "all_good": "¡Todo bien por aquí!",
+    "no_new": "No tienes nuevas notificaciones.",
+    "today": "hoy",
+    "tomorrow": "mañana",
+    "in_days": "en {{count}} días",
+    "bill_due_single": "¡Factura vence {{when}}!",
+    "bill_due_multiple": "¡{{count}} facturas vencen {{when}}!",
+    "bill_desc_single": "{{description}} de {{amount}} vence {{when}}.",
+    "bill_desc_multiple": "Tienes facturas por un total de {{amount}} que vencen {{when}}."
   }
 }

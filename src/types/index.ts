@@ -24,3 +24,16 @@ export type Category = {
   color?: string;
 };
 
+export type AppNotification = {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+  type: 'INFO' | 'WARNING' | 'ERROR';
+  reference_date?: string;
+  related_expense_ids?: string[];
+  hidden?: boolean;
+};
+

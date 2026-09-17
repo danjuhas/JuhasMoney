@@ -171,5 +171,19 @@
     "expenses": "Expenses",
     "balance": "Balance",
     "pending": "Pending"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "mark_read": "Mark as read",
+    "clear_history": "Clear history",
+    "all_good": "All good here!",
+    "no_new": "You have no new notifications.",
+    "today": "today",
+    "tomorrow": "tomorrow",
+    "in_days": "in {{count}} days",
+    "bill_due_single": "Bill due {{when}}!",
+    "bill_due_multiple": "{{count}} bills due {{when}}!",
+    "bill_desc_single": "{{description}} of {{amount}} is due {{when}}.",
+    "bill_desc_multiple": "You have bills totaling {{amount}} due {{when}}."
   }
 }

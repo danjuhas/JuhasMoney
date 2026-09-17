@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getCategoryStyle } from '../constants/categories';
 
 import { Pencil, Trash2, CheckCircle, Circle, MoreVertical } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Expense, Category } from '../types';
 
 interface TransactionItemProps {
@@ -14,6 +14,7 @@ interface TransactionItemProps {
   onTogglePaid: (expense: Expense) => void;
   onEdit: (expense: Expense) => void;
   onDelete: (id: string) => void;
+  isHighlighted?: boolean;
 }
 
 export function TransactionItem({
@@ -22,14 +23,29 @@ export function TransactionItem({
   category,
   onTogglePaid,
   onEdit,
-  onDelete
+  onDelete,
+  isHighlighted = false
 }: TransactionItemProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { preferences } = usePreferences();
   const { t } = useTranslation();
+  const itemRef = useRef<HTMLLIElement>(null);
+
+  useEffect(() => {
+    if (isHighlighted && itemRef.current) {
+      itemRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [isHighlighted]);
 
   return (
-    <li className="py-3.5 flex items-center gap-3 transition-colors group">
+    <li 
+      ref={itemRef}
+      className={`py-3.5 flex items-center gap-3 transition-all duration-500 px-2 -mx-2 rounded-xl group ${
+        isHighlighted 
+          ? 'bg-slate-800 shadow-sm scale-[1.01] ring-1 ring-emerald-500/30' 
+          : 'hover:bg-slate-800/50'
+      }`}
+    >
       <button
         onClick={() => onTogglePaid(expense)}
         className="shrink-0 focus:outline-none transition-colors mt-0.5 self-start"

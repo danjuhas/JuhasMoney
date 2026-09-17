@@ -12,10 +12,12 @@ import { TransactionModal } from '../components/TransactionModal';
 import { TransactionItem } from '../components/TransactionItem';
 import { DeleteConfirmModal } from '../components/DeleteConfirmModal';
 import { MobileNav } from '../components/MobileNav';
+import { NotificationBell } from '../components/NotificationBell';
 import { useTransactions } from '../hooks/useTransactions';
 import { useTransactionFilters } from '../hooks/useTransactionFilters';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { isExpensePaid } from '../utils/transactions';
+import { NotificationService } from '../utils/NotificationService';
 import { useTranslation } from 'react-i18next';
 
 import { useToast } from '../contexts/ToastContext';
@@ -51,6 +53,7 @@ export default function Dashboard() {
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<{ id: string, deleteAll: boolean, isInstallment?: boolean } | null>(null);
+  const [highlightedIds, setHighlightedIds] = useState<string[]>([]);
 
   const {
     filterType,
@@ -82,6 +85,14 @@ export default function Dashboard() {
       navigate('/onboarding');
     }
   }, [prefsLoading, preferences.onboarding_completed, userId, navigate]);
+
+  useEffect(() => {
+    if (userId && expenses.length > 0 && !loading && !prefsLoading) {
+      NotificationService.syncUpcomingExpenses(userId, expenses, preferences.currency || 'BRL');
+      // Dispatch a custom event so the hook can reload if it's already mounted
+      window.dispatchEvent(new Event('storage'));
+    }
+  }, [userId, expenses, loading, prefsLoading, preferences.currency]);
 
 
   const checkUser = async () => {
@@ -245,9 +256,20 @@ export default function Dashboard() {
                 >
                   {t('nav.settings')}
                 </button>
-             </div>
+              </div>
+            </div>
+            {/* The right action buttons were removed as they are now in the Settings view */}
+            <div className="flex items-center gap-4">
+              <NotificationBell 
+                userId={userId} 
+                onNotificationClick={(ids) => {
+                  setHighlightedIds(ids);
+                  // Remove highlight after 3 seconds
+                  setTimeout(() => setHighlightedIds([]), 3000);
+                }}
+              />
+            </div>
           </div>
-        </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-40 sm:pb-24 pt-2">
@@ -391,6 +413,7 @@ export default function Dashboard() {
                         onTogglePaid={handleTogglePaid}
                         onEdit={handleEditExpense}
                         onDelete={(id) => { const target = expenses.find(e => e.id === id); setDeleteConfirmId({ id, deleteAll: false, isInstallment: !!target?.group_id }); }}
+                        isHighlighted={highlightedIds.includes(expense.id)}
                       />
                     ))}
                   </ul>
