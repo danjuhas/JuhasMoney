@@ -10,7 +10,7 @@ interface NotificationBellProps {
 
 export function NotificationBell({ userId, onNotificationClick }: NotificationBellProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications(userId);
+  const { notifications, unreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications(userId);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,12 +29,12 @@ export function NotificationBell({ userId, onNotificationClick }: NotificationBe
     <div className="relative" ref={containerRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 text-gray-500 hover:text-gray-900 transition-colors relative focus:outline-none"
+        className={`p-2 rounded-full transition-colors relative focus:outline-none ${isOpen ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
         aria-label="Notificações"
       >
         <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white ring-2 ring-white">
+          <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white ring-2 ring-slate-900">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -45,6 +45,7 @@ export function NotificationBell({ userId, onNotificationClick }: NotificationBe
           notifications={notifications} 
           onMarkAsRead={markAsRead} 
           onMarkAllAsRead={markAllAsRead} 
+          onClearAll={clearAll}
           onClose={() => setIsOpen(false)}
           onNotificationClick={onNotificationClick}
         />

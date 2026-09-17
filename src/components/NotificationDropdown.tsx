@@ -1,4 +1,4 @@
-import { CheckCircle2, AlertTriangle, Info, Check } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Info, Check, Trash2 } from 'lucide-react';
 import type { AppNotification } from '../types';
 
 interface NotificationDropdownProps {
@@ -6,10 +6,11 @@ interface NotificationDropdownProps {
   onMarkAsRead: (id: string) => void;
   onMarkAllAsRead: () => void;
   onClose: () => void;
+  onClearAll: () => void;
   onNotificationClick?: (ids: string[]) => void;
 }
 
-export function NotificationDropdown({ notifications, onMarkAsRead, onMarkAllAsRead, onClose, onNotificationClick }: NotificationDropdownProps) {
+export function NotificationDropdown({ notifications, onMarkAsRead, onMarkAllAsRead, onClose, onClearAll, onNotificationClick }: NotificationDropdownProps) {
   const getIcon = (type: string) => {
     switch (type) {
       case 'WARNING':
@@ -21,34 +22,46 @@ export function NotificationDropdown({ notifications, onMarkAsRead, onMarkAllAsR
     }
   };
 
+  const hasUnread = notifications.some(n => !n.is_read);
+
   return (
-    <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden origin-top-right transition-all">
-      <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-        <h3 className="font-semibold text-gray-900">Notificações</h3>
-        {notifications.some(n => !n.is_read) && (
-          <button 
-            onClick={onMarkAllAsRead}
-            className="text-xs text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1"
-          >
-            <Check className="w-3 h-3" />
-            Marcar todas lidas
-          </button>
+    <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-900 backdrop-blur-sm rounded-xl shadow-2xl shadow-black/40 border border-slate-700 z-50 overflow-hidden origin-top-right transition-all">
+      <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+        <h3 className="font-semibold text-slate-100">Notificações</h3>
+        {notifications.length > 0 && (
+          hasUnread ? (
+            <button 
+              onClick={onMarkAllAsRead}
+              className="text-xs text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1"
+            >
+              <Check className="w-3 h-3" />
+              Marcar lidas
+            </button>
+          ) : (
+            <button 
+              onClick={onClearAll}
+              className="text-xs text-slate-400 hover:text-red-400 font-medium flex items-center gap-1 transition-colors"
+            >
+              <Trash2 className="w-3 h-3" />
+              Limpar histórico
+            </button>
+          )
         )}
       </div>
 
       <div className="max-h-[60vh] overflow-y-auto">
         {notifications.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <CheckCircle2 className="w-8 h-8 mx-auto text-gray-300 mb-2" />
+          <div className="p-8 text-center text-slate-500">
+            <CheckCircle2 className="w-8 h-8 mx-auto text-slate-700 mb-2" />
             <p className="text-sm">Tudo certo por aqui!</p>
-            <p className="text-xs text-gray-400">Você não tem novas notificações.</p>
+            <p className="text-xs text-slate-600">Você não tem novas notificações.</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-slate-800">
             {notifications.map((notif) => (
               <div 
                 key={notif.id} 
-                className={`p-4 hover:bg-gray-50 transition-colors flex gap-3 ${!notif.is_read ? 'bg-blue-50/30 cursor-pointer' : 'opacity-70'}`}
+                className={`p-4 hover:bg-slate-800/50 transition-colors flex gap-3 ${!notif.is_read ? 'bg-slate-800/80 cursor-pointer' : 'opacity-70'}`}
                 onClick={() => {
                   if (!notif.is_read) onMarkAsRead(notif.id);
                   if (onNotificationClick && notif.related_expense_ids) {
@@ -61,10 +74,10 @@ export function NotificationDropdown({ notifications, onMarkAsRead, onMarkAllAsR
                   {getIcon(notif.type)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm ${!notif.is_read ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'}`}>
+                  <p className={`text-sm ${!notif.is_read ? 'font-semibold text-slate-100' : 'font-medium text-slate-300'}`}>
                     {notif.title}
                   </p>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                  <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
                     {notif.message}
                   </p>
                 </div>

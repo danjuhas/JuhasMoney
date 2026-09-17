@@ -78,8 +78,32 @@ describe('NotificationService', () => {
       expect(notifications[0].type).toBe('WARNING');
       expect(notifications[0].title).toBe('Conta vence hoje!');
       expect(notifications[0].message).toContain('Electricity');
+      expect(notifications[0].message).toContain('R$');
       expect(notifications[0].related_expense_ids).toEqual(['exp-1']);
       expect(notifications[0].is_read).toBe(false);
+    });
+
+    it('should format currency based on provided currency code', () => {
+      const expenses: Expense[] = [
+        {
+          id: 'exp-euro',
+          user_id: userId,
+          description: 'Heating',
+          amount: 150.50,
+          type: 'expense',
+          category_id: 'cat-1',
+          created_at: '2026-09-01T00:00:00Z',
+          due_day: 17, // Matches mocked today
+        }
+      ];
+
+      NotificationService.syncUpcomingExpenses(userId, expenses, 'EUR');
+      const notifications = NotificationService.getNotifications(userId);
+
+      expect(notifications).toHaveLength(1);
+      // 'de-DE' locale format for EUR is usually "150,50 €"
+      expect(notifications[0].message).toContain('150,50');
+      expect(notifications[0].message).toContain('€');
     });
 
     it('should generate INFO notification for expense due tomorrow', () => {
@@ -115,7 +139,7 @@ describe('NotificationService', () => {
 
       expect(notifications).toHaveLength(1);
       expect(notifications[0].title).toBe('2 contas vencem hoje!');
-      expect(notifications[0].message).toContain('300.00'); // 100 + 200
+      expect(notifications[0].message).toContain('300,00'); // 100 + 200
       expect(notifications[0].related_expense_ids).toEqual(['e1', 'e2']);
     });
 

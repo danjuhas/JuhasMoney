@@ -1,5 +1,6 @@
 import type { AppNotification, Expense } from '../types';
 import { isActiveInMonth, isExpensePaid } from './transactions';
+import { formatCurrency } from './format';
 
 const NOTIFICATIONS_KEY_PREFIX = 'juhas_notifications_';
 
@@ -17,6 +18,10 @@ export const NotificationService = {
     localStorage.setItem(this.getStorageKey(userId), JSON.stringify(notifications));
   },
 
+  clearAllNotifications(userId: string) {
+    this.saveNotifications(userId, []);
+  },
+
   cleanOldNotifications(userId: string) {
     const notifications = this.getNotifications(userId);
     const thirtyDaysAgo = new Date();
@@ -32,7 +37,7 @@ export const NotificationService = {
     }
   },
 
-  syncUpcomingExpenses(userId: string, expenses: Expense[]) {
+  syncUpcomingExpenses(userId: string, expenses: Expense[], currency: string = 'BRL') {
     this.cleanOldNotifications(userId);
     const notifications = this.getNotifications(userId);
 
@@ -67,14 +72,16 @@ export const NotificationService = {
         const id = `due-${offset}days-${targetDateStr}`;
         const existingIdx = newNotifications.findIndex(n => n.id === id);
         
-        const totalAmount = expensesDue.reduce((acc, curr) => acc + curr.amount, 0).toFixed(2);
+        const totalAmount = expensesDue.reduce((acc, curr) => acc + curr.amount, 0);
+        const formattedAmount = formatCurrency(totalAmount, currency);
+        
         const title = expensesDue.length === 1 
           ? `Conta vence ${label}!` 
           : `${expensesDue.length} contas vencem ${label}!`;
         
         const message = expensesDue.length === 1 
-          ? `${expensesDue[0].description} no valor de R$ ${totalAmount} vence ${label}.`
-          : `Você tem contas totalizando R$ ${totalAmount} vencendo ${label}.`;
+          ? `${expensesDue[0].description} no valor de ${formattedAmount} vence ${label}.`
+          : `Você tem contas totalizando ${formattedAmount} vencendo ${label}.`;
 
         const related_expense_ids = expensesDue.map(e => e.id);
 

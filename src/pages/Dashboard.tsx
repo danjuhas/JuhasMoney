@@ -87,12 +87,12 @@ export default function Dashboard() {
   }, [prefsLoading, preferences.onboarding_completed, userId, navigate]);
 
   useEffect(() => {
-    if (userId && expenses.length > 0 && !loading) {
-      NotificationService.syncUpcomingExpenses(userId, expenses);
+    if (userId && expenses.length > 0 && !loading && !prefsLoading) {
+      NotificationService.syncUpcomingExpenses(userId, expenses, preferences.currency || 'BRL');
       // Dispatch a custom event so the hook can reload if it's already mounted
       window.dispatchEvent(new Event('storage'));
     }
-  }, [userId, expenses, loading]);
+  }, [userId, expenses, loading, prefsLoading, preferences.currency]);
 
 
   const checkUser = async () => {

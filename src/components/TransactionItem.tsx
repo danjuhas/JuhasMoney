@@ -42,8 +42,8 @@ export function TransactionItem({
       ref={itemRef}
       className={`py-3.5 flex items-center gap-3 transition-all duration-500 px-2 -mx-2 rounded-xl group ${
         isHighlighted 
-          ? 'bg-gray-100 shadow-sm scale-[1.01]' 
-          : 'hover:bg-gray-50/50'
+          ? 'bg-slate-800 shadow-sm scale-[1.01] ring-1 ring-emerald-500/30' 
+          : 'hover:bg-slate-800/50'
       }`}
     >
       <button

@@ -46,6 +46,12 @@ export function useNotifications(userId: string | null) {
     });
   }, [userId]);
 
+  const clearAll = useCallback(() => {
+    if (!userId) return;
+    setNotifications([]);
+    NotificationService.clearAllNotifications(userId);
+  }, [userId]);
+
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return {
@@ -53,6 +59,7 @@ export function useNotifications(userId: string | null) {
     unreadCount,
     markAsRead,
     markAllAsRead,
+    clearAll,
     reload: loadNotifications
   };
 }
