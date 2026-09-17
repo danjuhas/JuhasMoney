@@ -4,3 +4,9 @@ export function formatCurrency(amount: number, currencyCode: string = 'BRL') {
   const locale = currencyCode === 'USD' ? 'en-US' : currencyCode === 'EUR' ? 'de-DE' : 'pt-BR';
   return new Intl.NumberFormat(locale, { style: 'currency', currency: currencyCode }).format(amount);
 }
+
+export function getCurrencySymbol(currencyCode: string): { symbol: string; position: 'left' | 'right' } {
+  if (currencyCode === 'EUR') return { symbol: '€', position: 'right' };
+  if (currencyCode === 'USD') return { symbol: '$', position: 'left' };
+  return { symbol: 'R$', position: 'left' }; // BRL default
+}

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Expense, Category } from '../types';
 import { supabase } from '../lib/supabase';
 
-export function useTransactions(userId: string | null) {
+export function useTransactions(userId: string | null, onError?: (message: string) => void) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -44,9 +44,22 @@ export function useTransactions(userId: string | null) {
       if (error) throw error;
     } catch (err) {
       console.error('Error adding category:', err);
+      if (onError) onError('Erro ao adicionar categoria. Verifique sua conexão.');
       fetchAll();
     }
-  }, [fetchAll]);
+  }, [fetchAll, onError]);
+
+  const updateCategory = useCallback(async (id: string, updates: Partial<Category>) => {
+    setCategories(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+    try {
+      const { error } = await supabase.from('categories').update(updates).eq('id', id);
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error updating category:', err);
+      if (onError) onError('Erro ao atualizar categoria. Verifique sua conexão.');
+      fetchAll();
+    }
+  }, [fetchAll, onError]);
 
   const deleteCategory = useCallback(async (id: string) => {
     setCategories(prev => prev.filter(c => c.id !== id));
@@ -97,6 +110,16 @@ export function useTransactions(userId: string | null) {
       } catch (err) {
         fetchAll();
       }
+    } else if (expenseToDelete.group_id) {
+      const groupId = expenseToDelete.group_id;
+      const createdAt = expenseToDelete.created_at;
+      setExpenses(prev => prev.filter(e => !(e.group_id === groupId && e.created_at >= createdAt)));
+      try {
+        const { error } = await supabase.from('transactions').delete().eq('group_id', groupId).gte('created_at', createdAt);
+        if (error) throw error;
+      } catch (err) {
+        fetchAll();
+      }
     } else {
       setExpenses(prev => prev.filter(e => e.id !== id));
       try {
@@ -138,6 +161,7 @@ export function useTransactions(userId: string | null) {
     loading,
     upsertExpenses,
     addCategory,
+    updateCategory,
     deleteCategory,
     deleteExpense,
     togglePaid,

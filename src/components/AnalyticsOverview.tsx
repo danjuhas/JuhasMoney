@@ -98,27 +98,27 @@ export const AnalyticsOverview = ({
   const progressColor = progressPercent >= 80 ? 'bg-red-500' : (progressPercent > 50 ? 'bg-yellow-500' : 'bg-emerald-500');
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mt-6">
+    <div className="bg-slate-800/60 rounded-2xl p-6 shadow-sm border border-slate-700/50 mt-6">
       <div className="flex items-center gap-2 mb-6">
-        <PieChartIcon className="w-5 h-5 text-gray-500" />
-        <h2 className="text-lg font-semibold text-gray-800">{t('analytics.insights_month')}</h2>
+        <PieChartIcon className="w-5 h-5 text-slate-400" />
+        <h2 className="text-lg font-semibold text-slate-100">{t('analytics.insights_month')}</h2>
       </div>
 
       <div className="flex flex-col gap-8">
         
         {/* Income vs Expense Progress */}
         <div className="flex flex-col justify-center">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">{t('analytics.income_commitment')}</h3>
+          <h3 className="text-sm font-medium text-slate-400 mb-2">{t('analytics.income_commitment')}</h3>
           <div className="flex justify-between items-end mb-2">
             <div>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-2xl font-bold text-slate-100">
                 {totalReceitas > 0 ? `${progressPercent.toFixed(1)}%` : t('analytics.no_income')}
               </p>
-              <p className="text-xs text-gray-400">{t('analytics.of_income_spent')}</p>
+              <p className="text-xs text-slate-500">{t('analytics.of_income_spent')}</p>
             </div>
           </div>
           
-          <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
             <div 
               className={`h-3 rounded-full transition-all duration-500 ${progressColor}`} 
               style={{ width: `${progressPercent}%` }}
@@ -126,7 +126,7 @@ export const AnalyticsOverview = ({
           </div>
           
           {isOverBudget && (
-            <p className="text-xs text-red-500 mt-2 font-medium">
+            <p className="text-xs text-rose-400 mt-2 font-medium">
               Atenção: Suas despesas superaram suas receitas este mês!
             </p>
           )}
@@ -145,6 +145,7 @@ export const AnalyticsOverview = ({
                   outerRadius={80}
                   paddingAngle={2}
                   dataKey="value"
+                  stroke="none"
                 >
                   {expenseData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -154,12 +155,14 @@ export const AnalyticsOverview = ({
                   formatter={(value: any) => 
                     formatCurrency(Number(value), preferences.currency)
                   }
+                  contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f1f5f9' }}
+                  itemStyle={{ color: '#f1f5f9' }}
                 />
-                <Legend layout="vertical" verticalAlign="middle" align="right" wrapperStyle={{ fontSize: '12px' }} />
+                <Legend layout="vertical" verticalAlign="middle" align="right" wrapperStyle={{ fontSize: '12px', color: '#cbd5e1' }} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center text-gray-400">
+            <div className="h-full flex flex-col items-center justify-center text-slate-500">
               <p className="text-sm">{t('analytics.no_expenses_recorded')}</p>
             </div>
           )}
@@ -168,18 +171,18 @@ export const AnalyticsOverview = ({
         {/* Top 3 Expenses */}
         {topExpenses.length > 0 && (
           <div>
-            <h3 className="text-sm font-medium text-gray-500 mb-3 flex items-center gap-2">
+            <h3 className="text-sm font-medium text-slate-400 mb-3 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-orange-400" />
               {t('analytics.top_expenses') || 'Top 3 Maiores Despesas'}
             </h3>
             <div className="space-y-3">
               {topExpenses.map((exp, idx) => (
-                <div key={exp.id} className="flex justify-between items-center text-sm border-b border-gray-50 pb-2 last:border-0 last:pb-0">
+                <div key={exp.id} className="flex justify-between items-center text-sm border-b border-slate-700/50 pb-2 last:border-0 last:pb-0">
                   <div className="flex items-center gap-3">
-                    <span className="text-gray-400 font-medium">{idx + 1}</span>
-                    <span className="text-gray-700 truncate max-w-[150px] sm:max-w-[200px]">{exp.description}</span>
+                    <span className="text-slate-500 font-medium">{idx + 1}</span>
+                    <span className="text-slate-300 truncate max-w-[150px] sm:max-w-[200px]">{exp.description}</span>
                   </div>
-                  <span className="font-semibold text-gray-900">{formatCurrency(exp.amount, preferences.currency)}</span>
+                  <span className="font-semibold text-slate-100">{formatCurrency(exp.amount, preferences.currency)}</span>
                 </div>
               ))}
             </div>
@@ -188,23 +191,25 @@ export const AnalyticsOverview = ({
 
         {/* Historical 6 Months */}
         <div className="mt-4 w-full">
-          <h3 className="text-sm font-medium text-gray-500 mb-4 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-blue-500" />
+          <h3 className="text-sm font-medium text-slate-400 mb-4 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-blue-400" />
             {t('analytics.historical') || 'Evolução (6 Meses)'}
           </h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={historicalData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} tickFormatter={(val) => val > 0 ? (val > 1000 ? `${(val/1000).toFixed(1)}k` : val) : ''} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={(val) => val > 0 ? (val > 1000 ? `${(val/1000).toFixed(1)}k` : val) : ''} />
                 <Tooltip 
-                  cursor={{ fill: '#f9fafb' }}
+                  cursor={{ fill: '#334155' }}
                   formatter={(value: any) => formatCurrency(Number(value), preferences.currency)}
+                  contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f1f5f9' }}
+                  itemStyle={{ color: '#f1f5f9' }}
                 />
-                <Legend wrapperStyle={{ fontSize: '12px' }} />
+                <Legend wrapperStyle={{ fontSize: '12px', color: '#cbd5e1' }} />
                 <Bar dataKey="Receitas" name={t('dashboard.incomes') || 'Receitas'} fill="#10b981" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Despesas" name={t('dashboard.expenses') || 'Despesas'} fill="#ef4444" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Despesas" name={t('dashboard.expenses') || 'Despesas'} fill="#f43f5e" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

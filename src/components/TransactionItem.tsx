@@ -1,6 +1,7 @@
 import { formatCurrency } from '../utils/format';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { useTranslation } from 'react-i18next';
+import { getCategoryStyle } from '../constants/categories';
 
 import { Pencil, Trash2, CheckCircle, Circle, MoreVertical } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
@@ -39,7 +40,7 @@ export function TransactionItem({
   return (
     <li 
       ref={itemRef}
-      className={`py-4 flex items-center gap-3 transition-all duration-500 px-2 -mx-2 rounded-xl ${
+      className={`py-3.5 flex items-center gap-3 transition-all duration-500 px-2 -mx-2 rounded-xl group ${
         isHighlighted 
           ? 'bg-gray-100 shadow-sm scale-[1.01]' 
           : 'hover:bg-gray-50/50'
@@ -47,40 +48,49 @@ export function TransactionItem({
     >
       <button
         onClick={() => onTogglePaid(expense)}
-        className="shrink-0 text-gray-300 hover:text-green-500 focus:outline-none transition-colors"
+        className="shrink-0 focus:outline-none transition-colors mt-0.5 self-start"
         title={isPaid ? t('item.mark_pending') : t('item.mark_paid')}
       >
         {isPaid ? (
-          <CheckCircle className="h-6 w-6 text-green-500" />
+          <CheckCircle className="h-[22px] w-[22px] text-emerald-400 fill-emerald-900/50" strokeWidth={2} />
         ) : (
-          <Circle className="h-6 w-6" />
+          <Circle className="h-[22px] w-[22px] text-slate-600 group-hover:text-slate-500 transition-colors" strokeWidth={1.5} />
         )}
       </button>
       
-      <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+      <div className="flex-1 min-w-0 flex flex-col gap-1">
         {/* Top Line: Title and Amount */}
         <div className="flex justify-between items-start gap-2">
-          <p className={`text-base font-medium truncate ${isPaid ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+          <p translate="no" className={`text-base tracking-tight truncate ${isPaid ? 'text-slate-500 line-through font-normal' : 'text-slate-100 font-medium'}`}>
             {expense.description}
           </p>
-          <span className={`text-base font-semibold shrink-0 ${expense.type === 'income' ? 'text-green-600' : 'text-gray-900'}`}>
-             {expense.type === 'income' ? '+' : '-'} {formatCurrency(expense.amount, preferences.currency)}
-          </span>
+          {expense.amount === 0 ? (
+            <span className="text-sm font-medium tracking-tight shrink-0 text-amber-500/90 italic bg-amber-500/10 px-2 py-0.5 rounded">
+              {t('item.to_define')}
+            </span>
+          ) : (
+            <span className={`text-base font-semibold tracking-tight shrink-0 ${expense.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
+              {formatCurrency(expense.amount, preferences.currency)}
+            </span>
+          )}
         </div>
 
         {/* Bottom Line: Badges and Actions */}
         <div className="flex justify-between items-center gap-2">
           <div className="flex flex-wrap items-center gap-1.5 min-w-0">
-            {category && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] sm:text-xs font-medium bg-gray-100 text-gray-700">
-                {category.name}
-              </span>
-            )}
-            {expense.is_fixed && <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] sm:text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">{t('item.fixed')}</span>}
-            {expense.due_day && <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] sm:text-xs font-medium bg-red-50 text-red-700 border border-red-100">{t('item.day')} {expense.due_day}</span>}
-            <span className="text-[10px] sm:text-xs text-gray-400 hidden sm:inline-block ml-1">
-              {new Date(expense.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-            </span>
+            {category && (() => {
+              const { Icon: IconComponent, bgColor, textColor } = getCategoryStyle(category);
+              
+              return (
+                <span translate="no" className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-normal ${bgColor} ${textColor}`}>
+                  {IconComponent && <IconComponent className="w-3 h-3" />}
+                  {category.name}
+                </span>
+              );
+            })()}
+
+            {expense.due_day && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">{t('item.day')} {expense.due_day}</span>}
+
           </div>
 
           <div className="flex items-center shrink-0 ml-2 relative">
@@ -89,7 +99,7 @@ export function TransactionItem({
                  e.stopPropagation();
                  setIsMenuOpen(!isMenuOpen);
                }}
-               className="p-1 text-gray-400 hover:text-gray-600 transition-colors rounded-full hover:bg-gray-100"
+               className="p-1 text-slate-400 hover:text-slate-300 transition-colors rounded-full hover:bg-slate-700"
              >
                <MoreVertical className="h-5 w-5" />
              </button>
@@ -97,19 +107,19 @@ export function TransactionItem({
              {isMenuOpen && (
                <>
                  <div className="fixed inset-0 z-50" onClick={() => setIsMenuOpen(false)}></div>
-                 <div className="absolute right-0 top-full mt-1 w-32 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                 <div className="absolute right-0 top-full mt-1 w-32 bg-slate-800 rounded-lg shadow-xl border border-slate-700 py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
                    <button
                      onClick={() => { setIsMenuOpen(false); onEdit(expense); }}
-                     className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                     className="w-full text-left px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-700/50 flex items-center gap-2 transition-colors"
                    >
-                     <Pencil className="h-4 w-4 text-gray-400" />
+                     <Pencil className="h-4 w-4 text-slate-400" />
                      {t('item.edit')}
                    </button>
                    <button
                      onClick={() => { setIsMenuOpen(false); onDelete(expense.id); }}
-                     className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                     className="w-full text-left px-4 py-2.5 text-sm text-rose-400 hover:bg-rose-500/10 flex items-center gap-2 transition-colors"
                    >
-                     <Trash2 className="h-4 w-4 text-red-400" />
+                     <Trash2 className="h-4 w-4 text-rose-400" />
                      {t('item.delete')}
                    </button>
                  </div>

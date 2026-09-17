@@ -11,6 +11,7 @@ export type Expense = {
   is_paid?: boolean;
   paid_months?: string[];
   type?: 'income' | 'expense';
+  group_id?: string;
   category_id?: string;
 };
 
@@ -19,6 +20,8 @@ export type Category = {
   user_id: string;
   name: string;
   type: 'income' | 'expense';
+  icon?: string;
+  color?: string;
 };
 
 export type AppNotification = {
