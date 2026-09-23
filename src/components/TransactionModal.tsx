@@ -105,6 +105,9 @@ export function TransactionModal({
             created_at: `${selectedMonth}-01T12:00:00.000Z`,
             is_fixed: true,
             due_day: parsedDueDay,
+            is_paid: false,
+            paid_months: [],
+            excluded_months: [],
           };
           expensesToUpsert.push(updatedOriginal, newFixedExpense);
         } else {
@@ -123,6 +126,9 @@ export function TransactionModal({
             created_at: `${selectedMonth}-01T12:00:00.000Z`,
             is_fixed: false, // Override applies only to this month
             due_day: parsedDueDay,
+            is_paid: false,
+            paid_months: [],
+            excluded_months: [],
           };
           expensesToUpsert.push(updatedOriginal, overrideExpense);
         }
