@@ -110,10 +110,10 @@ export function SpendingEvolution({ allExpenses, categories, selectedMonth }: Sp
           </div>
 
           {/* Gráfico */}
-          <div className="overflow-x-auto pb-2">
-            <div className="min-w-[500px] h-64">
+          <div className="w-full pb-2">
+            <div className="w-full h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <BarChart data={chartData} margin={{ top: 10, right: 0, left: -25, bottom: 0 }}>
                   <XAxis 
                     dataKey="monthName" 
                     axisLine={false}
@@ -122,15 +122,16 @@ export function SpendingEvolution({ allExpenses, categories, selectedMonth }: Sp
                     dy={10}
                   />
                   <YAxis 
+                    width={35}
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#64748b', fontSize: 12 }}
+                    tick={{ fill: '#64748b', fontSize: 10 }}
                     tickFormatter={formatYAxis}
                   />
                   <Tooltip cursor={{ fill: '#334155', opacity: 0.4 }} content={<CustomTooltip />} />
                   <Bar 
                     dataKey="amount" 
-                    fill="#10b981" 
+                    fill="#f43f5e" 
                     radius={[4, 4, 0, 0]} 
                     maxBarSize={50}
                   />

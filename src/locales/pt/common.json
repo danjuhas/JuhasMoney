@@ -59,6 +59,7 @@
   "dashboard": {
     "home": "Início",
     "insights": "Relatórios",
+    "export": "Exportar",
     "settings": "Ajustes",
     "filters": "Filtros",
     "new_income": "Nova Receita",

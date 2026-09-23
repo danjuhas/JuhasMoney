@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Expense } from '../types';
-import { Plus, ChevronLeft, ChevronRight, Calendar, Filter, Infinity } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Calendar, Filter, Infinity, Download, FileText, Image as ImageIcon, Table, Loader2 } from 'lucide-react';
+import { exportToCSV, exportToImage, exportToPDF } from '../utils/exportData';
 import { SummaryCards } from '../components/SummaryCards';
 import { AnalyticsOverview } from '../components/AnalyticsOverview';
 import { SettingsOverview } from '../components/SettingsOverview';
@@ -75,6 +76,28 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { preferences, loading: prefsLoading } = usePreferences();
+
+  const [showExport, setShowExport] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async (type: 'csv' | 'png' | 'pdf') => {
+    setShowExport(false);
+    setIsExporting(true);
+    try {
+      if (type === 'csv') {
+        await exportToCSV(filteredExpenses, categories, selectedMonth);
+      } else if (type === 'png') {
+        await exportToImage('reports-export-area', selectedMonth);
+      } else if (type === 'pdf') {
+        await exportToPDF('reports-export-area', selectedMonth);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao exportar relatório. Tente novamente.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   useEffect(() => {
     checkUser();
@@ -339,6 +362,49 @@ export default function Dashboard() {
                   <span className="absolute -top-1 -right-1 h-3.5 w-3.5 bg-emerald-500 rounded-full ring-2 ring-slate-900"></span>
                 )}
               </button>
+
+              {activeTab === 'insights' && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowExport(!showExport)}
+                    disabled={isExporting}
+                    className="flex items-center gap-2 p-2.5 sm:px-4 sm:py-2.5 rounded-lg bg-slate-800 border border-slate-700/60 text-slate-300 hover:bg-slate-700 transition-colors shadow-sm disabled:opacity-50"
+                    title={t('dashboard.export')}
+                  >
+                    {isExporting ? <Loader2 className="w-5 h-5 sm:w-4 sm:h-4 animate-spin" /> : <Download className="w-5 h-5 sm:w-4 sm:h-4" />}
+                    <span className="hidden sm:inline font-medium text-sm">{t('dashboard.export') || 'Exportar'}</span>
+                  </button>
+
+                  {showExport && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setShowExport(false)} />
+                      <div className="absolute right-0 top-12 w-56 bg-slate-800 border border-slate-700/50 rounded-xl shadow-2xl backdrop-blur-sm overflow-hidden z-50 animate-fade-in-up">
+                        <button
+                          onClick={() => handleExport('pdf')}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors border-b border-slate-700/50"
+                        >
+                          <FileText className="w-4 h-4 text-rose-400" />
+                          <span>Exportar como PDF</span>
+                        </button>
+                        <button
+                          onClick={() => handleExport('png')}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors border-b border-slate-700/50"
+                        >
+                          <ImageIcon className="w-4 h-4 text-emerald-400" />
+                          <span>Salvar como Imagem</span>
+                        </button>
+                        <button
+                          onClick={() => handleExport('csv')}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors"
+                        >
+                          <Table className="w-4 h-4 text-blue-400" />
+                          <span>Baixar Planilha (CSV)</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
