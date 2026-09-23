@@ -63,17 +63,18 @@ export async function exportToPDF(elementId: string, monthStr: string) {
       pixelRatio: 2,
     });
     
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    // we need element height and width to calculate aspect ratio
     const elementWidth = element.offsetWidth || 1;
     const elementHeight = element.offsetHeight || 1;
+    
+    // Use fixed A4 width (210mm) and calculate dynamic height based on element aspect ratio
+    const pdfWidth = 210;
     const pdfHeight = (elementHeight * pdfWidth) / elementWidth;
+
+    const pdf = new jsPDF({
+      orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+      unit: 'mm',
+      format: [pdfWidth, pdfHeight]
+    });
 
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     
