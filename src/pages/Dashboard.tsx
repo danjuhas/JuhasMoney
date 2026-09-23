@@ -99,9 +99,7 @@ export default function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    checkUser();
-  }, []);
+  // Auth listener handles user session
 
   useEffect(() => {
     if (!prefsLoading && userId && !preferences.onboarding_completed) {
@@ -118,14 +116,25 @@ export default function Dashboard() {
   }, [userId, expenses, loading, prefsLoading, preferences.currency]);
 
 
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate('/login');
-    } else {
-      setUserId(session.user.id);
-    }
-  };
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate('/login');
+      } else {
+        setUserId(session.user.id);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate('/login');
+      } else {
+        setUserId(session.user.id);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleDeleteCategory = (id: string) => {
     deleteCategory(id);
@@ -246,7 +255,7 @@ export default function Dashboard() {
   const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const isCurrentMonth = selectedMonth === currentMonthStr;
 
-  if (prefsLoading) {
+  if (prefsLoading || !userId) {
     return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-400">{t('dashboard.loading')}</div>;
   }
 
