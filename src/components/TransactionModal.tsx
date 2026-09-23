@@ -376,7 +376,6 @@ export function TransactionModal({
                   <input
                     type="number"
                     min="2"
-                    max="48"
                     value={installmentsCount}
                     onChange={(e) => setInstallmentsCount(e.target.value)}
                     className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
