@@ -59,6 +59,7 @@
   "dashboard": {
     "home": "Inicio",
     "insights": "Reportes",
+    "export": "Exportar",
     "settings": "Ajustes",
     "filters": "Filtros",
     "new_income": "Nuevo Ingreso",

@@ -99,7 +99,7 @@ export const AnalyticsOverview = ({
   const progressColor = progressPercent >= 80 ? 'bg-red-500' : (progressPercent > 50 ? 'bg-yellow-500' : 'bg-emerald-500');
 
   return (
-    <div className="flex flex-col gap-6 mt-6">
+    <div id="reports-export-area" className="flex flex-col gap-6 mt-6">
       <div className="bg-slate-800/60 rounded-2xl p-6 shadow-sm border border-slate-700/50">
         <div className="flex items-center gap-2 mb-6">
           <PieChartIcon className="w-5 h-5 text-slate-400" />
