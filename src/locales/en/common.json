@@ -58,7 +58,7 @@
   },
   "dashboard": {
     "home": "Home",
-    "insights": "Insights",
+    "insights": "Reports",
     "settings": "Settings",
     "filters": "Filters",
     "new_income": "New Income",
@@ -149,7 +149,7 @@
   },
   "nav": {
     "home": "Home",
-    "insights": "Insights",
+    "insights": "Reports",
     "settings": "Settings"
   },
   "analytics": {
@@ -158,7 +158,7 @@
     "expenses": "Expenses",
     "balance": "Balance",
     "expenses_by_category": "Expenses by Category",
-    "insights_month": "Month's Insights",
+    "insights_month": "Month's Reports",
     "income_commitment": "Income Commitment",
     "no_income": "No Income",
     "top_expenses": "Top 3 Highest Expenses",

@@ -31,8 +31,9 @@ describe('TransactionModal Component', () => {
     selectedMonth: '2026-05',
     userId: 'user1',
     preferences: { currency: 'BRL', language: 'pt' },
-    transactionType: 'expense' as const,
-    transactionMode: 'quick' as const,
+    initialType: 'expense' as const,
+    initialMode: 'quick' as const,
+    editingExpense: null,
   };
 
   it('should not render anything if isOpen is false', () => {

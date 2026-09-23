@@ -76,4 +76,54 @@ describe('useTransactions Hook', () => {
     expect(chainableMock.eq).toHaveBeenCalledWith('group_id', 'group1');
     expect(chainableMock.gte).toHaveBeenCalledWith('created_at', '2026-05-10T10:00:00Z');
   });
+
+  it('should add to excluded_months when deleting a fixed expense for a single future month', async () => {
+    chainableMock.then.mockImplementationOnce((resolve) => resolve({ 
+        data: [{ 
+          id: 'exp_fixed', 
+          created_at: '2026-01-10T10:00:00Z', 
+          is_fixed: true, 
+          type: 'expense',
+          excluded_months: [] 
+        }], 
+        error: null 
+      }))
+      .mockImplementationOnce((resolve) => resolve({ data: [], error: null })); 
+
+    const { result } = renderHook(() => useTransactions('user-123'));
+
+    await waitFor(() => {
+      expect(result.current.expenses).toHaveLength(1);
+    });
+
+    chainableMock.update.mockClear();
+    chainableMock.eq.mockClear();
+
+    act(() => {
+      // Delete specifically for May 2026, without deleting all
+      result.current.deleteExpense('exp_fixed', '2026-05', false);
+    });
+
+    // It should optimistically update the local state to include the excluded month
+    expect(result.current.expenses[0].excluded_months).toContain('2026-05');
+
+    // It should call supabase.update with the excluded_months array
+    expect(chainableMock.update).toHaveBeenCalledWith({ excluded_months: ['2026-05'] });
+    expect(chainableMock.eq).toHaveBeenCalledWith('id', 'exp_fixed');
+  });
+
+  it('should call upsert on supabase when upsertExpenses is called', async () => {
+    const { result } = renderHook(() => useTransactions('user-123'));
+    
+    chainableMock.upsert.mockClear();
+
+    const mockExpenses = [{ id: 'new_exp', description: 'Test', amount: 100, type: 'expense' as const, created_at: '2026-05-10T12:00:00Z', is_fixed: false }];
+    
+    act(() => {
+      result.current.upsertExpenses(mockExpenses);
+    });
+
+    expect(result.current.expenses).toContainEqual(mockExpenses[0]);
+    expect(chainableMock.upsert).toHaveBeenCalledWith(mockExpenses);
+  });
 });

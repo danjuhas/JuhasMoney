@@ -58,7 +58,7 @@
   },
   "dashboard": {
     "home": "Início",
-    "insights": "Insights",
+    "insights": "Relatórios",
     "settings": "Ajustes",
     "filters": "Filtros",
     "new_income": "Nova Receita",
@@ -149,7 +149,7 @@
   },
   "nav": {
     "home": "Início",
-    "insights": "Insights",
+    "insights": "Relatórios",
     "settings": "Ajustes"
   },
   "analytics": {
@@ -158,7 +158,7 @@
     "expenses": "Despesas",
     "balance": "Saldo",
     "expenses_by_category": "Despesas por Categoria",
-    "insights_month": "Insights do Mês",
+    "insights_month": "Relatórios do Mês",
     "income_commitment": "Comprometimento de Receita",
     "no_income": "Sem Receita",
     "top_expenses": "Top 3 Maiores Despesas",
