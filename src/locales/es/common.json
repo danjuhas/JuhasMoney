@@ -58,7 +58,7 @@
   },
   "dashboard": {
     "home": "Inicio",
-    "insights": "Insights",
+    "insights": "Reportes",
     "settings": "Ajustes",
     "filters": "Filtros",
     "new_income": "Nuevo Ingreso",
@@ -149,7 +149,7 @@
   },
   "nav": {
     "home": "Inicio",
-    "insights": "Insights",
+    "insights": "Reportes",
     "settings": "Ajustes"
   },
   "analytics": {
@@ -158,7 +158,7 @@
     "expenses": "Gastos",
     "balance": "Saldo",
     "expenses_by_category": "Gastos por Categoría",
-    "insights_month": "Insights del Mes",
+    "insights_month": "Reportes del Mes",
     "income_commitment": "Compromiso de Ingresos",
     "no_income": "Sin Ingresos",
     "top_expenses": "Top 3 Mayores Gastos",
