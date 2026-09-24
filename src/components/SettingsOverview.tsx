@@ -77,7 +77,7 @@ export const SettingsOverview = ({
         <section>
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-emerald-400" />
-            <h3 className="font-medium text-slate-100">Minha Conta</h3>
+            <h3 className="font-medium text-slate-100">{t('settings.my_account')}</h3>
           </div>
           
           <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 flex flex-col gap-6">

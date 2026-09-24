@@ -28,16 +28,74 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
   }, [expenses, selectedMonth]);
 
   // Step 2: Calculate Totals (always based on month only, ignoring filters)
-  const { totalReceitas, totalDespesas, saldo, totalPendente } = useMemo(() => {
-    const totalReceitas = monthExpenses.reduce((acc, curr) => curr.type === 'income' ? acc + curr.amount : acc, 0);
-    const totalDespesas = monthExpenses.reduce((acc, curr) => curr.type !== 'income' ? acc + curr.amount : acc, 0);
-    const saldo = totalReceitas - totalDespesas;
-    const totalPendente = monthExpenses.reduce((acc, curr) => {
+  const totals = useMemo(() => {
+    const totalIncomes = monthExpenses.reduce((acc, curr) => curr.type === 'income' ? acc + curr.amount : acc, 0);
+    const totalExpenses = monthExpenses.reduce((acc, curr) => curr.type !== 'income' ? acc + curr.amount : acc, 0);
+    
+    // Calculate accumulated balance from past months
+    let accumulatedPaid = 0;
+    let accumulatedProjected = 0;
+
+    for (const exp of expenses) {
+      const expDate = new Date(exp.created_at);
+      const startMonth = `${expDate.getFullYear()}-${String(expDate.getMonth() + 1).padStart(2, '0')}`;
+
+      if (exp.is_fixed) {
+        let currentMonthStr = startMonth;
+        // Check all months from start until before selectedMonth
+        while (currentMonthStr < selectedMonth) {
+          if (exp.end_month && currentMonthStr > exp.end_month) break;
+          
+          if (!exp.excluded_months?.includes(currentMonthStr)) {
+            const amount = exp.type === 'income' ? exp.amount : -exp.amount;
+            accumulatedProjected += amount; // Always expected
+            
+            if (exp.paid_months?.includes(currentMonthStr)) {
+              accumulatedPaid += amount; // Actually paid
+            }
+          }
+          
+          // Increment month
+          let year = parseInt(currentMonthStr.slice(0, 4));
+          let month = parseInt(currentMonthStr.slice(5, 7));
+          month++;
+          if (month > 12) { month = 1; year++; }
+          currentMonthStr = `${year}-${String(month).padStart(2, '0')}`;
+        }
+      } else {
+        if (startMonth < selectedMonth) {
+          const amount = exp.type === 'income' ? exp.amount : -exp.amount;
+          accumulatedProjected += amount; // Always expected
+          
+          if (exp.is_paid) {
+            accumulatedPaid += amount; // Actually paid
+          }
+        }
+      }
+    }
+    
+    // Projeção futura total
+    const projectedBalance = accumulatedProjected + totalIncomes - totalExpenses;
+    
+    // Saldo físico atual
+    const paidIncomes = monthExpenses.reduce((acc, curr) => (curr.type === 'income' && isExpensePaid(curr, selectedMonth)) ? acc + curr.amount : acc, 0);
+    const paidExpenses = monthExpenses.reduce((acc, curr) => (curr.type !== 'income' && isExpensePaid(curr, selectedMonth)) ? acc + curr.amount : acc, 0);
+    const currentBalance = accumulatedPaid + paidIncomes - paidExpenses;
+    
+    const totalPending = monthExpenses.reduce((acc, curr) => {
       if (curr.type === 'income') return acc;
       return isExpensePaid(curr, selectedMonth) ? acc : acc + curr.amount;
     }, 0);
-    return { totalReceitas, totalDespesas, saldo, totalPendente };
-  }, [monthExpenses, selectedMonth]);
+
+    return { 
+      totalIncomes, 
+      totalExpenses, 
+      totalPending,
+      accumulatedBalance: accumulatedPaid,
+      currentBalance,
+      projectedBalance
+    };
+  }, [monthExpenses, expenses, selectedMonth]);
 
   // Step 3: Apply User Filters (Type, Status, Category)
   const filteredExpenses = useMemo(() => {
@@ -111,6 +169,6 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
     clearFilters,
     filteredExpenses: monthExpenses, // Returning month expenses here in case something needs it
     finalExpenses,
-    totals: { totalReceitas, totalDespesas, saldo, totalPendente }
+    totals
   };
 }

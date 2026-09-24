@@ -39,8 +39,8 @@ describe('SpendingEvolution Component', () => {
       />
     );
 
-    expect(screen.getByPlaceholderText(/Busque por despesa ou categoria/i)).toBeInTheDocument();
-    expect(screen.getByText(/Digite o nome de uma despesa ou categoria/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('analytics.search_placeholder')).toBeInTheDocument();
+    expect(screen.getByText('analytics.type_to_search')).toBeInTheDocument();
   });
 
   it('renders empty state when search term yields no results', () => {
@@ -52,10 +52,10 @@ describe('SpendingEvolution Component', () => {
       />
     );
 
-    const input = screen.getByPlaceholderText(/Busque por despesa ou categoria/i);
+    const input = screen.getByPlaceholderText('analytics.search_placeholder');
     fireEvent.change(input, { target: { value: 'Posto' } });
 
-    expect(screen.getByText(/Nenhum histórico encontrado para "Posto"/i)).toBeInTheDocument();
+    expect(screen.getByText('analytics.no_history')).toBeInTheDocument();
   });
 
   it('renders charts and metrics when data matches the search term', () => {
@@ -67,14 +67,14 @@ describe('SpendingEvolution Component', () => {
       />
     );
 
-    const input = screen.getByPlaceholderText(/Busque por despesa ou categoria/i);
+    const input = screen.getByPlaceholderText('analytics.search_placeholder');
     // Search for Assai
     fireEvent.change(input, { target: { value: 'Assai' } });
 
     // The component should render the Total, Average and Trend metrics
-    expect(screen.getByText(/Total \(6m\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/Média Mensal/i)).toBeInTheDocument();
-    expect(screen.getByText(/Tendência \(vs Média\)/i)).toBeInTheDocument();
+    expect(screen.getByText('analytics.total_6m')).toBeInTheDocument();
+    expect(screen.getByText('analytics.monthly_avg')).toBeInTheDocument();
+    expect(screen.getByText('analytics.trend')).toBeInTheDocument();
     
     // Total should be 300 (since there's only one expense of 300)
     // Wait, the currency format uses R$ for BRL. Since it might use non-breaking spaces or different formats based on the environment,

@@ -54,7 +54,8 @@
     "currency": "Moeda",
     "category_name": "Nome da categoria",
     "new_password": "Nova Senha",
-    "new_password_placeholder": "Nova senha (mín. 6 caracteres)"
+    "new_password_placeholder": "Nova senha (mín. 6 caracteres)",
+    "my_account": "Minha Conta"
   },
   "dashboard": {
     "home": "Início",
@@ -114,7 +115,10 @@
     "sort_date_asc": "Mais antigas",
     "sort_name_asc": "A - Z (Alfabética)",
     "sort_amount_desc": "Maior valor",
-    "sort_amount_asc": "Menor valor"
+    "sort_amount_asc": "Menor valor",
+    "export_pdf": "Exportar como PDF",
+    "export_png": "Salvar como Imagem",
+    "export_csv": "Baixar Planilha (CSV)"
   },
   "filter": {
     "filters": "Filtros",
@@ -165,13 +169,25 @@
     "top_expenses": "Top 3 Maiores Despesas",
     "historical": "Evolução (6 Meses)",
     "no_expenses_recorded": "Nenhuma despesa registrada.",
-    "of_income_spent": "da receita já gasta"
+    "of_income_spent": "da receita já gasta",
+    "uncategorized": "Sem categoria",
+    "spending_evolution": "Evolução do Gasto (6 meses)",
+    "search_placeholder": "Busque por despesa ou categoria (ex: Uber, Mercado)...",
+    "type_to_search": "Digite o nome de uma despesa ou categoria para ver seu histórico.",
+    "no_history": "Nenhum histórico encontrado para \"{{term}}\".",
+    "total_6m": "Total (6m)",
+    "monthly_avg": "Média Mensal",
+    "trend": "Tendência (vs Média)",
+    "stable": "Estável"
   },
   "summary": {
     "incomes": "Receitas",
     "expenses": "Despesas",
     "balance": "Saldo",
-    "pending": "Pendentes"
+    "pending": "Pendentes",
+    "accumulated": "Acumulado",
+    "accumulated_tooltip": "Inclui acúmulo de meses anteriores: {{amount}}",
+    "projected": "Projeção final do mês:"
   },
   "notifications": {
     "title": "Notificações",
@@ -185,6 +201,12 @@
     "bill_due_single": "Conta vence {{when}}!",
     "bill_due_multiple": "{{count}} contas vencem {{when}}!",
     "bill_desc_single": "{{description}} no valor de {{amount}} vence {{when}}.",
-    "bill_desc_multiple": "Você tem contas totalizando {{amount}} vencendo {{when}}."
+    "bill_desc_multiple": "Você tem contas totalizando {{amount}} vencendo {{when}}.",
+    "past_pending_title": "Lançamentos Atrasados",
+    "past_pending_desc": "Você tem {{count}} lançamento(s) pendente(s) de meses anteriores. Atualize-os para manter sua projeção precisa!"
+  },
+  "categories": {
+    "icon": "Ícone",
+    "color": "Cor"
   }
 }

@@ -54,7 +54,8 @@
     "currency": "Moneda",
     "category_name": "Nombre de la categoría",
     "new_password": "Nueva Contraseña",
-    "new_password_placeholder": "Nueva contraseña (mín. 6 caracteres)"
+    "new_password_placeholder": "Nueva contraseña (mín. 6 caracteres)",
+    "my_account": "Mi Cuenta"
   },
   "dashboard": {
     "home": "Inicio",
@@ -114,7 +115,10 @@
     "sort_date_asc": "Más antiguas",
     "sort_name_asc": "A - Z",
     "sort_amount_desc": "Mayor valor",
-    "sort_amount_asc": "Menor valor"
+    "sort_amount_asc": "Menor valor",
+    "export_pdf": "Exportar como PDF",
+    "export_png": "Guardar como Imagen",
+    "export_csv": "Descargar Hoja de Cálculo (CSV)"
   },
   "filter": {
     "filters": "Filtros",
@@ -165,13 +169,25 @@
     "top_expenses": "Top 3 Mayores Gastos",
     "historical": "Evolución (6 Meses)",
     "no_expenses_recorded": "Ningún gasto registrado.",
-    "of_income_spent": "de los ingresos ya gastados"
+    "of_income_spent": "de los ingresos ya gastados",
+    "uncategorized": "Sin categoría",
+    "spending_evolution": "Evolución del Gasto (6 meses)",
+    "search_placeholder": "Buscar gasto o categoría (ej. Uber, Mercado)...",
+    "type_to_search": "Escribe el nombre de un gasto o categoría para ver su historial.",
+    "no_history": "No se encontró historial para \"{{term}}\".",
+    "total_6m": "Total (6m)",
+    "monthly_avg": "Promedio Mensual",
+    "trend": "Tendencia (vs Promedio)",
+    "stable": "Estable"
   },
   "summary": {
     "incomes": "Ingresos",
     "expenses": "Gastos",
     "balance": "Saldo",
-    "pending": "Pendientes"
+    "pending": "Pendientes",
+    "accumulated": "Acumulado",
+    "accumulated_tooltip": "Incluye saldo de meses anteriores: {{amount}}",
+    "projected": "Proyección final del mes:"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -185,6 +201,12 @@
     "bill_due_single": "¡Factura vence {{when}}!",
     "bill_due_multiple": "¡{{count}} facturas vencen {{when}}!",
     "bill_desc_single": "{{description}} de {{amount}} vence {{when}}.",
-    "bill_desc_multiple": "Tienes facturas por un total de {{amount}} que vencen {{when}}."
+    "bill_desc_multiple": "Tienes facturas por un total de {{amount}} que vencen {{when}}.",
+    "past_pending_title": "Transacciones Atrasadas",
+    "past_pending_desc": "Tienes {{count}} transacción(es) pendiente(s) de meses anteriores. ¡Actualízalas para mantener tu proyección precisa!"
+  },
+  "categories": {
+    "icon": "Ícono",
+    "color": "Color"
   }
 }

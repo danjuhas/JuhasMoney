@@ -184,4 +184,42 @@ describe('NotificationService', () => {
       expect(notifications).toHaveLength(0); // Should not notify for incomes
     });
   });
+
+  describe('syncPastPending', () => {
+    it('should generate a WARNING notification if there are pending expenses in past months', () => {
+      const expenses: Expense[] = [
+        { id: '1', user_id: 'user', description: 'Pending Past', amount: 100, created_at: '2026-04-10T10:00:00Z', is_paid: false },
+        { id: '2', user_id: 'user', description: 'Paid Past', amount: 200, created_at: '2026-04-12T10:00:00Z', is_paid: true }
+      ];
+
+      vi.setSystemTime(new Date('2026-05-15T12:00:00Z'));
+      NotificationService.syncPastPending('user123', expenses);
+
+      const notifications = NotificationService.getNotifications('user123');
+      const pastAlert = notifications.find(n => n.id === 'past-pending-alert');
+      
+      expect(pastAlert).toBeDefined();
+      expect(pastAlert?.type).toBe('WARNING');
+      expect(pastAlert?.message).toContain('1 lançamento(s) pendente(s)');
+      expect(pastAlert?.hidden).toBe(false);
+    });
+
+    it('should hide the notification if all past expenses are paid', () => {
+      const expenses: Expense[] = [
+        { id: '1', user_id: 'user', description: 'Pending Past', amount: 100, created_at: '2026-04-10T10:00:00Z', is_paid: false }
+      ];
+
+      vi.setSystemTime(new Date('2026-05-15T12:00:00Z'));
+      NotificationService.syncPastPending('user123', expenses); // generates it
+
+      let notifications = NotificationService.getNotifications('user123');
+      expect(notifications.find(n => n.id === 'past-pending-alert')?.hidden).toBe(false);
+
+      expenses[0].is_paid = true;
+      NotificationService.syncPastPending('user123', expenses); // should hide it
+
+      notifications = NotificationService.getNotifications('user123');
+      expect(notifications.find(n => n.id === 'past-pending-alert')?.hidden).toBe(true);
+    });
+  });
 });

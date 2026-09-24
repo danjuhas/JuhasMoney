@@ -112,6 +112,83 @@ export const NotificationService = {
       newNotifications.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       this.saveNotifications(userId, newNotifications);
     }
+  },
+
+  syncPastPending(userId: string, expenses: Expense[]) {
+    this.cleanOldNotifications(userId);
+    const notifications = this.getNotifications(userId);
+    let newNotifications = [...notifications];
+    let updated = false;
+
+    const now = new Date();
+    const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    
+    let pendingCount = 0;
+    
+    for (const exp of expenses) {
+      const expDate = new Date(exp.created_at);
+      const startMonth = `${expDate.getFullYear()}-${String(expDate.getMonth() + 1).padStart(2, '0')}`;
+      
+      if (exp.is_fixed) {
+        let cm = startMonth;
+        while (cm < currentMonthStr) {
+          if (exp.end_month && cm > exp.end_month) break;
+          if (!exp.excluded_months?.includes(cm)) {
+            if (!exp.paid_months?.includes(cm)) {
+              pendingCount++;
+            }
+          }
+          let y = parseInt(cm.slice(0, 4));
+          let m = parseInt(cm.slice(5, 7));
+          m++; if (m > 12) { m = 1; y++; }
+          cm = `${y}-${String(m).padStart(2, '0')}`;
+        }
+      } else {
+        if (startMonth < currentMonthStr && !exp.is_paid) {
+          pendingCount++;
+        }
+      }
+    }
+
+    const id = `past-pending-alert`;
+    const existingIdx = newNotifications.findIndex(n => n.id === id);
+    
+    if (pendingCount > 0) {
+      const title = i18n.t('notifications.past_pending_title');
+      const message = i18n.t('notifications.past_pending_desc', { count: pendingCount });
+      
+      if (existingIdx >= 0) {
+        if (newNotifications[existingIdx].message !== message) {
+          newNotifications[existingIdx].message = message;
+          newNotifications[existingIdx].is_read = false;
+          newNotifications[existingIdx].hidden = false;
+          updated = true;
+        }
+      } else {
+        newNotifications.push({
+          id,
+          user_id: userId,
+          title,
+          message,
+          is_read: false,
+          created_at: new Date().toISOString(),
+          type: 'WARNING',
+          hidden: false
+        });
+        updated = true;
+      }
+    } else {
+      // Remove it if everything is cleared
+      if (existingIdx >= 0 && !newNotifications[existingIdx].hidden) {
+         newNotifications[existingIdx].hidden = true;
+         updated = true;
+      }
+    }
+
+    if (updated) {
+      newNotifications.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      this.saveNotifications(userId, newNotifications);
+    }
   }
 };
 

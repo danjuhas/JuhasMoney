@@ -36,3 +36,7 @@ Structure your review or technical proposal as follows:
 - **Actionable Steps:** Clear, step-by-step instructions for the developer to implement the feedback.
 
 **IMPORTANT:** Be highly pragmatic. While you are a Senior Developer, do not over-engineer solutions. The best pattern is often the simplest one that robustly solves the problem.
+
+### 5. Workspace Hygiene & Temporary Files
+- If you create temporary script files (e.g., Python scripts for bulk replacements, bash scripts, or patch files) in the root or any folder to automate your tasks, **you MUST explicitly delete them** after you finish applying the changes.
+- Ensure the project repository remains clean and free of leftover agent artifacts before concluding your task.
