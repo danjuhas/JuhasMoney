@@ -29,12 +29,12 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
 
   // Step 2: Calculate Totals (always based on month only, ignoring filters)
   const totals = useMemo(() => {
-    const totalReceitas = monthExpenses.reduce((acc, curr) => curr.type === 'income' ? acc + curr.amount : acc, 0);
-    const totalDespesas = monthExpenses.reduce((acc, curr) => curr.type !== 'income' ? acc + curr.amount : acc, 0);
+    const totalIncomes = monthExpenses.reduce((acc, curr) => curr.type === 'income' ? acc + curr.amount : acc, 0);
+    const totalExpenses = monthExpenses.reduce((acc, curr) => curr.type !== 'income' ? acc + curr.amount : acc, 0);
     
     // Calculate accumulated balance from past months
-    let accumulatedReal = 0;
-    let accumulatedProjetado = 0;
+    let accumulatedPaid = 0;
+    let accumulatedProjected = 0;
 
     for (const exp of expenses) {
       const expDate = new Date(exp.created_at);
@@ -48,10 +48,10 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
           
           if (!exp.excluded_months?.includes(currentMonthStr)) {
             const amount = exp.type === 'income' ? exp.amount : -exp.amount;
-            accumulatedProjetado += amount; // Always expected
+            accumulatedProjected += amount; // Always expected
             
             if (exp.paid_months?.includes(currentMonthStr)) {
-              accumulatedReal += amount; // Actually paid
+              accumulatedPaid += amount; // Actually paid
             }
           }
           
@@ -65,35 +65,35 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
       } else {
         if (startMonth < selectedMonth) {
           const amount = exp.type === 'income' ? exp.amount : -exp.amount;
-          accumulatedProjetado += amount; // Always expected
+          accumulatedProjected += amount; // Always expected
           
           if (exp.is_paid) {
-            accumulatedReal += amount; // Actually paid
+            accumulatedPaid += amount; // Actually paid
           }
         }
       }
     }
     
     // Projeção futura total
-    const saldoProjetado = accumulatedProjetado + totalReceitas - totalDespesas;
+    const projectedBalance = accumulatedProjected + totalIncomes - totalExpenses;
     
     // Saldo físico atual
     const paidIncomes = monthExpenses.reduce((acc, curr) => (curr.type === 'income' && isExpensePaid(curr, selectedMonth)) ? acc + curr.amount : acc, 0);
     const paidExpenses = monthExpenses.reduce((acc, curr) => (curr.type !== 'income' && isExpensePaid(curr, selectedMonth)) ? acc + curr.amount : acc, 0);
-    const saldoAtual = accumulatedReal + paidIncomes - paidExpenses;
+    const currentBalance = accumulatedPaid + paidIncomes - paidExpenses;
     
-    const totalPendente = monthExpenses.reduce((acc, curr) => {
+    const totalPending = monthExpenses.reduce((acc, curr) => {
       if (curr.type === 'income') return acc;
       return isExpensePaid(curr, selectedMonth) ? acc : acc + curr.amount;
     }, 0);
 
     return { 
-      totalReceitas, 
-      totalDespesas, 
-      totalPendente,
-      saldoAcumulado: accumulatedReal,
-      saldoAtual,
-      saldoProjetado
+      totalIncomes, 
+      totalExpenses, 
+      totalPending,
+      accumulatedBalance: accumulatedPaid,
+      currentBalance,
+      projectedBalance
     };
   }, [monthExpenses, expenses, selectedMonth]);
 

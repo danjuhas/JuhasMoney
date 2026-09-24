@@ -65,7 +65,7 @@ export default function Dashboard() {
     clearFilters,
     filteredExpenses,
     finalExpenses,
-    totals: { totalReceitas, totalDespesas, totalPendente, saldoAcumulado, saldoAtual, saldoProjetado },
+    totals: { totalIncomes, totalExpenses, totalPending, accumulatedBalance, currentBalance, projectedBalance },
     filterCategory,
     setFilterCategory,
     sortBy,
@@ -424,12 +424,12 @@ export default function Dashboard() {
           <div className={`md:col-span-1 ${activeTab !== 'home' ? 'hidden' : ''}`}>
             {/* Removed top buttons, using FAB */}
             <SummaryCards 
-              totalReceitas={totalReceitas} 
-              totalDespesas={totalDespesas} 
-              saldo={saldoAtual} 
-              totalPendente={totalPendente}
-              saldoAcumulado={saldoAcumulado}
-              saldoProjetado={saldoProjetado}
+              totalIncomes={totalIncomes} 
+              totalExpenses={totalExpenses} 
+              balance={currentBalance} 
+              totalPending={totalPending}
+              accumulatedBalance={accumulatedBalance}
+              projectedBalance={projectedBalance}
             />
           </div>
           
@@ -438,8 +438,8 @@ export default function Dashboard() {
             <AnalyticsOverview 
               expenses={filteredExpenses} allExpenses={expenses} selectedMonth={selectedMonth} 
               categories={categories} 
-              totalReceitas={totalReceitas} 
-              totalDespesas={totalDespesas} 
+              totalIncomes={totalIncomes} 
+              totalExpenses={totalExpenses} 
             />
           </div>
 

@@ -14,15 +14,15 @@ type Props = {
   allExpenses: Expense[];
   selectedMonth: string;
   categories: Category[];
-  totalReceitas: number;
-  totalDespesas: number;
+  totalIncomes: number;
+  totalExpenses: number;
 };
 
 // Pastel colors for the donut chart
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
 export const AnalyticsOverview = ({
-  expenses, allExpenses, selectedMonth, categories, totalReceitas, totalDespesas }: Props) => {
+  expenses, allExpenses, selectedMonth, categories, totalIncomes, totalExpenses }: Props) => {
   const { t } = useTranslation();
   const { preferences } = usePreferences();
   const expenseData = useMemo(() => {
@@ -94,8 +94,8 @@ export const AnalyticsOverview = ({
     return data;
   }, [allExpenses, selectedMonth, t]);
 
-  const progressPercent = totalReceitas > 0 ? Math.min((totalDespesas / totalReceitas) * 100, 100) : (totalDespesas > 0 ? 100 : 0);
-  const isOverBudget = totalDespesas > totalReceitas;
+  const progressPercent = totalIncomes > 0 ? Math.min((totalExpenses / totalIncomes) * 100, 100) : (totalExpenses > 0 ? 100 : 0);
+  const isOverBudget = totalExpenses > totalIncomes;
   const progressColor = progressPercent >= 80 ? 'bg-red-500' : (progressPercent > 50 ? 'bg-yellow-500' : 'bg-emerald-500');
 
   return (
@@ -114,7 +114,7 @@ export const AnalyticsOverview = ({
             <div className="flex justify-between items-end mb-2">
               <div>
                 <p className="text-2xl font-bold text-slate-100">
-                  {totalReceitas > 0 ? `${progressPercent.toFixed(1)}%` : t('analytics.no_income')}
+                  {totalIncomes > 0 ? `${progressPercent.toFixed(1)}%` : t('analytics.no_income')}
                 </p>
                 <p className="text-xs text-slate-500">{t('analytics.of_income_spent')}</p>
               </div>

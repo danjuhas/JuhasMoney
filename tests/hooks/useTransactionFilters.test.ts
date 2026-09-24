@@ -18,12 +18,12 @@ describe('useTransactionFilters Hook', () => {
   it('should calculate totals correctly based on the month, ignoring UI filters', () => {
     const { result } = renderHook(() => useTransactionFilters(mockExpenses, mockCategories, '2026-05'));
     
-    expect(result.current.totals.totalReceitas).toBe(5000);
-    expect(result.current.totals.totalDespesas).toBe(1600);
-    expect(result.current.totals.saldoAtual).toBe(3500); // Only paid (5000 - 1500)
-    expect(result.current.totals.totalPendente).toBe(100);
-    expect(result.current.totals.saldoAcumulado).toBe(0);
-    expect(result.current.totals.saldoProjetado).toBe(3400); // All expected (5000 - 1600)
+    expect(result.current.totals.totalIncomes).toBe(5000);
+    expect(result.current.totals.totalExpenses).toBe(1600);
+    expect(result.current.totals.currentBalance).toBe(3500); // Only paid (5000 - 1500)
+    expect(result.current.totals.totalPending).toBe(100);
+    expect(result.current.totals.accumulatedBalance).toBe(0);
+    expect(result.current.totals.projectedBalance).toBe(3400); // All expected (5000 - 1600)
   });
 
   it('should filter by type (expenses only)', () => {
@@ -35,7 +35,7 @@ describe('useTransactionFilters Hook', () => {
 
     expect(result.current.finalExpenses).toHaveLength(2); // Aluguel e Internet
     // Totals should not be affected by UI filter
-    expect(result.current.totals.totalDespesas).toBe(1600);
+    expect(result.current.totals.totalExpenses).toBe(1600);
   });
 
   it('should filter by status (pending only)', () => {
@@ -74,12 +74,12 @@ describe('useTransactionFilters Hook', () => {
     const { result } = renderHook(() => useTransactionFilters(historicalExpenses, mockCategories, '2026-05'));
     
     // Past Paid = +1000 - 200 = 800 (Accumulated Real)
-    expect(result.current.totals.saldoAcumulado).toBe(800);
+    expect(result.current.totals.accumulatedBalance).toBe(800);
     // Past Expected = +1000 - 200 - 300 = 500 (Accumulated Projected)
     // Current Incomes = 2000, Current Expenses = 0
     // Saldo Atual = Accumulated Real (800) + Current Paid (2000) = 2800
-    expect(result.current.totals.saldoAtual).toBe(2800);
+    expect(result.current.totals.currentBalance).toBe(2800);
     // Saldo Projetado = Accumulated Projected (500) + Current Total (2000) = 2500
-    expect(result.current.totals.saldoProjetado).toBe(2500);
+    expect(result.current.totals.projectedBalance).toBe(2500);
   });
 });
