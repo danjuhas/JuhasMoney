@@ -54,7 +54,8 @@
     "currency": "Currency",
     "category_name": "Category name",
     "new_password": "New Password",
-    "new_password_placeholder": "New password (min. 6 chars)"
+    "new_password_placeholder": "New password (min. 6 chars)",
+    "my_account": "My Account"
   },
   "dashboard": {
     "home": "Home",
@@ -114,7 +115,10 @@
     "sort_date_asc": "Oldest first",
     "sort_name_asc": "A - Z",
     "sort_amount_desc": "Highest amount",
-    "sort_amount_asc": "Lowest amount"
+    "sort_amount_asc": "Lowest amount",
+    "export_pdf": "Export as PDF",
+    "export_png": "Save as Image",
+    "export_csv": "Download Spreadsheet (CSV)"
   },
   "filter": {
     "filters": "Filters",
@@ -165,13 +169,25 @@
     "top_expenses": "Top 3 Highest Expenses",
     "historical": "6-Month Trend",
     "no_expenses_recorded": "No expenses recorded.",
-    "of_income_spent": "of income already spent"
+    "of_income_spent": "of income already spent",
+    "uncategorized": "Uncategorized",
+    "spending_evolution": "Spending Evolution (6 months)",
+    "search_placeholder": "Search by expense or category (e.g., Uber, Groceries)...",
+    "type_to_search": "Type the name of an expense or category to see its history.",
+    "no_history": "No history found for \"{{term}}\".",
+    "total_6m": "Total (6m)",
+    "monthly_avg": "Monthly Avg",
+    "trend": "Trend (vs Avg)",
+    "stable": "Stable"
   },
   "summary": {
     "incomes": "Incomes",
     "expenses": "Expenses",
     "balance": "Balance",
-    "pending": "Pending"
+    "pending": "Pending",
+    "accumulated": "Rollover",
+    "accumulated_tooltip": "Includes rollover from previous months: {{amount}}",
+    "projected": "End of month projection:"
   },
   "notifications": {
     "title": "Notifications",
@@ -185,6 +201,12 @@
     "bill_due_single": "Bill due {{when}}!",
     "bill_due_multiple": "{{count}} bills due {{when}}!",
     "bill_desc_single": "{{description}} of {{amount}} is due {{when}}.",
-    "bill_desc_multiple": "You have bills totaling {{amount}} due {{when}}."
+    "bill_desc_multiple": "You have bills totaling {{amount}} due {{when}}.",
+    "past_pending_title": "Overdue Transactions",
+    "past_pending_desc": "You have {{count}} pending transaction(s) from previous months. Update them to keep your projection accurate!"
+  },
+  "categories": {
+    "icon": "Icon",
+    "color": "Color"
   }
 }

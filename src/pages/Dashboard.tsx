@@ -65,7 +65,7 @@ export default function Dashboard() {
     clearFilters,
     filteredExpenses,
     finalExpenses,
-    totals: { totalReceitas, totalDespesas, saldo, totalPendente },
+    totals: { totalReceitas, totalDespesas, totalPendente, saldoAcumulado, saldoAtual, saldoProjetado },
     filterCategory,
     setFilterCategory,
     sortBy,
@@ -110,6 +110,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (userId && expenses.length > 0 && !loading && !prefsLoading) {
       NotificationService.syncUpcomingExpenses(userId, expenses, preferences.currency || 'BRL');
+      NotificationService.syncPastPending(userId, expenses);
       // Dispatch a custom event so the hook can reload if it's already mounted
       window.dispatchEvent(new Event('storage'));
     }
@@ -393,21 +394,21 @@ export default function Dashboard() {
                           className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors border-b border-slate-700/50"
                         >
                           <FileText className="w-4 h-4 text-rose-400" />
-                          <span>Exportar como PDF</span>
+                          <span>{t('dashboard.export_pdf')}</span>
                         </button>
                         <button
                           onClick={() => handleExport('png')}
                           className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors border-b border-slate-700/50"
                         >
                           <ImageIcon className="w-4 h-4 text-emerald-400" />
-                          <span>Salvar como Imagem</span>
+                          <span>{t('dashboard.export_png')}</span>
                         </button>
                         <button
                           onClick={() => handleExport('csv')}
                           className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors"
                         >
                           <Table className="w-4 h-4 text-blue-400" />
-                          <span>Baixar Planilha (CSV)</span>
+                          <span>{t('dashboard.export_csv')}</span>
                         </button>
                       </div>
                     </>
@@ -422,7 +423,14 @@ export default function Dashboard() {
           {/* Adicionar Gasto Form */}
           <div className={`md:col-span-1 ${activeTab !== 'home' ? 'hidden' : ''}`}>
             {/* Removed top buttons, using FAB */}
-            <SummaryCards totalReceitas={totalReceitas} totalDespesas={totalDespesas} saldo={saldo} totalPendente={totalPendente} />
+            <SummaryCards 
+              totalReceitas={totalReceitas} 
+              totalDespesas={totalDespesas} 
+              saldo={saldoAtual} 
+              totalPendente={totalPendente}
+              saldoAcumulado={saldoAcumulado}
+              saldoProjetado={saldoProjetado}
+            />
           </div>
           
           {/* Analytics (Insights Tab) */}

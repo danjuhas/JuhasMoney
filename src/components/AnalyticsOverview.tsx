@@ -39,7 +39,7 @@ export const AnalyticsOverview = ({
     // Map to array for Recharts
     let data = Object.entries(categoryTotals).map(([catId, amount]) => {
       if (catId === 'uncategorized') {
-        return { name: 'Sem categoria', value: amount };
+        return { name: t('analytics.uncategorized'), value: amount };
       }
       const category = categories.find(c => c.id === catId);
       return { name: category ? category.name : 'Desconhecida', value: amount };

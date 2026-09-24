@@ -110,7 +110,7 @@ export function CategoryModal({ isOpen, onClose, onSave, editingCategory, userId
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-400 mb-2">Ícone</label>
+            <label className="block text-sm font-medium text-slate-400 mb-2">{t('categories.icon')}</label>
             <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
               {Object.entries(type === 'income' ? INCOME_ICONS : EXPENSE_ICONS).map(([key, Icon]) => (
                 <button
@@ -128,7 +128,7 @@ export function CategoryModal({ isOpen, onClose, onSave, editingCategory, userId
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-400 mb-2">Cor</label>
+            <label className="block text-sm font-medium text-slate-400 mb-2">{t('categories.color')}</label>
             <div className="flex flex-wrap gap-2">
               {['bg-slate-500', ...AVAILABLE_COLORS].map(c => (
                 <button

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, YAxis } from 'recharts';
 import type { Expense, Category } from '../types';
@@ -13,6 +14,7 @@ interface SpendingEvolutionProps {
 }
 
 export function SpendingEvolution({ allExpenses, categories, selectedMonth }: SpendingEvolutionProps) {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const { preferences } = usePreferences();
   
@@ -46,7 +48,7 @@ export function SpendingEvolution({ allExpenses, categories, selectedMonth }: Sp
 
   return (
     <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-5 mb-6">
-      <h3 className="text-lg font-semibold text-slate-100 mb-4">Evolução do Gasto (6 meses)</h3>
+      <h3 className="text-lg font-semibold text-slate-100 mb-4">{t('analytics.spending_evolution')}</h3>
       
       <div className="relative mb-6 max-w-md">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -56,7 +58,7 @@ export function SpendingEvolution({ allExpenses, categories, selectedMonth }: Sp
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Busque por despesa ou categoria (ex: Uber, Mercado)..."
+          placeholder={t('analytics.search_placeholder')}
           className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 placeholder:text-slate-500 transition-all shadow-inner"
         />
       </div>
@@ -65,13 +67,13 @@ export function SpendingEvolution({ allExpenses, categories, selectedMonth }: Sp
         <div className="text-center py-10 bg-slate-900/30 rounded-xl border border-dashed border-slate-700/50">
           <Search className="h-8 w-8 text-slate-500 mx-auto mb-3 opacity-50" />
           <p className="text-slate-400 text-sm">
-            Digite o nome de uma despesa ou categoria para ver seu histórico.
+            {t('analytics.type_to_search')}
           </p>
         </div>
       ) : !hasData ? (
         <div className="text-center py-10 bg-slate-900/30 rounded-xl border border-dashed border-slate-700/50">
           <p className="text-slate-400 text-sm">
-            Nenhum histórico encontrado para "{searchTerm}".
+            {t('analytics.no_history', { term: searchTerm })}
           </p>
         </div>
       ) : (
@@ -79,15 +81,15 @@ export function SpendingEvolution({ allExpenses, categories, selectedMonth }: Sp
           {/* Métricas */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-slate-900/40 rounded-xl p-4 border border-slate-700/30">
-              <p className="text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">Total (6m)</p>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">{t('analytics.total_6m')}</p>
               <p className="text-lg font-bold text-slate-100">{formatCurrency(total, preferences.currency)}</p>
             </div>
             <div className="bg-slate-900/40 rounded-xl p-4 border border-slate-700/30">
-              <p className="text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">Média Mensal</p>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">{t('analytics.monthly_avg')}</p>
               <p className="text-lg font-bold text-slate-100">{formatCurrency(average, preferences.currency)}</p>
             </div>
             <div className="bg-slate-900/40 rounded-xl p-4 border border-slate-700/30">
-              <p className="text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">Tendência (vs Média)</p>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">{t('analytics.trend')}</p>
               <div className="flex items-center mt-1">
                 {trend > 5 ? (
                   <div className="flex items-center text-rose-400 bg-rose-400/10 px-2.5 py-1 rounded-lg text-sm font-semibold">
@@ -102,7 +104,7 @@ export function SpendingEvolution({ allExpenses, categories, selectedMonth }: Sp
                 ) : (
                   <div className="flex items-center text-slate-400 bg-slate-700/30 px-2.5 py-1 rounded-lg text-sm font-semibold">
                     <Minus className="h-4 w-4 mr-1.5" />
-                    Estável
+                    {t('analytics.stable')}
                   </div>
                 )}
               </div>
