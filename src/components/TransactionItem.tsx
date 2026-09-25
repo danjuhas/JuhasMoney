@@ -48,8 +48,8 @@ export function TransactionItem({
         hideCheckbox ? 'pl-6 pr-2' : 'px-2 -mx-2'
       } ${
         isHighlighted 
-          ? 'bg-slate-800 shadow-sm scale-[1.01] ring-1 ring-emerald-500/30' 
-          : 'hover:bg-slate-800/50'
+          ? 'bg-slate-700/40 shadow-sm scale-[1.01] ring-1 ring-emerald-500/30' 
+          : 'hover:bg-slate-700/40'
       }`}
     >
       {!hideCheckbox && (
@@ -97,7 +97,7 @@ export function TransactionItem({
               );
             })()}
 
-            {expense.due_day && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">{t('item.day')} ${expense.due_day}</span>}
+            {expense.due_day && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">{t('item.day')} {expense.due_day}</span>}
 
           </div>
 

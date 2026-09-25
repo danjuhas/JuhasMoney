@@ -65,7 +65,7 @@ export const SettingsOverview = ({
 
   return (
     <>
-      <div className="bg-slate-800/60 rounded-2xl p-6 shadow-sm border border-slate-700/50 mt-6 max-w-3xl mx-auto">
+      <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700 mt-6 max-w-3xl mx-auto">
       <div className="flex items-center gap-2 mb-8">
         <Settings className="w-5 h-5 text-slate-400" />
         <h2 className="text-lg font-semibold text-slate-100">{t('settings.title')}</h2>
@@ -168,7 +168,7 @@ export const SettingsOverview = ({
           </div>
         </section>
 
-        <hr className="border-slate-700/50" />
+        <hr className="border-slate-700" />
 
         {/* Categorias Section */}
         <section>
@@ -232,7 +232,7 @@ export const SettingsOverview = ({
           </div>
         </section>
 
-        <hr className="border-slate-700/50" />
+        <hr className="border-slate-700" />
 
         {/* Fixed Expenses Section */}
         <section>

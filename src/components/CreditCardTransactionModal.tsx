@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { generateUUID } from '../utils/uuid';
 import type { Expense, Category, CreditCard } from '../types';
 import { useTranslation } from 'react-i18next';
 import { CreditCard as CreditCardIcon, AlertCircle } from 'lucide-react';
-import { formatCurrency } from '../utils/format';
+import { formatCurrency, getCurrencySymbol } from '../utils/format';
 
 type Props = {
   isOpen: boolean;
@@ -25,6 +25,17 @@ export function CreditCardTransactionModal({
   preferences
 }: Props) {
   const { t } = useTranslation();
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    setAmount(value);
+  };
+
+  const formatAmountInput = (val: string) => {
+    const num = parseInt(val || '0', 10);
+    return (num / 100).toLocaleString(t('dashboard.locale') || 'pt-BR', { minimumFractionDigits: 2 });
+  };
+
   
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
@@ -34,11 +45,23 @@ export function CreditCardTransactionModal({
   const [purchaseDate, setPurchaseDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (isOpen) {
+      setDescription('');
+      setAmount('');
+      setCategoryId('');
+      setCreditCardId('');
+      setInstallments(1);
+      setPurchaseDate(new Date().toISOString().split('T')[0]);
+      setError('');
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   if (cards.length === 0) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
         <div className="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-md p-6 relative z-10 shadow-2xl text-center">
           <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
@@ -59,7 +82,7 @@ export function CreditCardTransactionModal({
     e.preventDefault();
     if (!userId) return;
 
-    const numAmount = parseFloat(amount.replace(',', '.'));
+    const numAmount = parseInt(amount || '0', 10) / 100;
     if (!description || !amount || isNaN(numAmount) || numAmount <= 0) {
       setError(t('dashboard.fill_error'));
       return;
@@ -116,7 +139,7 @@ export function CreditCardTransactionModal({
   const expenseCategories = categories.filter(c => c.type === 'expense');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       
       <div className="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-md p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
@@ -133,47 +156,79 @@ export function CreditCardTransactionModal({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-400 mb-2">{t('dashboard.description')}</label>
-            <input
-              type="text"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Ex: Tênis Nike, Ifood..."
-              className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">{t('dashboard.value')}</label>
+                <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="p-6 mb-6 rounded-2xl border flex flex-col items-center justify-center transition-colors bg-purple-500/10 border-purple-500/20">
+            <div className="flex items-center gap-2 max-w-full">
               <input
                 type="text"
-                inputMode="decimal"
-                value={amount}
-                onChange={e => setAmount(e.target.value)}
-                placeholder="0.00"
-                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                inputMode="numeric"
+                value={formatAmountInput(amount)}
+                onChange={handleAmountChange}
+                className="bg-transparent text-center text-4xl sm:text-5xl font-bold outline-none w-full min-w-[50px] text-purple-400 placeholder-purple-500/30"
+                placeholder="0,00"
+                required
               />
+              {getCurrencySymbol(preferences.currency || 'BRL').position === 'right' && (
+                <span className="text-2xl font-bold text-purple-500/80">
+                  {getCurrencySymbol(preferences.currency || 'BRL').symbol}
+                </span>
+              )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">{t('dashboard.purchase_date')}</label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">{t('dashboard.purchase_date')}</label>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const d = new Date();
+                  d.setDate(d.getDate() - 1);
+                  setPurchaseDate(d.toISOString().split('T')[0]);
+                }}
+                className="px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors"
+              >
+                {t('dashboard.yesterday')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const d = new Date();
+                  setPurchaseDate(d.toISOString().split('T')[0]);
+                }}
+                className="px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors"
+              >
+                {t('dashboard.today')}
+              </button>
               <input
                 type="date"
                 value={purchaseDate}
-                onChange={e => setPurchaseDate(e.target.value)}
-                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                onChange={(e) => setPurchaseDate(e.target.value)}
+                className="flex-1 w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2 sm:p-2.5 border outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-400 mb-2">{t('dashboard.category_optional')}</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.description')}</label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              translate="no"
+              placeholder={t('dashboard.description_placeholder')}
+              className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.category_optional')}</label>
             <select
               value={categoryId}
               onChange={e => setCategoryId(e.target.value)}
-              className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
             >
               <option value="">Selecione...</option>
               {expenseCategories.map(c => (
@@ -182,13 +237,14 @@ export function CreditCardTransactionModal({
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">{t('dashboard.card')}</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.card')}</label>
               <select
                 value={creditCardId}
                 onChange={e => setCreditCardId(e.target.value)}
-                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                required
               >
                 <option value="">{t('dashboard.card_select')}</option>
                 {cards.map(c => (
@@ -197,11 +253,11 @@ export function CreditCardTransactionModal({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">{t('dashboard.installments_count')}</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.installments_count')}</label>
               <select
                 value={installments}
                 onChange={e => setInstallments(Number(e.target.value))}
-                className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
               >
                 {[...Array(24)].map((_, i) => (
                   <option key={i+1} value={i+1}>{i+1}x</option>
@@ -210,9 +266,9 @@ export function CreditCardTransactionModal({
             </div>
           </div>
           
-          {installments > 1 && parseFloat(amount.replace(',', '.')) > 0 && (
+          {installments > 1 && (parseInt(amount || '0', 10) / 100) > 0 && (
              <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-3 text-sm text-purple-300 text-center">
-               {t('dashboard.installments_preview', { count: installments })} <strong>{formatCurrency(parseFloat(amount.replace(',', '.')) / installments, preferences.currency)}</strong>
+               {t('dashboard.installments_preview', { count: installments })} <strong>{formatCurrency((parseInt(amount || '0', 10) / 100) / installments, preferences.currency)}</strong>
              </div>
           )}
 

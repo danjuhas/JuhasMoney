@@ -65,6 +65,7 @@
     "filters": "Filtros",
     "new_income": "Nova Receita",
     "new_expense": "Nova Despesa",
+    "new_fixed_expense": "Nova Despesa Fixa",
     "balance": "Saldo Restante",
     "incomes": "Receitas",
     "expenses": "Despesas",
@@ -146,6 +147,14 @@
     "card_due": "Dia de Vencimento",
     "credit_card": "Cartão de Crédito",
     "installment_1x": "1x (À vista)",
+    "my_cards": "Meus Cartões",
+    "no_cards_add_desc": "Adicione seus cartões de crédito para organizar suas faturas e descobrir o melhor dia para comprar.",
+    "best_buy_day": "Melhor dia para compra!",
+    "closing": "Fechamento",
+    "due": "Vencimento",
+    "bill": "Fatura",
+    "purchases_count": "{{count}} compras",
+    "purchases_count_one": "{{count}} compra",
     "installments_preview": "Serão geradas {{count}} parcelas de"
   },
   "filter": {
@@ -232,7 +241,9 @@
     "bill_desc_single": "{{description}} no valor de {{amount}} vence {{when}}.",
     "bill_desc_multiple": "Você tem contas totalizando {{amount}} vencendo {{when}}.",
     "past_pending_title": "Lançamentos Atrasados",
-    "past_pending_desc": "Você tem {{count}} lançamento(s) pendente(s) de meses anteriores. Atualize-os para manter sua projeção precisa!"
+    "past_pending_desc": "Você tem {{count}} lançamento(s) pendente(s) de meses anteriores. Atualize-os para manter sua projeção precisa!",
+    "best_buy_day_title": "Melhor Dia para Compra",
+    "best_buy_day_desc": "Hoje é o melhor dia para comprar no seu cartão {{cardName}}!"
   },
   "categories": {
     "icon": "Ícone",

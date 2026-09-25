@@ -1,5 +1,5 @@
 ---
-name: senior-dev-reviewer
+name: dev-senior-reviewer
 description: Acts as a Senior Full Stack Developer to review code, ensure best design patterns, and propose optimal tech choices for new features.
 ---
 

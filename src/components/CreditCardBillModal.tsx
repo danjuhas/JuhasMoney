@@ -67,7 +67,7 @@ export function CreditCardBillModal({
         </div>
 
         {/* Month Navigation & Summary */}
-        <div className="bg-slate-800/50 rounded-2xl p-4 mb-4 shrink-0 border border-slate-700/50 flex flex-col gap-4">
+        <div className="bg-slate-800/50 rounded-2xl p-4 mb-4 shrink-0 border border-slate-700 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <button 
               onClick={() => setModalMonth(prevMonth)}
@@ -89,7 +89,7 @@ export function CreditCardBillModal({
             </button>
           </div>
           
-          <div className="flex flex-col items-center justify-center pt-2 border-t border-slate-700/50">
+          <div className="flex flex-col items-center justify-center pt-2 border-t border-slate-700">
             <p className="text-sm text-slate-400 mb-1">{t('dashboard.bill_total')}</p>
             <h3 className={`text-2xl font-bold tracking-tight ${isPaid ? 'text-emerald-400' : 'text-slate-100'}`}>
               {formatCurrency(totalFatura, preferences?.currency)}

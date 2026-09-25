@@ -317,7 +317,7 @@ export default function Onboarding() {
             {onboardingExpenses.length > 0 && (
               <div className="space-y-2 mb-4 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
                 {onboardingExpenses.map(exp => (
-                  <div key={exp.id} className="flex justify-between items-center bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                  <div key={exp.id} className="flex justify-between items-center bg-slate-800/50 p-3 rounded-lg border border-slate-700">
                     <div>
                       <p className="text-sm font-medium text-slate-200">{exp.name}</p>
                       <p className="text-xs text-slate-400">Dia {exp.day}</p>

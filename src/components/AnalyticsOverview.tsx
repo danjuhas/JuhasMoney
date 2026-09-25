@@ -101,7 +101,7 @@ export const AnalyticsOverview = ({
 
   return (
     <div id="reports-export-area" className="flex flex-col gap-6 mt-6">
-      <div className="bg-slate-800/60 rounded-2xl p-6 shadow-sm border border-slate-700/50">
+      <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
         <div className="flex items-center gap-2 mb-6">
           <PieChartIcon className="w-5 h-5 text-slate-400" />
           <h2 className="text-lg font-semibold text-slate-100">{t('analytics.insights_month')}</h2>
@@ -180,7 +180,7 @@ export const AnalyticsOverview = ({
               </h3>
               <div className="space-y-3">
                 {topExpenses.map((exp, idx) => (
-                  <div key={exp.id} className="flex justify-between items-center text-sm border-b border-slate-700/50 pb-2 last:border-0 last:pb-0">
+                  <div key={exp.id} className="flex justify-between items-center text-sm border-b border-slate-700 pb-2 last:border-0 last:pb-0">
                     <div className="flex items-center gap-3">
                       <span className="text-slate-500 font-medium">{idx + 1}</span>
                       <span className="text-slate-300 truncate max-w-[150px] sm:max-w-[200px]">{exp.description}</span>

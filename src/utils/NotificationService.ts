@@ -114,6 +114,43 @@ export const NotificationService = {
     }
   },
 
+
+  syncBestBuyDay(userId: string, cards: CreditCard[]) {
+    this.cleanOldNotifications(userId);
+    const notifications = this.getNotifications(userId);
+    let newNotifications = [...notifications];
+    let updated = false;
+
+    const today = new Date().getDate();
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    const cardsOnBestDay = cards.filter(c => c.closing_day === today);
+
+    for (const card of cardsOnBestDay) {
+      const id = `best-buy-${card.id}-${todayStr}`;
+      const existingIdx = newNotifications.findIndex(n => n.id === id);
+
+      if (existingIdx === -1) {
+        newNotifications.push({
+          id,
+          user_id: userId,
+          title: i18n.t('notifications.best_buy_day_title'),
+          message: i18n.t('notifications.best_buy_day_desc', { cardName: card.name }),
+          is_read: false,
+          created_at: new Date().toISOString(),
+          type: 'INFO',
+          hidden: false
+        });
+        updated = true;
+      }
+    }
+
+    if (updated) {
+      newNotifications.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      this.saveNotifications(userId, newNotifications);
+    }
+  },
+
   syncPastPending(userId: string, expenses: Expense[]) {
     this.cleanOldNotifications(userId);
     const notifications = this.getNotifications(userId);

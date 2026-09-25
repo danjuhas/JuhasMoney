@@ -124,6 +124,7 @@ export default function Dashboard() {
     if (userId && expenses.length > 0 && !loading && !prefsLoading) {
       NotificationService.syncUpcomingExpenses(userId, expenses, preferences.currency || 'BRL', cards);
       NotificationService.syncPastPending(userId, expenses);
+      NotificationService.syncBestBuyDay(userId, cards);
       // Dispatch a custom event so the hook can reload if it's already mounted
       window.dispatchEvent(new Event('storage'));
     }
@@ -283,7 +284,7 @@ export default function Dashboard() {
           </div>
           {/* Top right actions */}
           <div className="hidden sm:flex items-center gap-3">
-             <div className="bg-slate-800 p-1 rounded-full border border-slate-700/60 flex">
+             <div className="bg-slate-800 p-1 rounded-full border border-slate-700 flex">
                 <button
                   onClick={() => setActiveTab('home')}
                   className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === 'home' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-slate-300'}`}
@@ -291,16 +292,16 @@ export default function Dashboard() {
                   {t('nav.home')}
                 </button>
                 <button
-                  onClick={() => setActiveTab('insights')}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === 'insights' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-slate-300'}`}
-                >
-                  {t('nav.insights')}
-                </button>
-                <button
                   onClick={() => setActiveTab('cards')}
                   className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === 'cards' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-slate-300'}`}
                 >
                   {t('nav.cards') || 'Cartões'}
+                </button>
+                <button
+                  onClick={() => setActiveTab('insights')}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === 'insights' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-slate-300'}`}
+                >
+                  {t('nav.insights')}
                 </button>
                 <button
                   onClick={() => setActiveTab('settings')}
@@ -335,7 +336,7 @@ export default function Dashboard() {
               <div className="flex items-center gap-2 flex-1 sm:flex-none justify-between sm:justify-start">
                 <button
                   onClick={handlePreviousMonth}
-                  className="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700/60 rounded-full text-slate-300 transition-colors shrink-0"
+                  className="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-full text-slate-300 transition-colors shrink-0"
                   title={t('dashboard.prev_month')}
                 >
                   <ChevronLeft className="h-5 w-5" />
@@ -345,7 +346,7 @@ export default function Dashboard() {
                 </span>
                 <button
                   onClick={handleNextMonth}
-                  className="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700/60 rounded-full text-slate-300 transition-colors shrink-0"
+                  className="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-full text-slate-300 transition-colors shrink-0"
                   title={t('dashboard.next_month')}
                 >
                   <ChevronRight className="h-5 w-5" />
@@ -383,7 +384,7 @@ export default function Dashboard() {
               
               <button 
                 onClick={() => setIsFilterModalOpen(true)} 
-                className="relative p-2.5 rounded-lg bg-slate-800 border border-slate-700/60 text-slate-300 hover:bg-slate-700 transition-colors shadow-sm"
+                className="relative p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition-colors shadow-sm"
                 title="Filtros"
               >
                 <Filter className="h-5 w-5" />
@@ -397,7 +398,7 @@ export default function Dashboard() {
                   <button
                     onClick={() => setShowExport(!showExport)}
                     disabled={isExporting}
-                    className="flex items-center gap-2 p-2.5 sm:px-4 sm:py-2.5 rounded-lg bg-slate-800 border border-slate-700/60 text-slate-300 hover:bg-slate-700 transition-colors shadow-sm disabled:opacity-50"
+                    className="flex items-center gap-2 p-2.5 sm:px-4 sm:py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition-colors shadow-sm disabled:opacity-50"
                     title={t('dashboard.export')}
                   >
                     {isExporting ? <Loader2 className="w-5 h-5 sm:w-4 sm:h-4 animate-spin" /> : <Download className="w-5 h-5 sm:w-4 sm:h-4" />}
@@ -407,17 +408,17 @@ export default function Dashboard() {
                   {showExport && (
                     <>
                       <div className="fixed inset-0 z-40" onClick={() => setShowExport(false)} />
-                      <div className="absolute right-0 top-12 w-56 bg-slate-800 border border-slate-700/50 rounded-xl shadow-2xl backdrop-blur-sm overflow-hidden z-50 animate-fade-in-up">
+                      <div className="absolute right-0 top-12 w-56 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl backdrop-blur-sm overflow-hidden z-50 animate-fade-in-up">
                         <button
                           onClick={() => handleExport('pdf')}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors border-b border-slate-700/50"
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors border-b border-slate-700"
                         >
                           <FileText className="w-4 h-4 text-rose-400" />
                           <span>{t('dashboard.export_pdf')}</span>
                         </button>
                         <button
                           onClick={() => handleExport('png')}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors border-b border-slate-700/50"
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors border-b border-slate-700"
                         >
                           <ImageIcon className="w-4 h-4 text-emerald-400" />
                           <span>{t('dashboard.export_png')}</span>
@@ -508,7 +509,7 @@ export default function Dashboard() {
 
           {/* Lista de Gastos */}
           <div className={`md:col-span-2 ${activeTab !== 'home' ? 'hidden' : ''}`}>
-            <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-4 h-full flex flex-col">
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4 h-full flex flex-col">
               
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-slate-100">{t('dashboard.month_transactions')}</h3>
@@ -553,7 +554,7 @@ export default function Dashboard() {
                           <li 
                             key={`bill-${item.card.id}`} 
                             onClick={() => setSelectedBillCardId(item.card.id)}
-                            className="py-3.5 flex items-center gap-3 transition-colors px-2 -mx-2 rounded-xl group hover:bg-slate-800/50 cursor-pointer"
+                            className="py-3.5 flex items-center gap-3 transition-colors px-2 -mx-2 rounded-xl group hover:bg-slate-700/40 cursor-pointer"
                           >
                             <button
                               onClick={(e) => {
@@ -577,7 +578,7 @@ export default function Dashboard() {
                                      <CreditCardIcon className="w-3 h-3" />
                                   </div>
                                   <p translate="no" className={`text-base tracking-tight truncate ${item.is_paid ? 'text-slate-500 line-through font-normal' : 'text-slate-100 font-medium'}`}>
-                                    Fatura {item.card.name}
+                                    {t('dashboard.bill')} {item.card.name}
                                   </p>
                                 </div>
                                 <span className={`text-base font-semibold tracking-tight shrink-0 ${item.is_paid ? 'text-slate-500 line-through font-normal' : 'text-slate-100'}`}>
@@ -588,13 +589,13 @@ export default function Dashboard() {
                               <div className="flex justify-between items-center gap-2">
                                 <div className="flex flex-wrap items-center gap-1.5 min-w-0">
                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-purple-500/20 text-purple-300">
-                                     Fatura
+                                     {t('dashboard.bill')}
                                    </span>
                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">
-                                     {item.expenses.length} compras
+                                     {t(item.expenses.length === 1 ? 'dashboard.purchases_count_one' : 'dashboard.purchases_count', { count: item.expenses.length })}
                                    </span>
                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">
-                                     Dia {item.card.due_day}
+                                     {t('item.day')} {item.card.due_day}
                                    </span>
                                 </div>
                                 <div className="flex items-center shrink-0 ml-2 relative">
