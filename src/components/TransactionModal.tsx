@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateUUID } from '../utils/uuid';
 import { getCurrencySymbol } from '../utils/format';
-import type { Expense, Category } from '../types';
+import type { Expense, Category, CreditCard } from '../types';
 import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 
@@ -12,6 +12,7 @@ type Props = {
   userId: string | null;
   selectedMonth: string;
   categories: Category[];
+  cards: CreditCard[];
   preferences: any;
   editingExpense: Expense | null;
   initialMode: 'quick' | 'fixed';
@@ -28,7 +29,9 @@ export function TransactionModal({
   preferences,
   editingExpense,
   initialMode,
-  initialType = 'expense'
+  initialType = 'expense',
+  // @ts-ignore
+  cards
 }: Props) {
   const { t } = useTranslation();
   
@@ -36,6 +39,7 @@ export function TransactionModal({
   const [amount, setAmount] = useState('');
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense');
   const [categoryId, setCategoryId] = useState('');
+  const [creditCardId, setCreditCardId] = useState<string | null>(null);
   const [isFixed, setIsFixed] = useState(false);
   const [dueDay, setDueDay] = useState('');
   const [transactionDate, setTransactionDate] = useState(() => new Date().toISOString().split('T')[0]);
@@ -51,6 +55,7 @@ export function TransactionModal({
         setAmount(Math.round(editingExpense.amount * 100).toString());
         setTransactionType(editingExpense.type || 'expense');
         setCategoryId(editingExpense.category_id || '');
+      setCreditCardId(editingExpense.credit_card_id || null);
         setIsFixed(editingExpense.is_fixed || false);
         setDueDay(editingExpense.due_day ? editingExpense.due_day.toString() : '');
         setTransactionDate(editingExpense.created_at.split('T')[0]);
@@ -102,6 +107,7 @@ export function TransactionModal({
             amount: numericAmount,
             type: transactionType,
             category_id: categoryId || undefined,
+      credit_card_id: creditCardId || undefined,
             created_at: `${selectedMonth}-01T12:00:00.000Z`,
             is_fixed: true,
             due_day: parsedDueDay,
@@ -123,6 +129,7 @@ export function TransactionModal({
             amount: numericAmount,
             type: transactionType,
             category_id: categoryId || undefined,
+      credit_card_id: creditCardId || undefined,
             created_at: `${selectedMonth}-01T12:00:00.000Z`,
             is_fixed: false, // Override applies only to this month
             due_day: parsedDueDay,
@@ -143,7 +150,8 @@ export function TransactionModal({
           description, 
           amount: numericAmount, 
           type: transactionType,
-          category_id: categoryId || undefined, 
+          category_id: categoryId || undefined,
+      credit_card_id: creditCardId || undefined, 
           is_fixed: isFixed, 
           due_day: isFixed ? parsedDueDay : parseInt(tDay, 10),
           created_at: `${transactionDate}T${editingExpense.created_at.split('T')[1] || '12:00:00.000Z'}`,
@@ -168,6 +176,7 @@ export function TransactionModal({
             amount: numericAmount,
             type: transactionType,
             category_id: categoryId || undefined,
+      credit_card_id: creditCardId || undefined,
             created_at: `${targetMonth}-${tDay}T12:00:00.000Z`,
             is_fixed: false,
             due_day: parseInt(tDay, 10),
@@ -186,6 +195,7 @@ export function TransactionModal({
           amount: numericAmount,
           type: transactionType,
           category_id: categoryId || undefined,
+      credit_card_id: creditCardId || undefined,
           created_at: `${transactionDate}T12:00:00.000Z`,
           is_fixed: isFixed,
           due_day: isFixed ? parsedDueDay : parseInt(tDay, 10),
@@ -204,11 +214,11 @@ export function TransactionModal({
 
   const formatAmountInput = (val: string) => {
     const num = parseInt(val || '0', 10);
-    return (num / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    return (num / 100).toLocaleString(t('dashboard.locale') || 'pt-BR', { minimumFractionDigits: 2 });
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center z-[60] p-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center z-[70] p-4 backdrop-blur-sm" onClick={onClose}>
       <div 
         className="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto transform transition-all"
         onClick={(e) => e.stopPropagation()}

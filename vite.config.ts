@@ -12,7 +12,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
-    globals: true
+    globals: true,
+    exclude: ['**/node_modules/**', '**/dist/**', '**/tests/e2e/**']
   },
   build: {
     chunkSizeWarningLimit: 600,

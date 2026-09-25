@@ -17,6 +17,20 @@ vi.mock('jspdf', () => {
   return { jsPDF: jsPDFMock, default: jsPDFMock };
 });
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      if (key === 'dashboard.locale') return 'pt-BR';
+      if (key === 'analytics.search_placeholder') return 'Busque por despesa ou categoria (ex: Uber, Mercado)...';
+      if (key === 'dashboard.bill_empty') return 'Nenhuma despesa para esta fatura.';
+      if (key === 'dashboard.bill_paid') return 'Fatura Paga';
+      return key;
+    },
+    i18n: { language: 'pt' }
+  }),
+  initReactI18next: { type: '3rdParty', init: () => {} }
+}));
+
 describe('exportData Utility', () => {
   let clickSpy: any;
   let createObjectURLSpy: any;

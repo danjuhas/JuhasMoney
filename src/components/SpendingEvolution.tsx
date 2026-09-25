@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, YAxis } from 'recharts';
-import type { Expense, Category } from '../types';
+import type { Expense, Category, CreditCard } from '../types';
 import { useSpendingEvolution } from '../hooks/useSpendingEvolution';
 import { formatCurrency } from '../utils/format';
 import { usePreferences } from '../contexts/PreferencesContext';
@@ -11,6 +11,7 @@ interface SpendingEvolutionProps {
   allExpenses: Expense[];
   categories: Category[];
   selectedMonth: string;
+  cards: CreditCard[];
 }
 
 export function SpendingEvolution({ allExpenses, categories, selectedMonth }: SpendingEvolutionProps) {

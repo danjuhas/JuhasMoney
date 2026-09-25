@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { PieChart as PieChartIcon, TrendingUp, AlertTriangle } from 'lucide-react';
 import { isActiveInMonth } from '../utils/transactions';
-import type { Expense, Category } from '../types';
+import type { Expense, Category, CreditCard } from '../types';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { formatCurrency } from '../utils/format';
 import { SpendingEvolution } from './SpendingEvolution';
@@ -16,13 +16,14 @@ type Props = {
   categories: Category[];
   totalIncomes: number;
   totalExpenses: number;
+  cards: CreditCard[];
 };
 
 // Pastel colors for the donut chart
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
 export const AnalyticsOverview = ({
-  expenses, allExpenses, selectedMonth, categories, totalIncomes, totalExpenses }: Props) => {
+  expenses, allExpenses, selectedMonth, categories, totalIncomes, totalExpenses, cards }: Props) => {
   const { t } = useTranslation();
   const { preferences } = usePreferences();
   const expenseData = useMemo(() => {
@@ -76,7 +77,7 @@ export const AnalyticsOverview = ({
     for (let i = 0; i < 6; i++) {
       const monthStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       
-      const monthExpenses = allExpenses.filter(e => isActiveInMonth(e, monthStr));
+      const monthExpenses = allExpenses.filter(e => isActiveInMonth(e, monthStr, cards));
       const totalInc = monthExpenses.reduce((acc, curr) => curr.type === 'income' ? acc + curr.amount : acc, 0);
       const totalExp = monthExpenses.reduce((acc, curr) => curr.type !== 'income' ? acc + curr.amount : acc, 0);
       
@@ -223,7 +224,7 @@ export const AnalyticsOverview = ({
       <SpendingEvolution 
         allExpenses={allExpenses} 
         categories={categories} 
-        selectedMonth={selectedMonth} 
+        selectedMonth={selectedMonth} cards={cards} 
       />
     </div>
   );

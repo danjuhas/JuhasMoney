@@ -3,21 +3,29 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import type { Expense } from '../types';
-import { Plus, ChevronLeft, ChevronRight, Calendar, Filter, Infinity, Download, FileText, Image as ImageIcon, Table, Loader2 } from 'lucide-react';
+
+
+
+import { Plus, CreditCard as CreditCardIcon, CheckCircle, Circle, ChevronLeft, ChevronRight, Calendar, Filter, Infinity, Download, FileText, Image as ImageIcon, Table, Loader2 } from 'lucide-react';
 import { exportToCSV, exportToImage, exportToPDF } from '../utils/exportData';
 import { SummaryCards } from '../components/SummaryCards';
 import { AnalyticsOverview } from '../components/AnalyticsOverview';
 import { SettingsOverview } from '../components/SettingsOverview';
+import { CreditCardsOverview } from '../components/CreditCardsOverview';
+import { CreditCardBillModal } from '../components/CreditCardBillModal';
 import { FilterModal } from '../components/FilterModal';
 import { TransactionModal } from '../components/TransactionModal';
+import { CreditCardTransactionModal } from '../components/CreditCardTransactionModal';
 import { TransactionItem } from '../components/TransactionItem';
 import { DeleteConfirmModal } from '../components/DeleteConfirmModal';
 import { MobileNav } from '../components/MobileNav';
 import { NotificationBell } from '../components/NotificationBell';
 import { useTransactions } from '../hooks/useTransactions';
+import { useCreditCards } from '../hooks/useCreditCards';
 import { useTransactionFilters } from '../hooks/useTransactionFilters';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { isExpensePaid } from '../utils/transactions';
+import { formatCurrency } from '../utils/format';
 import { NotificationService } from '../utils/NotificationService';
 import { useTranslation } from 'react-i18next';
 
@@ -25,7 +33,7 @@ import { useToast } from '../contexts/ToastContext';
 
 export default function Dashboard() {
   const [userId, setUserId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'home' | 'insights' | 'settings'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'insights' | 'settings' | 'cards'>('home');
   
   const { addToast } = useToast();
 
@@ -38,14 +46,18 @@ export default function Dashboard() {
     updateCategory,
     deleteCategory, 
     deleteExpense, 
-    togglePaid 
+    togglePaid,
+    payMultipleExpenses,
   } = useTransactions(userId, addToast);
+  const { cards, addCard, updateCard, deleteCard: deleteCreditCard } = useCreditCards(userId);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCardModalOpen, setIsCardModalOpen] = useState(false);
+  const [selectedBillCardId, setSelectedBillCardId] = useState<string | null>(null);
   const [transactionMode, setTransactionMode] = useState<'quick' | 'fixed'>('quick');
   const [initialType, setInitialType] = useState<'income' | 'expense'>('expense');
 
@@ -70,7 +82,8 @@ export default function Dashboard() {
     setFilterCategory,
     sortBy,
     setSortBy,
-} = useTransactionFilters(expenses, categories, selectedMonth);
+    dashboardItems
+    } = useTransactionFilters(expenses, categories, selectedMonth, cards);
   
 
   const navigate = useNavigate();
@@ -109,7 +122,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (userId && expenses.length > 0 && !loading && !prefsLoading) {
-      NotificationService.syncUpcomingExpenses(userId, expenses, preferences.currency || 'BRL');
+      NotificationService.syncUpcomingExpenses(userId, expenses, preferences.currency || 'BRL', cards);
       NotificationService.syncPastPending(userId, expenses);
       // Dispatch a custom event so the hook can reload if it's already mounted
       window.dispatchEvent(new Event('storage'));
@@ -284,6 +297,12 @@ export default function Dashboard() {
                   {t('nav.insights')}
                 </button>
                 <button
+                  onClick={() => setActiveTab('cards')}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === 'cards' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-slate-300'}`}
+                >
+                  {t('nav.cards') || 'Cartões'}
+                </button>
+                <button
                   onClick={() => setActiveTab('settings')}
                   className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === 'settings' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-slate-300'}`}
                 >
@@ -439,12 +458,40 @@ export default function Dashboard() {
               expenses={filteredExpenses} allExpenses={expenses} selectedMonth={selectedMonth} 
               categories={categories} 
               totalIncomes={totalIncomes} 
-              totalExpenses={totalExpenses} 
+              totalExpenses={totalExpenses} cards={cards} 
             />
           </div>
 
+          <CreditCardBillModal
+        cardId={selectedBillCardId}
+        onClose={() => setSelectedBillCardId(null)}
+        expenses={expenses}
+        categories={categories}
+        cards={cards}
+        initialMonth={selectedMonth}
+        onDeleteExpense={(id) => { const target = expenses.find(e => e.id === id); setDeleteConfirmId({ id, deleteAll: false, isInstallment: !!target?.group_id }); }}
+        onEditExpense={handleEditExpense}
+        preferences={preferences}
+      />
+
           {/* Settings (Ajustes Tab) */}
-          <div className={`md:col-span-3 ${activeTab !== 'settings' ? 'hidden' : ''}`}>
+  
+        <div className={`md:col-span-3 ${activeTab !== 'cards' ? 'hidden' : ''}`}>
+          <CreditCardsOverview 
+              cards={cards} 
+              expenses={expenses}
+              categories={categories}
+              selectedMonth={selectedMonth}
+              onTogglePaid={handleTogglePaid}
+              onDeleteExpense={(id) => { const target = expenses.find(e => e.id === id); setDeleteConfirmId({ id, deleteAll: false, isInstallment: !!target?.group_id }); }}
+              onEditExpense={handleEditExpense}
+              addCard={addCard} 
+              updateCard={updateCard} 
+              deleteCard={deleteCreditCard} 
+            />
+        </div>
+
+        <div className={`md:col-span-3 ${activeTab !== 'settings' ? 'hidden' : ''}`}>
             <SettingsOverview 
               categories={categories}
               fixedExpenses={expenses.filter(e => e.is_fixed)}
@@ -487,18 +534,78 @@ export default function Dashboard() {
               ) : (
                 <div className="flow-root">
                   <ul className="-my-5 divide-y divide-slate-700/40">
-                    {finalExpenses.map((expense) => (
-                      <TransactionItem
-                        key={expense.id}
-                        expense={expense}
-                        isPaid={isExpensePaid(expense, selectedMonth)}
-                        category={categories.find(c => c.id === expense.category_id)}
-                        onTogglePaid={handleTogglePaid}
-                        onEdit={handleEditExpense}
-                        onDelete={(id) => { const target = expenses.find(e => e.id === id); setDeleteConfirmId({ id, deleteAll: false, isInstallment: !!target?.group_id }); }}
-                        isHighlighted={highlightedIds.includes(expense.id)}
-                      />
-                    ))}
+                    {dashboardItems.map((item) => {
+                      if (item.type === 'expense') {
+                        return (
+                          <TransactionItem
+                            key={item.expense.id}
+                            expense={item.expense}
+                            isPaid={isExpensePaid(item.expense, selectedMonth)}
+                            category={categories.find(c => c.id === item.expense.category_id)}
+                            onTogglePaid={handleTogglePaid}
+                            onEdit={handleEditExpense}
+                            onDelete={(id) => { const target = expenses.find(e => e.id === id); setDeleteConfirmId({ id, deleteAll: false, isInstallment: !!target?.group_id }); }}
+                            isHighlighted={highlightedIds.includes(item.expense.id)}
+                          />
+                        );
+                      } else if (item.type === 'credit_card_bill') {
+                        return (
+                          <li 
+                            key={`bill-${item.card.id}`} 
+                            onClick={() => setSelectedBillCardId(item.card.id)}
+                            className="py-3.5 flex items-center gap-3 transition-colors px-2 -mx-2 rounded-xl group hover:bg-slate-800/50 cursor-pointer"
+                          >
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const ids = item.expenses.filter(e => !e.is_paid).map(e => e.id);
+                                if (ids.length > 0) payMultipleExpenses(ids, selectedMonth);
+                              }}
+                              className="shrink-0 focus:outline-none transition-colors mt-0.5 self-start"
+                            >
+                              {item.is_paid ? (
+                                <CheckCircle className="h-[22px] w-[22px] text-emerald-400 fill-emerald-900/50" strokeWidth={2} />
+                              ) : (
+                                <Circle className="h-[22px] w-[22px] text-slate-600 group-hover:text-slate-500 transition-colors" strokeWidth={1.5} />
+                              )}
+                            </button>
+
+                            <div className="flex-1 min-w-0 flex flex-col gap-1">
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex items-center gap-2 overflow-hidden">
+                                  <div className="w-5 h-5 rounded flex items-center justify-center text-white shrink-0" style={{ backgroundColor: item.card.color }}>
+                                     <CreditCardIcon className="w-3 h-3" />
+                                  </div>
+                                  <p translate="no" className={`text-base tracking-tight truncate ${item.is_paid ? 'text-slate-500 line-through font-normal' : 'text-slate-100 font-medium'}`}>
+                                    Fatura {item.card.name}
+                                  </p>
+                                </div>
+                                <span className={`text-base font-semibold tracking-tight shrink-0 ${item.is_paid ? 'text-slate-500 line-through font-normal' : 'text-slate-100'}`}>
+                                  {formatCurrency(item.total, preferences.currency)}
+                                </span>
+                              </div>
+                              
+                              <div className="flex justify-between items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-purple-500/20 text-purple-300">
+                                     Fatura
+                                   </span>
+                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">
+                                     {item.expenses.length} compras
+                                   </span>
+                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">
+                                     Dia {item.card.due_day}
+                                   </span>
+                                </div>
+                                <div className="flex items-center shrink-0 ml-2 relative">
+                                   <div className="p-1 w-7 h-7"></div> {/* Space placeholder to align perfectly with standard items that have the 3-dots menu */}
+                                </div>
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      }
+                    })}
                   </ul>
                 </div>
               )}
@@ -506,8 +613,22 @@ export default function Dashboard() {
           </div>
         </div>
       
+      
+      <CreditCardTransactionModal
+        isOpen={isCardModalOpen}
+        onClose={() => setIsCardModalOpen(false)}
+        onSave={(expenses) => {
+          upsertExpenses(expenses);
+          setIsCardModalOpen(false);
+        }}
+        userId={userId}
+        categories={categories}
+        cards={cards}
+        preferences={preferences}
+      />
       {isModalOpen && (
       <TransactionModal
+        cards={cards}
         isOpen={isModalOpen}
         onClose={handleCancelEdit}
         onSave={handleSaveModal}
@@ -566,6 +687,13 @@ export default function Dashboard() {
                 >
                    <span className="font-medium">{t('dashboard.new_expense')}</span>
                    <div className="bg-rose-500/20 text-rose-400 p-1.5 rounded-full shrink-0"><Plus className="h-5 w-5" /></div>
+                </button>
+                <button 
+                  onClick={() => { setIsFabMenuOpen(false); setIsCardModalOpen(true); }} 
+                  className="flex items-center justify-between gap-4 w-full bg-slate-800 border border-slate-700 shadow-md pl-4 pr-1.5 py-1.5 rounded-full text-slate-100 hover:bg-slate-700 transition-colors"
+                >
+                   <span className="font-medium">{t('dashboard.new_card_expense')}</span>
+                   <div className="bg-purple-500/20 text-purple-400 p-1.5 rounded-full shrink-0"><CreditCardIcon className="h-5 w-5" /></div>
                 </button>
               </div>
             )}

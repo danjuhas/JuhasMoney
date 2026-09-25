@@ -61,6 +61,49 @@ export function useTransactions(userId: string | null, onError?: (message: strin
     }
   }, [fetchAll, onError]);
 
+
+  const payMultipleExpenses = useCallback(async (expenseIds: string[], monthStr: string) => {
+    if (!userId || expenseIds.length === 0) return;
+    try {
+      // Find the expenses locally first to update them properly
+      const expensesToUpdate = expenses.filter(e => expenseIds.includes(e.id));
+      
+      const updates = expensesToUpdate.map(exp => {
+        if (exp.is_fixed) {
+          const paidMonths = exp.paid_months || [];
+          if (!paidMonths.includes(monthStr)) {
+            return { id: exp.id, paid_months: [...paidMonths, monthStr] };
+          }
+          return null;
+        } else {
+          return { id: exp.id, is_paid: true };
+        }
+      }).filter(Boolean) as {id: string, paid_months?: string[], is_paid?: boolean}[];
+
+      if (updates.length === 0) return;
+
+      // Update locally immediately
+      setExpenses(prev => prev.map(exp => {
+        const update = updates.find(u => u.id === exp.id);
+        if (update) {
+          return { ...exp, ...update };
+        }
+        return exp;
+      }));
+
+      // In real backend, we'd do a bulk upsert. Using individual updates for now or supabase bulk
+      const { error } = await supabase.from('transactions').upsert(
+        updates.map(u => ({ ...expensesToUpdate.find(e => e.id === u.id), ...u }))
+      );
+
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('Error paying multiple expenses:', err);
+      if (onError) onError(err.message || 'Erro ao pagar itens do cartão.');
+      fetchAll(); // rollback
+    }
+  }, [userId, expenses, fetchAll, onError]);
+
   const deleteCategory = useCallback(async (id: string) => {
     setCategories(prev => prev.filter(c => c.id !== id));
     try {
@@ -165,5 +208,6 @@ export function useTransactions(userId: string | null, onError?: (message: strin
     deleteCategory,
     deleteExpense,
     togglePaid,
+    payMultipleExpenses,
   };
 }

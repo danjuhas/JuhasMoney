@@ -19,6 +19,19 @@ vi.mock('../../src/contexts/PreferencesContext', () => ({
   })
 }));
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      if (key === 'dashboard.locale') return 'pt-BR';
+      if (key === 'analytics.search_placeholder') return 'Busque por despesa ou categoria (ex: Uber, Mercado)...';
+      if (key === 'dashboard.bill_empty') return 'Nenhuma despesa para esta fatura.';
+      if (key === 'dashboard.bill_paid') return 'Fatura Paga';
+      return key;
+    },
+    i18n: { language: 'pt' }
+  }),
+  initReactI18next: { type: '3rdParty', init: () => {} }
+}));
 describe('SpendingEvolution Component', () => {
   const mockCategories: Category[] = [
     { id: 'c1', name: 'Mercado', user_id: 'u1', type: 'expense', icon: 'cart', color: '#000' }
@@ -39,7 +52,7 @@ describe('SpendingEvolution Component', () => {
       />
     );
 
-    expect(screen.getByPlaceholderText('analytics.search_placeholder')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Busque por despesa ou categoria (ex: Uber, Mercado)...')).toBeInTheDocument();
     expect(screen.getByText('analytics.type_to_search')).toBeInTheDocument();
   });
 
@@ -52,7 +65,7 @@ describe('SpendingEvolution Component', () => {
       />
     );
 
-    const input = screen.getByPlaceholderText('analytics.search_placeholder');
+    const input = screen.getByPlaceholderText('Busque por despesa ou categoria (ex: Uber, Mercado)...');
     fireEvent.change(input, { target: { value: 'Posto' } });
 
     expect(screen.getByText('analytics.no_history')).toBeInTheDocument();
@@ -67,7 +80,7 @@ describe('SpendingEvolution Component', () => {
       />
     );
 
-    const input = screen.getByPlaceholderText('analytics.search_placeholder');
+    const input = screen.getByPlaceholderText('Busque por despesa ou categoria (ex: Uber, Mercado)...');
     // Search for Assai
     fireEvent.change(input, { target: { value: 'Assai' } });
 

@@ -1,4 +1,4 @@
-import type { AppNotification, Expense } from '../types';
+import type { AppNotification, Expense, CreditCard } from '../types';
 import { isActiveInMonth, isExpensePaid } from './transactions';
 import { formatCurrency } from './format';
 import i18n from '../lib/i18n';
@@ -34,7 +34,7 @@ export const NotificationService = {
     }
   },
 
-  syncUpcomingExpenses(userId: string, expenses: Expense[], currency: string = 'BRL') {
+  syncUpcomingExpenses(userId: string, expenses: Expense[], currency: string = 'BRL', cards: CreditCard[] = []) {
     this.cleanOldNotifications(userId);
     const notifications = this.getNotifications(userId);
 
@@ -43,7 +43,7 @@ export const NotificationService = {
 
     const activeExpenses = expenses.filter(e => 
       e.type !== 'income' && 
-      isActiveInMonth(e, monthStr) && 
+      isActiveInMonth(e, monthStr, cards) && 
       !isExpensePaid(e, monthStr) && 
       e.due_day !== undefined
     );

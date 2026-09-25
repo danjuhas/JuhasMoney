@@ -3,6 +3,20 @@ import { renderHook, act } from '@testing-library/react';
 import { useTransactionFilters } from '../../src/hooks/useTransactionFilters';
 import type { Expense, Category } from '../../src/types';
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      if (key === 'dashboard.locale') return 'pt-BR';
+      if (key === 'analytics.search_placeholder') return 'Busque por despesa ou categoria (ex: Uber, Mercado)...';
+      if (key === 'dashboard.bill_empty') return 'Nenhuma despesa para esta fatura.';
+      if (key === 'dashboard.bill_paid') return 'Fatura Paga';
+      return key;
+    },
+    i18n: { language: 'pt' }
+  }),
+  initReactI18next: { type: '3rdParty', init: () => {} }
+}));
+
 describe('useTransactionFilters Hook', () => {
   const mockCategories: Category[] = [
     { id: 'cat-1', user_id: 'user', name: 'Salário', type: 'income', icon: 'money', color: 'bg-green' },
