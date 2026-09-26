@@ -177,7 +177,9 @@
   },
   "modal": {
     "delete_title": "Eliminar transacción",
+    "delete_category_title": "Eliminar categoría",
     "delete_desc": "¿Estás seguro de que deseas eliminar esta transacción? Esta acción no se puede deshacer.",
+    "delete_category_desc": "¿Estás seguro de que deseas eliminar esta categoría? Las transacciones existentes no serán eliminadas, pero perderán la referencia a esta categoría.",
     "delete_desc_installment": "¿Quieres borrar solo esta cuota o todas las futuras?",
     "cancel": "Cancelar",
     "delete_only_this": "Solo esta",
