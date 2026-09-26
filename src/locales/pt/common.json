@@ -177,7 +177,9 @@
   },
   "modal": {
     "delete_title": "Excluir lançamento",
+    "delete_category_title": "Excluir categoria",
     "delete_desc": "Tem certeza que deseja excluir este lançamento? Esta ação não pode ser desfeita.",
+    "delete_category_desc": "Tem certeza que deseja excluir esta categoria? As transações existentes não serão apagadas, mas perderão a referência à categoria.",
     "delete_desc_installment": "Você quer apagar apenas esta parcela ou todas as parcelas futuras?",
     "cancel": "Cancelar",
     "delete_only_this": "Apenas esta",

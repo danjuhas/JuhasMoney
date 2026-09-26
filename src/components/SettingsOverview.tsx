@@ -6,6 +6,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { formatCurrency } from '../utils/format';
 import { useTranslation } from 'react-i18next';
 import { CategoryModal } from './CategoryModal';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { getCategoryStyle } from '../constants/categories';
 
 type Props = {
@@ -38,6 +39,7 @@ export const SettingsOverview = ({
   
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   
   const [userEmail, setUserEmail] = useState<string>('');
   const [isEditingName, setIsEditingName] = useState(false);
@@ -217,7 +219,7 @@ export const SettingsOverview = ({
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button 
-                            onClick={() => deleteCategory(cat.id)} 
+                            onClick={() => setCategoryToDelete(cat.id)} 
                             className="text-slate-500 hover:text-rose-400 p-1.5 transition-colors"
                             title="Excluir categoria"
                           >
@@ -302,6 +304,18 @@ export const SettingsOverview = ({
         onSave={handleSaveCategory}
         editingCategory={editingCategory}
         userId={userId}
+      />
+      <DeleteConfirmModal
+        isOpen={!!categoryToDelete}
+        title={t('modal.delete_category_title')}
+        description={t('modal.delete_category_desc')}
+        onClose={() => setCategoryToDelete(null)}
+        onConfirm={() => {
+          if (categoryToDelete) {
+            deleteCategory(categoryToDelete);
+            setCategoryToDelete(null);
+          }
+        }}
       />
     </>
   );

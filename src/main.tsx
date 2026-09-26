@@ -10,6 +10,7 @@ import { ToastProvider } from './contexts/ToastContext';
 
 Sentry.init({
   dsn: "https://78cf9f3a75814948559f6ff7cb4dfd85@o4512052444790784.ingest.de.sentry.io/4512052478476368",
+  environment: import.meta.env.MODE,
   dataCollection: {
     // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
     // https://docs.sentry.io/platforms/javascript/guides/react/configuration/options/#dataCollection
