@@ -1,3 +1,4 @@
+import { Select } from './ui/Select';
 import { useState, useEffect } from 'react';
 import { Settings, LogOut, Tags, Trash2, Calendar, Edit2, Plus, User } from 'lucide-react';
 import type { Category, Expense } from '../types';
@@ -143,7 +144,7 @@ export const SettingsOverview = ({
           <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 flex gap-4">
             <div className="flex-1">
               <label className="block text-sm font-medium text-slate-400 mb-1">{t('settings.language')}</label>
-              <select 
+              <Select 
                 value={preferences.language}
                 onChange={(e) => updatePreferences({ language: e.target.value })}
                 className="w-full bg-slate-900 border-slate-700 text-slate-100 rounded-md shadow-sm p-3 border outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
@@ -151,11 +152,11 @@ export const SettingsOverview = ({
                 <option value="pt">Português</option>
                 <option value="en">English</option>
                 <option value="es">Español</option>
-              </select>
+              </Select>
             </div>
             <div className="flex-1">
               <label className="block text-sm font-medium text-slate-400 mb-1">{t('settings.currency')}</label>
-              <select 
+              <Select 
                 value={preferences.currency}
                 onChange={(e) => updatePreferences({ currency: e.target.value })}
                 className="w-full bg-slate-900 border-slate-700 text-slate-100 rounded-md shadow-sm p-3 border outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
@@ -163,7 +164,7 @@ export const SettingsOverview = ({
                 <option value="BRL">BRL (R$)</option>
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
-              </select>
+              </Select>
             </div>
           </div>
         </section>

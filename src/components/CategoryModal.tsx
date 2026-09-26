@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from './ui/Modal';
+import { SegmentedControl } from './ui/SegmentedControl';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { X } from 'lucide-react';
@@ -67,32 +68,18 @@ export function CategoryModal({ isOpen, onClose, onSave, editingCategory, userId
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex bg-slate-800 p-1 rounded-xl">
-            <button
-              type="button"
-              onClick={() => {
-                setType('expense');
-                if (!(icon in EXPENSE_ICONS)) setIcon('Tag');
-              }}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
-                type === 'expense' ? 'bg-slate-700 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-300'
-              }`}
-            >
-              {t('settings.expense')}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setType('income');
-                if (!(icon in INCOME_ICONS)) setIcon('DollarSign');
-              }}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
-                type === 'income' ? 'bg-slate-700 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-300'
-              }`}
-            >
-              {t('settings.income')}
-            </button>
-          </div>
+          <SegmentedControl
+            value={type}
+            onChange={(val) => {
+              setType(val);
+              if (val === 'expense' && !(icon in EXPENSE_ICONS)) setIcon('Tag');
+              if (val === 'income' && !(icon in INCOME_ICONS)) setIcon('DollarSign');
+            }}
+            options={[
+              { value: 'expense', label: t('settings.expense'), activeColor: 'slate' },
+              { value: 'income', label: t('settings.income'), activeColor: 'slate' }
+            ]}
+          />
 
           <div>
             <label className="block text-sm font-medium text-slate-400 mb-1.5">{t('settings.category_name')}</label>

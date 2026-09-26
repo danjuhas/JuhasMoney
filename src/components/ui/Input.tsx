@@ -1,7 +1,7 @@
 import React from 'react';
 import type { InputHTMLAttributes } from 'react';
 
-export type InputFocusColor = 'default' | 'emerald' | 'rose';
+export type InputFocusColor = 'default' | 'emerald' | 'rose' | 'purple';
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   focusColor?: InputFocusColor;
@@ -12,7 +12,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className = '', focusColor = 'default', icon, wrapperClassName = '', ...props }, ref) => {
     
-    let baseStyles = 'w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 transition-all';
+    let baseStyles = 'w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 transition-all';
     
     let focusStyles = '';
     switch (focusColor) {
@@ -21,6 +21,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         break;
       case 'rose':
         focusStyles = 'focus:ring-rose-500/50 focus:border-rose-500/50';
+        break;
+      case 'purple':
+        focusStyles = 'focus:ring-purple-500/50 focus:border-purple-500/50';
         break;
       case 'default':
         focusStyles = 'focus:ring-blue-500/50 focus:border-blue-500/50'; // Default JuhasMoney doesn't have blue, maybe emerald is default? Let's use slate for default

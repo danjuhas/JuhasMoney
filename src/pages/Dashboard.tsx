@@ -210,14 +210,19 @@ export default function Dashboard() {
 
   const handleEditExpense = (expense: Expense) => {
     setEditingId(expense.id);
-    setTransactionMode(expense.is_fixed ? 'fixed' : 'quick');
-    setInitialType(expense.type || 'expense');
-    setIsModalOpen(true);
+    if (expense.credit_card_id) {
+      setIsCardModalOpen(true);
+    } else {
+      setTransactionMode(expense.is_fixed ? 'fixed' : 'quick');
+      setInitialType(expense.type || 'expense');
+      setIsModalOpen(true);
+    }
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
     setIsModalOpen(false);
+    setIsCardModalOpen(false);
   };
 
   const openModal = (type: 'income' | 'expense', mode: 'quick' | 'fixed' = 'quick') => {
@@ -639,9 +644,10 @@ export default function Dashboard() {
       
       
       <CreditCardTransactionModal
+        editingExpense={expenses.find(e => e.id === editingId) || null}
         initialCardId={initialCardIdForModal}
         isOpen={isCardModalOpen}
-        onClose={() => setIsCardModalOpen(false)}
+        onClose={handleCancelEdit}
         onSave={(expenses) => {
           upsertExpenses(expenses);
           setIsCardModalOpen(false);
