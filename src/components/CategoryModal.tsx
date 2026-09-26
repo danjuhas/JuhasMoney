@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Modal } from './ui/Modal';
+import { Button } from './ui/Button';
+import { Input } from './ui/Input';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { generateUUID } from '../utils/uuid';
@@ -55,18 +58,12 @@ export function CategoryModal({ isOpen, onClose, onSave, editingCategory, userId
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] flex justify-center items-center p-4">
-      <div 
-        className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
-        onClick={e => e.stopPropagation()}
-      >
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="md" className="p-6 sm:p-8 max-h-[90vh] overflow-y-auto" zIndex="z-[60]">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-slate-100">
             {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
           </h2>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-300 hover:bg-slate-800 rounded-full transition-colors">
-            <X className="w-5 h-5" />
-          </button>
+          <button type="button" onClick={onClose} className="p-2 text-slate-400 hover:text-slate-300 hover:bg-slate-800 rounded-full transition-colors"><X className="w-5 h-5" /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -99,14 +96,7 @@ export function CategoryModal({ isOpen, onClose, onSave, editingCategory, userId
 
           <div>
             <label className="block text-sm font-medium text-slate-400 mb-1.5">{t('settings.category_name')}</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="block w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
-              required
-              placeholder="Ex: Supermercado"
-            />
+            <Input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Ex: Supermercado" focusColor={type === 'income' ? 'emerald' : 'rose'} />
           </div>
 
           <div>
@@ -143,15 +133,9 @@ export function CategoryModal({ isOpen, onClose, onSave, editingCategory, userId
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-xl transition-colors shadow-lg shadow-emerald-500/25 mt-4"
-          >
-            {editingCategory ? 'Salvar Alterações' : t('settings.add')}
-          </button>
+          <Button type="submit" variant="primary" fullWidth className="mt-4">{editingCategory ? 'Salvar Alterações' : t('settings.add')}</Button>
         </form>
-      </div>
-    </div>
+          </Modal>
   );
 }
 

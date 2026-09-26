@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { Modal } from './ui/Modal';
+import { Button } from './ui/Button';
+import { Input } from './ui/Input';
 import { Plus, CreditCard as CardIcon, Trash2, Edit2 } from 'lucide-react';
 import { CreditCardBillModal } from './CreditCardBillModal';
 import { usePreferences } from '../contexts/PreferencesContext';
@@ -160,9 +163,7 @@ export function CreditCardsOverview({ cards, expenses, categories, onDeleteExpen
 
       {/* Modal Novo Cartão */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-          <div className="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-md p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      <Modal isOpen={true} onClose={() => setIsModalOpen(false)} maxWidth="md" className="p-6" zIndex="z-[60]">
             <h2 className="text-xl font-bold text-slate-100 mb-6">
               {editingCard ? t('dashboard.edit_card') : t('dashboard.new_card')}
             </h2>
@@ -170,14 +171,7 @@ export function CreditCardsOverview({ cards, expenses, categories, onDeleteExpen
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-400 mb-2">{t('dashboard.card_name')}</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="Ex: Nubank, C6, Itau..."
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                  maxLength={20}
-                />
+                <Input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Nubank, C6, Itau..." maxLength={20} />
               </div>
               
               <div>
@@ -197,46 +191,24 @@ export function CreditCardsOverview({ cards, expenses, categories, onDeleteExpen
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-400 mb-2">{t('dashboard.card_closing')}</label>
-                  <input
-                    type="number"
-                    min="1" max="31"
-                    value={closingDay}
-                    onChange={e => setClosingDay(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                  />
+                  <Input type="number" min="1" max="31" value={closingDay} onChange={e => setClosingDay(e.target.value ? Number(e.target.value) : '')} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-400 mb-2">{t('dashboard.card_due')}</label>
-                  <input
-                    type="number"
-                    min="1" max="31"
-                    value={dueDay}
-                    onChange={e => setDueDay(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                  />
+                  <Input type="number" min="1" max="31" value={dueDay} onChange={e => setDueDay(e.target.value ? Number(e.target.value) : '')} />
                 </div>
               </div>
 
               <div className="pt-4 flex gap-3">
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm font-medium transition-colors"
-                >{t('dashboard.cancel')}</button>
-                <button
-                  onClick={handleSave}
-                  disabled={!name}
-                  className="flex-1 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-medium transition-colors"
-                >{t('dashboard.save_card')}</button>
+                <Button variant="secondary" onClick={() => setIsModalOpen(false)} className="flex-1">{t('dashboard.cancel')}</Button>
+                <Button variant="primary" onClick={handleSave} disabled={!name} className="flex-1">{t('dashboard.save_card')}</Button>
               </div>
             </div>
-          </div>
-        </div>
+          </Modal>
       )}
 
             {cardToDelete && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setCardToDelete(null)}></div>
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/40 p-6 w-full max-w-md relative z-10 animate-in zoom-in-95 duration-200">
+      <Modal isOpen={true} onClose={() => setCardToDelete(null)} maxWidth="md" className="p-6" zIndex="z-[60]">
             <h3 className="text-lg font-semibold text-slate-100 mb-2">{t('modal.delete_card_title')}</h3>
             
             {(() => {
@@ -247,8 +219,8 @@ export function CreditCardsOverview({ cards, expenses, categories, onDeleteExpen
                   <>
                     <p className="text-slate-400 text-sm mb-6">{t('modal.delete_card_desc_empty')}</p>
                     <div className="flex gap-3 justify-end">
-                      <button onClick={() => setCardToDelete(null)} className="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors">{t('modal.cancel')}</button>
-                      <button onClick={() => { deleteCard(cardToDelete); setCardToDelete(null); }} className="px-4 py-2 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-xl shadow-lg shadow-rose-500/25 transition-colors">{t('modal.delete')}</button>
+                      <Button variant="secondary" onClick={() => setCardToDelete(null)}>{t('modal.cancel')}</Button>
+                      <Button variant="danger" onClick={() => { deleteCard(cardToDelete); setCardToDelete(null); }}>{t('modal.delete')}</Button>
                     </div>
                   </>
                 );
@@ -260,15 +232,14 @@ export function CreditCardsOverview({ cards, expenses, categories, onDeleteExpen
                     {t('modal.delete_card_desc_with_expenses', { count: cardExpenses.length })}
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 justify-end">
-                    <button onClick={() => setCardToDelete(null)} className="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors">{t('modal.cancel')}</button>
-                    <button onClick={() => { deleteCard(cardToDelete, 'keep'); setCardToDelete(null); }} className="px-4 py-2 text-sm font-semibold text-white bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors">{t('modal.delete_card_keep')}</button>
-                    <button onClick={() => { deleteCard(cardToDelete, 'delete_all'); setCardToDelete(null); }} className="px-4 py-2 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-xl shadow-lg shadow-rose-500/25 transition-colors">{t('modal.delete_card_delete_all')}</button>
+                    <Button variant="secondary" onClick={() => setCardToDelete(null)}>{t('modal.cancel')}</Button>
+                    <Button variant="secondary" onClick={() => { deleteCard(cardToDelete, 'keep'); setCardToDelete(null); }}>{t('modal.delete_card_keep')}</Button>
+                    <Button variant="danger" onClick={() => { deleteCard(cardToDelete, 'delete_all'); setCardToDelete(null); }}>{t('modal.delete_card_delete_all')}</Button>
                   </div>
                 </>
               );
             })()}
-          </div>
-        </div>
+                </Modal>
       )}
     </div>
   );

@@ -1,3 +1,5 @@
+import { Modal } from './ui/Modal';
+import { Button } from './ui/Button';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Category } from '../types';
@@ -32,11 +34,7 @@ export function FilterModal({
   const isFilterActive = filterType !== 'all' || filterStatus !== 'all' || filterCategory !== 'all' || sortBy !== 'default';
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 flex flex-col justify-end sm:justify-center items-center z-[60] p-4 backdrop-blur-sm" onClick={onClose}>
-      <div 
-        className="bg-slate-900 border border-slate-700 rounded-t-2xl sm:rounded-2xl shadow-2xl shadow-black/40 w-full max-w-md transform transition-all animate-in slide-in-from-bottom-10 sm:slide-in-from-bottom-0 sm:fade-in flex flex-col max-h-[90vh]"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="md" className="flex flex-col max-h-[90vh] overflow-hidden" zIndex="z-[60]">
         <div className="p-5 border-b border-slate-800 flex justify-between items-center shrink-0">
           <h2 className="text-lg font-bold text-slate-100">{t('filter.filters')}</h2>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-300 transition-colors">
@@ -109,15 +107,10 @@ export function FilterModal({
         
         <div className="p-5 border-t border-slate-800 bg-slate-900/50 mt-auto shrink-0 flex gap-3 rounded-b-2xl">
           {isFilterActive && (
-            <button onClick={clearFilters} className="flex-1 py-3 text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 rounded-xl font-medium transition-colors">
-              {t('filter.clear')}
-            </button>
+            <Button variant="secondary" onClick={clearFilters} className="flex-1">{t('filter.clear')}</Button>
           )}
-          <button onClick={onClose} className="flex-[2] py-3 text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl font-semibold shadow-lg shadow-emerald-500/25 transition-colors">
-            {t('filter.show_results')}
-          </button>
+          <Button variant="primary" onClick={onClose} className="flex-[2]">{t('filter.show_results')}</Button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

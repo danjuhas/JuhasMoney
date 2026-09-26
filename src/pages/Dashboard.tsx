@@ -12,6 +12,8 @@ import { SummaryCards } from '../components/SummaryCards';
 import { AnalyticsOverview } from '../components/AnalyticsOverview';
 import { SettingsOverview } from '../components/SettingsOverview';
 import { CreditCardsOverview } from '../components/CreditCardsOverview';
+import { Modal } from '../components/ui/Modal';
+import { Button } from '../components/ui/Button';
 import { CreditCardBillModal } from '../components/CreditCardBillModal';
 import { FilterModal } from '../components/FilterModal';
 import { TransactionModal } from '../components/TransactionModal';
@@ -678,36 +680,20 @@ export default function Dashboard() {
       />
 
       {billConfirm && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setBillConfirm(null)}></div>
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/40 p-6 w-full max-w-sm relative z-10 animate-in zoom-in-95 duration-200">
+      <Modal isOpen={true} onClose={() => setBillConfirm(null)} maxWidth="sm" className="p-6" zIndex="z-[60]">
             <h3 className="text-lg font-semibold text-slate-100 mb-2">{billConfirm.action === 'pay' ? t('dashboard.bill') : t('dashboard.undo_title')}</h3>
             <p className="text-slate-400 text-sm mb-6">
               {billConfirm.action === 'pay' ? t('dashboard.confirm_pay_bill') : t('dashboard.confirm_undo_bill')}
             </p>
             <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setBillConfirm(null)}
-                className="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors"
-              >
+              <Button variant="secondary" onClick={() => setBillConfirm(null)}>
                 {t('dashboard.cancel')}
-              </button>
-              <button
-                onClick={() => {
-                  if (billConfirm.action === 'pay') {
-                    payMultipleExpenses(billConfirm.ids, selectedMonth);
-                  } else {
-                    unpayMultipleExpenses(billConfirm.ids, selectedMonth);
-                  }
-                  setBillConfirm(null);
-                }}
-                className="px-4 py-2 text-sm font-semibold text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl shadow-lg shadow-emerald-500/25 transition-colors"
-              >
+              </Button>
+              <Button variant="primary" onClick={() => { if (billConfirm.action === 'pay') { payMultipleExpenses(billConfirm.ids, selectedMonth); } else { unpayMultipleExpenses(billConfirm.ids, selectedMonth); } setBillConfirm(null); }}>
                 {billConfirm.action === 'pay' ? t('dashboard.pay') : t('dashboard.undo')}
-              </button>
+              </Button>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
 
       <FilterModal

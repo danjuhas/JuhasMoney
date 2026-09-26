@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Modal } from './ui/Modal';
+import { Button } from './ui/Button';
 import { Plus, CreditCard as CardIcon, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import type { Expense, Category, CreditCard } from '../types';
 import { isActiveInMonth } from '../utils/transactions';
@@ -57,9 +59,7 @@ export function CreditCardBillModal({
   const isPaid = cardExpenses.length > 0 && cardExpenses.every(e => e.is_paid);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl max-h-[85vh] p-6 relative z-10 shadow-2xl flex flex-col">
+    <Modal isOpen={!!cardId} onClose={onClose} maxWidth="2xl" className="p-6 max-h-[85vh] flex flex-col" zIndex="z-[60]">
         <div className="flex justify-between items-center mb-4 shrink-0">
           <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
             <CardIcon className="w-6 h-6 text-purple-400" />
@@ -104,13 +104,7 @@ export function CreditCardBillModal({
         </div>
 
         {onAddPurchase && (
-          <button 
-            onClick={onAddPurchase}
-            className="w-full shrink-0 flex items-center justify-center gap-2 mb-4 p-3 border-2 border-dashed border-emerald-500/50 hover:border-emerald-500 hover:bg-emerald-500/10 text-emerald-400 rounded-xl transition-all"
-          >
-            <Plus className="w-5 h-5" />
-            <span className="font-medium">{t('dashboard.new_card_expense')}</span>
-          </button>
+          <Button variant="outline" fullWidth onClick={onAddPurchase} className="mb-4 shrink-0"><Plus className="w-5 h-5" />{t('dashboard.new_card_expense')}</Button>
         )}
 
         <div className="overflow-y-auto flex-1 pr-2 space-y-2">
@@ -132,7 +126,6 @@ export function CreditCardBillModal({
             ))
           )}
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
