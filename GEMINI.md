@@ -25,3 +25,6 @@ You are an AI assistant working on **JuhasMoney**, a personal finance and cash-f
 - **Simplicity:** Keep the interface clean and intuitive. Avoid redundant inputs.
 - **Visual Cues:** Use consistent color coding (Green for Income, Red for Expenses).
 - **Modern Design:** Use modern web paradigms like `backdrop-blur-sm` for pop-ups, soft shadows (`shadow-2xl`), and Apple-like floating elements instead of heavy, dimmed full-screen modals.
+
+## 5. UI Primitives
+- Always use the UI primitive components located in `src/components/ui/` (Button, Input, Card, Modal, Badge) when building new screens or refactoring old ones, instead of writing raw HTML with Tailwind classes.

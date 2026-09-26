@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Modal } from './ui/Modal';
+import { Button } from './ui/Button';
 import { generateUUID } from '../utils/uuid';
 import { getCurrencySymbol } from '../utils/format';
 import type { Expense, Category, CreditCard } from '../types';
@@ -227,13 +229,8 @@ export function TransactionModal({
   const focusRing = transactionType === 'income' ? '${focusRing}' : 'focus:ring-rose-500 focus:border-rose-500';
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4" onClick={onClose}>
-      <div 
-        className="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto transform transition-all p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
-        
-          <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="md" className="p-6 max-h-[90vh] overflow-y-auto" zIndex="z-[70]">
+<h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
             <div className={`${bgIconTint} ${textIcon} p-2 rounded-xl`}>
               {transactionType === 'income' ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
             </div>
@@ -445,26 +442,12 @@ export function TransactionModal({
             )}
 
             <div className="pt-4 flex gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm font-medium transition-colors"
-              >
-                {t('dashboard.cancel')}
-              </button>
-              <button
-                type="submit"
-                className={`flex-1 px-4 py-2.5 text-white rounded-xl text-sm font-medium transition-colors ${
-                  transactionType === 'income' 
-                    ? 'bg-emerald-500 hover:bg-emerald-600' 
-                    : 'bg-rose-500 hover:bg-rose-600'
-                }`}
-              >
+              <Button className="flex-1" variant="secondary" onClick={onClose}>{t('dashboard.cancel')}</Button>
+              <Button className="flex-1" type="submit" variant={transactionType === 'income' ? 'primary' : 'danger'}>
                 {editingExpense ? t('dashboard.save') : t('dashboard.add')}
-              </button>
+              </Button>
             </div>
           </form>
-      </div>
-    </div>
+      </Modal>
   );
 }
