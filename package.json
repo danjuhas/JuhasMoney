@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "test": "vitest run",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:visual": "playwright test tests/e2e/visual*.spec.ts",
+    "test:visual:update": "playwright test tests/e2e/visual*.spec.ts --update-snapshots"
   },
   "dependencies": {
     "@sentry/react": "^10.73.0",

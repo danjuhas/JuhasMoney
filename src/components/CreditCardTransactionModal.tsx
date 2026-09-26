@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Modal } from './ui/Modal';
+import { Button } from './ui/Button';
+import { Select } from './ui/Select';
+import { Input } from './ui/Input';
 import { generateUUID } from '../utils/uuid';
 import type { Expense, Category, CreditCard } from '../types';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +18,7 @@ type Props = {
   cards: CreditCard[];
   preferences: any;
   initialCardId?: string;
+  editingExpense?: Expense | null;
 };
 
 export function CreditCardTransactionModal({
@@ -24,7 +29,8 @@ export function CreditCardTransactionModal({
   categories,
   cards,
   preferences,
-  initialCardId
+  initialCardId,
+  editingExpense
 }: Props) {
   const { t } = useTranslation();
 
@@ -45,6 +51,26 @@ export function CreditCardTransactionModal({
   const [creditCardId, setCreditCardId] = useState('');
   const [installments, setInstallments] = useState(1);
   const [purchaseDate, setPurchaseDate] = useState(() => new Date().toISOString().split('T')[0]);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (editingExpense) {
+        setDescription(editingExpense.description);
+        setAmount(Math.round(editingExpense.amount * 100).toString());
+        setCategoryId(editingExpense.category_id || '');
+        setCreditCardId(editingExpense.credit_card_id || initialCardId || '');
+        setPurchaseDate(editingExpense.created_at.split('T')[0]);
+        setInstallments(1); // Usually we don't edit installments count once created, or it's represented by group_id
+      } else {
+        setDescription('');
+        setAmount('');
+        setCategoryId('');
+        setCreditCardId(initialCardId || '');
+        setInstallments(1);
+        setPurchaseDate(new Date().toISOString().split('T')[0]);
+      }
+    }
+  }, [isOpen, editingExpense, initialCardId]);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -63,20 +89,13 @@ export function CreditCardTransactionModal({
 
   if (cards.length === 0) {
     return (
-      <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-        <div className="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-md p-6 relative z-10 shadow-2xl text-center">
+      <Modal isOpen={isOpen} onClose={onClose} maxWidth="md" className="p-6 text-center" zIndex="z-[70]">
+
           <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-slate-100 mb-2">{t('dashboard.no_card_title')}</h2>
           <p className="text-slate-400 mb-6">{t('dashboard.no_card_desc')}</p>
-          <button
-            onClick={onClose}
-            className="w-full bg-slate-700 hover:bg-slate-600 text-white rounded-xl py-3 font-medium transition-colors"
-          >
-            Entendi
-          </button>
-        </div>
-      </div>
+          <Button variant="secondary" onClick={onClose} fullWidth>Entendi</Button>
+      </Modal>
     );
   }
 
@@ -141,10 +160,8 @@ export function CreditCardTransactionModal({
   const expenseCategories = categories.filter(c => c.type === 'expense');
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      
-      <div className="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-md p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="md" className="p-6" zIndex="z-[70]">
+
         <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
           <div className="bg-purple-500/20 text-purple-400 p-2 rounded-xl">
             <CreditCardIcon className="w-5 h-5" />
@@ -202,70 +219,43 @@ export function CreditCardTransactionModal({
               >
                 {t('dashboard.today')}
               </button>
-              <input
-                type="date"
-                value={purchaseDate}
-                onChange={(e) => setPurchaseDate(e.target.value)}
-                className="flex-1 w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2 sm:p-2.5 border outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-                required
-              />
+              <Input type="date" value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} focusColor="purple" required />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.description')}</label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              translate="no"
-              placeholder={t('dashboard.description_placeholder')}
-              className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-              required
-            />
+            <Input type="text" value={description} onChange={(e) => setDescription(e.target.value)} translate="no" placeholder={t('dashboard.description_placeholder')} focusColor="purple" required />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.category_optional')}</label>
-            <select
-              value={categoryId}
-              onChange={e => setCategoryId(e.target.value)}
-              className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-            >
+            <Select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} translate="no" focusColor="purple">
               <option value="">Selecione...</option>
               {expenseCategories.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
-            </select>
+            </Select>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.card')}</label>
-              <select
-                value={creditCardId}
-                onChange={e => setCreditCardId(e.target.value)}
-                className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-                required
-              >
+              <Select value={creditCardId} onChange={(e) => setCreditCardId(e.target.value)} focusColor="purple" required>
                 <option value="">{t('dashboard.card_select')}</option>
                 {cards.map(c => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
-              </select>
+              </Select>
             </div>
-            <div>
+            {!editingExpense && (<div>
               <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.installments_count')}</label>
-              <select
-                value={installments}
-                onChange={e => setInstallments(Number(e.target.value))}
-                className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-              >
+              <Select value={installments} onChange={e => setInstallments(Number(e.target.value))} focusColor="purple">
                 {[...Array(24)].map((_, i) => (
                   <option key={i+1} value={i+1}>{i+1}x</option>
                 ))}
-              </select>
-            </div>
+              </Select>
+            </div>)}
           </div>
           
           {installments > 1 && (parseInt(amount || '0', 10) / 100) > 0 && (
@@ -275,22 +265,10 @@ export function CreditCardTransactionModal({
           )}
 
           <div className="pt-4 flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm font-medium transition-colors"
-            >
-              {t('dashboard.cancel')}
-            </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-xl text-sm font-medium transition-colors"
-            >
-              {t('dashboard.save')}
-            </button>
+            <Button className="flex-1" variant="secondary" onClick={onClose}>{t('dashboard.cancel')}</Button>
+            <Button type="submit" className="flex-1 bg-purple-500 hover:bg-purple-600 text-white shadow-lg shadow-purple-500/25 border-0">{t('dashboard.save')}</Button>
           </div>
         </form>
-      </div>
-    </div>
+      </Modal>
   );
 }

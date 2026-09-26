@@ -6,6 +6,7 @@ import { usePreferences } from '../contexts/PreferencesContext';
 import { useTransactions } from '../hooks/useTransactions';
 import { generateUUID } from '../utils/uuid';
 import { supabase } from '../lib/supabase';
+import { Select } from '../components/ui/Select';
 import { CategoryModal } from '../components/CategoryModal';
 import { getCategoryStyle } from '../constants/categories';
 import type { Expense } from '../types';
@@ -189,7 +190,7 @@ export default function Onboarding() {
 
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">{t('onboarding.language')}</label>
-              <select 
+              <Select 
                 value={language} 
                 onChange={(e) => setLanguage(e.target.value)}
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl text-slate-100 shadow-sm p-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
@@ -197,12 +198,12 @@ export default function Onboarding() {
                 <option value="pt">Português (BR)</option>
                 <option value="en">English (US)</option>
                 <option value="es">Español</option>
-              </select>
+              </Select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">{t('onboarding.currency')}</label>
-              <select 
+              <Select 
                 value={currency} 
                 onChange={(e) => setCurrency(e.target.value)}
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl text-slate-100 shadow-sm p-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
@@ -210,7 +211,7 @@ export default function Onboarding() {
                 <option value="BRL">Real (R$)</option>
                 <option value="USD">Dólar (US$)</option>
                 <option value="EUR">Euro (€)</option>
-              </select>
+              </Select>
             </div>
 
             <button onClick={handleNext} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-emerald-500/25 text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 transition-all">
