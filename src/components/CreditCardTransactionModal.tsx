@@ -69,21 +69,10 @@ export function CreditCardTransactionModal({
         setInstallments(1);
         setPurchaseDate(new Date().toISOString().split('T')[0]);
       }
+      setError('');
     }
   }, [isOpen, editingExpense, initialCardId]);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    if (isOpen) {
-      setDescription('');
-      setAmount('');
-      setCategoryId('');
-      setCreditCardId(initialCardId || '');
-      setInstallments(1);
-      setPurchaseDate(new Date().toISOString().split('T')[0]);
-      setError('');
-    }
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -178,6 +167,11 @@ export function CreditCardTransactionModal({
                 <form onSubmit={handleSubmit} className="space-y-4">
           <div className="p-6 mb-6 rounded-2xl border flex flex-col items-center justify-center transition-colors bg-purple-500/10 border-purple-500/20">
             <div className="flex items-center gap-2 max-w-full">
+              {getCurrencySymbol(preferences.currency || 'BRL').position === 'left' && (
+                <span className="text-2xl font-bold text-purple-500/80">
+                  {getCurrencySymbol(preferences.currency || 'BRL').symbol}
+                </span>
+              )}
               <input
                 type="text"
                 inputMode="numeric"

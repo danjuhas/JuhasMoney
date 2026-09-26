@@ -99,6 +99,12 @@ export function TransactionItem({
 
             {expense.due_day && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">{t('item.day')} {expense.due_day}</span>}
 
+            {expense.credit_card_id && expense.created_at && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">
+                {new Date(expense.created_at).toLocaleDateString(t('dashboard.locale') || 'pt-BR', { day: '2-digit', month: '2-digit' })}
+              </span>
+            )}
+
           </div>
 
           <div className="flex items-center shrink-0 ml-2 relative">

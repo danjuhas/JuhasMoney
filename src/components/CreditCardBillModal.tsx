@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Modal } from './ui/Modal';
+import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Plus, CreditCard as CardIcon, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import type { Expense, Category, CreditCard } from '../types';
@@ -72,7 +73,7 @@ export function CreditCardBillModal({
         </div>
 
         {/* Month Navigation & Summary */}
-        <div className="bg-slate-800/50 rounded-2xl p-4 mb-4 shrink-0 border border-slate-700 flex flex-col gap-4">
+        <Card padding="sm" className="mb-4 shrink-0 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <button 
               onClick={() => setModalMonth(prevMonth)}
@@ -101,18 +102,22 @@ export function CreditCardBillModal({
             </h3>
             {isPaid && <span className="text-xs text-emerald-500 font-medium mt-1 uppercase tracking-wider">{t('dashboard.bill_paid')}</span>}
           </div>
-        </div>
+        </Card>
 
         {onAddPurchase && (
           <Button variant="outline" fullWidth onClick={onAddPurchase} className="mb-4 shrink-0"><Plus className="w-5 h-5" />{t('dashboard.new_card_expense')}</Button>
         )}
 
-        <div className="overflow-y-auto flex-1 pr-2 space-y-2">
+        <Card padding="sm" className="overflow-y-auto flex-1 min-h-0">
           {cardExpenses.length === 0 ? (
-            <p className="text-slate-400 text-center py-8">{t('dashboard.bill_empty')}</p>
+            <div className="flex h-full items-center justify-center py-8">
+              <p className="text-slate-400 text-center">{t('dashboard.bill_empty')}</p>
+            </div>
           ) : (
-            cardExpenses.map(expense => (
-              <TransactionItem
+            <div className="flow-root">
+              <ul className="divide-y divide-slate-700/40 -my-2">
+                {cardExpenses.map(expense => (
+                  <TransactionItem
                 key={expense.id}
                 expense={expense}
                 isPaid={expense.is_paid || false}
@@ -122,10 +127,12 @@ export function CreditCardBillModal({
                 onDelete={onDeleteExpense}
                 hideActions={true}
                 hideCheckbox={true}
-              />
-            ))
+                  />
+                ))}
+              </ul>
+            </div>
           )}
-        </div>
+        </Card>
     </Modal>
   );
 }
