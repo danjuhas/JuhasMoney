@@ -13,6 +13,7 @@ type Props = {
   categories: Category[];
   cards: CreditCard[];
   preferences: any;
+  initialCardId?: string;
 };
 
 export function CreditCardTransactionModal({
@@ -22,7 +23,8 @@ export function CreditCardTransactionModal({
   userId,
   categories,
   cards,
-  preferences
+  preferences,
+  initialCardId
 }: Props) {
   const { t } = useTranslation();
 
@@ -50,7 +52,7 @@ export function CreditCardTransactionModal({
       setDescription('');
       setAmount('');
       setCategoryId('');
-      setCreditCardId('');
+      setCreditCardId(initialCardId || '');
       setInstallments(1);
       setPurchaseDate(new Date().toISOString().split('T')[0]);
       setError('');
@@ -61,7 +63,7 @@ export function CreditCardTransactionModal({
 
   if (cards.length === 0) {
     return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
         <div className="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-md p-6 relative z-10 shadow-2xl text-center">
           <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
@@ -139,7 +141,7 @@ export function CreditCardTransactionModal({
   const expenseCategories = categories.filter(c => c.type === 'expense');
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       
       <div className="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-md p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in-95 duration-200">

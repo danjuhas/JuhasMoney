@@ -145,6 +145,7 @@
     "card_color": "Cor do Cartão",
     "card_closing": "Dia de Fechamento",
     "card_due": "Dia de Vencimento",
+    "save_card": "Salvar Cartão",
     "credit_card": "Cartão de Crédito",
     "installment_1x": "1x (À vista)",
     "my_cards": "Meus Cartões",
@@ -155,7 +156,12 @@
     "bill": "Fatura",
     "purchases_count": "{{count}} compras",
     "purchases_count_one": "{{count}} compra",
-    "installments_preview": "Serão geradas {{count}} parcelas de"
+    "installments_preview": "Serão geradas {{count}} parcelas de",
+    "confirm_pay_bill": "Confirmar o pagamento de toda a fatura?",
+    "confirm_undo_bill": "Deseja marcar todas as compras desta fatura como pendentes?",
+    "pay": "Pagar",
+    "undo": "Desfazer",
+    "undo_title": "Desfazer Pagamento"
   },
   "filter": {
     "filters": "Filtros",
@@ -177,7 +183,12 @@
     "delete_only_this": "Apenas esta",
     "delete_all": "Todas futuras",
     "delete": "Excluir",
-    "delete_installment_desc": "Esta despesa faz parte de um parcelamento. Ao excluí-la, esta e todas as parcelas futuras também serão apagadas. As parcelas passadas serão mantidas."
+    "delete_installment_desc": "Esta despesa faz parte de um parcelamento. Ao excluí-la, esta e todas as parcelas futuras também serão apagadas. As parcelas passadas serão mantidas.",
+    "delete_card_title": "Excluir Cartão de Crédito",
+    "delete_card_desc_empty": "Tem certeza que deseja excluir este cartão? Esta ação não pode ser desfeita.",
+    "delete_card_desc_with_expenses": "Este cartão possui {{count}} compras vinculadas a ele. O que deseja fazer com elas?",
+    "delete_card_keep": "Manter Compras",
+    "delete_card_delete_all": "Excluir Tudo"
   },
   "item": {
     "edit": "Editar",

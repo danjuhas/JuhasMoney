@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { CreditCardBillModal } from '../../src/components/CreditCardBillModal';
 import type { Expense, CreditCard, Category } from '../../src/types';
@@ -97,5 +98,34 @@ describe('CreditCardBillModal Component', () => {
 
     // Assert that the paid tag is rendered
     expect(screen.getByText('Fatura Paga')).toBeInTheDocument();
+  });
+
+  it('should render the + Nova Compra button and fire callback when clicked', async () => {
+    const onAddPurchaseMock = vi.fn();
+    const user = userEvent.setup();
+    
+    render(
+      <CreditCardBillModal
+        cardId="card-1"
+        onClose={vi.fn()}
+        expenses={[]}
+        categories={dummyCategories}
+        cards={[dummyCard]}
+        initialMonth="2026-09"
+        onDeleteExpense={vi.fn()}
+        onEditExpense={vi.fn()}
+        onAddPurchase={onAddPurchaseMock}
+        preferences={mockPreferences}
+      />
+    );
+
+    // The text comes from translation: dashboard.new_card_expense
+    // Since it's mocked, it probably returns the key itself or 'Nova Compra'
+    // Let's use getByRole since it's a button
+    const btn = screen.getByRole('button', { name: /new_card_expense/i });
+    expect(btn).toBeInTheDocument();
+    
+    await user.click(btn);
+    expect(onAddPurchaseMock).toHaveBeenCalledTimes(1);
   });
 });

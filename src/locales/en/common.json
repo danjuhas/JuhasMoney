@@ -145,6 +145,7 @@
     "card_color": "Card Color",
     "card_closing": "Closing Day",
     "card_due": "Due Day",
+    "save_card": "Save Card",
     "credit_card": "Credit Card",
     "installment_1x": "1x (In full)",
     "my_cards": "My Cards",
@@ -155,7 +156,12 @@
     "bill": "Bill",
     "purchases_count": "{{count}} purchases",
     "purchases_count_one": "{{count}} purchase",
-    "installments_preview": "{{count}} installments of"
+    "installments_preview": "{{count}} installments of",
+    "confirm_pay_bill": "Confirm payment of this entire bill?",
+    "confirm_undo_bill": "Do you want to mark all purchases in this bill as pending?",
+    "pay": "Pay",
+    "undo": "Undo",
+    "undo_title": "Undo Payment"
   },
   "filter": {
     "filters": "Filters",
@@ -177,7 +183,12 @@
     "delete_only_this": "Only this",
     "delete_all": "All future",
     "delete": "Delete",
-    "delete_installment_desc": "This expense is part of an installment plan. By deleting it, this and all future installments will be deleted. Past installments will be kept."
+    "delete_installment_desc": "This expense is part of an installment plan. By deleting it, this and all future installments will be deleted. Past installments will be kept.",
+    "delete_card_title": "Delete Credit Card",
+    "delete_card_desc_empty": "Are you sure you want to delete this credit card? This action cannot be undone.",
+    "delete_card_desc_with_expenses": "This card has {{count}} purchases linked to it. What do you want to do with them?",
+    "delete_card_keep": "Delete Card & Keep Purchases",
+    "delete_card_delete_all": "Delete Card & Purchases"
   },
   "item": {
     "edit": "Edit",

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CreditCard as CardIcon, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { Plus, CreditCard as CardIcon, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import type { Expense, Category, CreditCard } from '../types';
 import { isActiveInMonth } from '../utils/transactions';
 import { formatCurrency } from '../utils/format';
@@ -15,6 +15,7 @@ interface Props {
   initialMonth: string;
   onDeleteExpense: (id: string) => void;
   onEditExpense: (expense: Expense) => void;
+  onAddPurchase?: () => void;
   preferences: any;
 }
 
@@ -27,7 +28,8 @@ export function CreditCardBillModal({
   initialMonth,
   onDeleteExpense,
   onEditExpense,
-  preferences
+  preferences,
+  onAddPurchase
 }: Props) {
   const { t } = useTranslation();
   const [modalMonth, setModalMonth] = useState(initialMonth);
@@ -63,7 +65,10 @@ export function CreditCardBillModal({
             <CardIcon className="w-6 h-6 text-purple-400" />
             {t('dashboard.bill_details')}
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-300 text-2xl leading-none">&times;</button>
+          <div className="flex items-center gap-3">
+
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-300 text-2xl leading-none">&times;</button>
+          </div>
         </div>
 
         {/* Month Navigation & Summary */}
@@ -97,6 +102,16 @@ export function CreditCardBillModal({
             {isPaid && <span className="text-xs text-emerald-500 font-medium mt-1 uppercase tracking-wider">{t('dashboard.bill_paid')}</span>}
           </div>
         </div>
+
+        {onAddPurchase && (
+          <button 
+            onClick={onAddPurchase}
+            className="w-full shrink-0 flex items-center justify-center gap-2 mb-4 p-3 border-2 border-dashed border-emerald-500/50 hover:border-emerald-500 hover:bg-emerald-500/10 text-emerald-400 rounded-xl transition-all"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="font-medium">{t('dashboard.new_card_expense')}</span>
+          </button>
+        )}
 
         <div className="overflow-y-auto flex-1 pr-2 space-y-2">
           {cardExpenses.length === 0 ? (

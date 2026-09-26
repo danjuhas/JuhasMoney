@@ -47,7 +47,7 @@ export default function Dashboard() {
     deleteCategory, 
     deleteExpense, 
     togglePaid,
-    payMultipleExpenses,
+    payMultipleExpenses, unpayMultipleExpenses, deleteMultipleExpenses,
   } = useTransactions(userId, addToast);
   const { cards, addCard, updateCard, deleteCard: deleteCreditCard } = useCreditCards(userId);
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -57,6 +57,7 @@ export default function Dashboard() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
+  const [initialCardIdForModal, setInitialCardIdForModal] = useState<string | undefined>(undefined);
   const [selectedBillCardId, setSelectedBillCardId] = useState<string | null>(null);
   const [transactionMode, setTransactionMode] = useState<'quick' | 'fixed'>('quick');
   const [initialType, setInitialType] = useState<'income' | 'expense'>('expense');
@@ -66,6 +67,7 @@ export default function Dashboard() {
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<{ id: string, deleteAll: boolean, isInstallment?: boolean } | null>(null);
+  const [billConfirm, setBillConfirm] = useState<{ids: string[], action: 'pay' | 'unpay'} | null>(null);
   const [highlightedIds, setHighlightedIds] = useState<string[]>([]);
 
   const {
@@ -150,6 +152,17 @@ export default function Dashboard() {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const handleDeleteCard = async (cardId: string, action: 'keep' | 'delete_all' = 'keep') => {
+    const cardExpenses = expenses.filter(e => e.credit_card_id === cardId);
+    if (action === 'delete_all' && cardExpenses.length > 0) {
+      await deleteMultipleExpenses(cardExpenses.map(e => e.id));
+    } else if (action === 'keep' && cardExpenses.length > 0) {
+      const updates = cardExpenses.map(e => ({ ...e, credit_card_id: null, is_paid: false }));
+      await upsertExpenses(updates);
+    }
+    await deleteCreditCard(cardId);
+  };
 
   const handleDeleteCategory = (id: string) => {
     deleteCategory(id);
@@ -479,6 +492,7 @@ export default function Dashboard() {
   
         <div className={`md:col-span-3 ${activeTab !== 'cards' ? 'hidden' : ''}`}>
           <CreditCardsOverview 
+              onAddCardPurchase={(id) => { setInitialCardIdForModal(id); setIsCardModalOpen(true); }}
               cards={cards} 
               expenses={expenses}
               categories={categories}
@@ -488,7 +502,7 @@ export default function Dashboard() {
               onEditExpense={handleEditExpense}
               addCard={addCard} 
               updateCard={updateCard} 
-              deleteCard={deleteCreditCard} 
+              deleteCard={handleDeleteCard} 
             />
         </div>
 
@@ -559,8 +573,15 @@ export default function Dashboard() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                const ids = item.expenses.filter(e => !e.is_paid).map(e => e.id);
-                                if (ids.length > 0) payMultipleExpenses(ids, selectedMonth);
+                                if (item.is_paid) {
+                                  const ids = item.expenses.map(e => e.id);
+                                  setBillConfirm({ ids, action: 'unpay' });
+                                } else {
+                                  const ids = item.expenses.filter(e => !e.is_paid).map(e => e.id);
+                                  if (ids.length > 0) {
+                                    setBillConfirm({ ids, action: 'pay' });
+                                  }
+                                }
                               }}
                               className="shrink-0 focus:outline-none transition-colors mt-0.5 self-start"
                             >
@@ -616,6 +637,7 @@ export default function Dashboard() {
       
       
       <CreditCardTransactionModal
+        initialCardId={initialCardIdForModal}
         isOpen={isCardModalOpen}
         onClose={() => setIsCardModalOpen(false)}
         onSave={(expenses) => {
@@ -654,6 +676,39 @@ export default function Dashboard() {
           }
         }}
       />
+
+      {billConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setBillConfirm(null)}></div>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/40 p-6 w-full max-w-sm relative z-10 animate-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-semibold text-slate-100 mb-2">{billConfirm.action === 'pay' ? t('dashboard.bill') : t('dashboard.undo_title')}</h3>
+            <p className="text-slate-400 text-sm mb-6">
+              {billConfirm.action === 'pay' ? t('dashboard.confirm_pay_bill') : t('dashboard.confirm_undo_bill')}
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setBillConfirm(null)}
+                className="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors"
+              >
+                {t('dashboard.cancel')}
+              </button>
+              <button
+                onClick={() => {
+                  if (billConfirm.action === 'pay') {
+                    payMultipleExpenses(billConfirm.ids, selectedMonth);
+                  } else {
+                    unpayMultipleExpenses(billConfirm.ids, selectedMonth);
+                  }
+                  setBillConfirm(null);
+                }}
+                className="px-4 py-2 text-sm font-semibold text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl shadow-lg shadow-emerald-500/25 transition-colors"
+              >
+                {billConfirm.action === 'pay' ? t('dashboard.pay') : t('dashboard.undo')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <FilterModal
         isOpen={isFilterModalOpen}

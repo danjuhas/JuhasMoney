@@ -11,6 +11,7 @@ const chainableMock = {
   upsert: vi.fn().mockReturnThis(),
   update: vi.fn().mockReturnThis(),
   delete: vi.fn().mockReturnThis(),
+  in: vi.fn().mockReturnThis(),
   then: vi.fn((resolve) => resolve({ data: [], error: null })),
   catch: vi.fn().mockReturnThis(),
 };
@@ -52,6 +53,7 @@ describe('useTransactions Hook', () => {
                       .mockImplementationOnce((resolve) => resolve({ data: [{ id: 'cat1' }], error: null }));
 
     const { result } = renderHook(() => useTransactions('user-123'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
     await waitFor(() => {
       expect(result.current.expenses).toEqual([{ id: 'exp1' }]);
@@ -68,6 +70,7 @@ describe('useTransactions Hook', () => {
       .mockImplementationOnce((resolve) => resolve({ data: [], error: null })); // categories
 
     const { result } = renderHook(() => useTransactions('user-123'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
     await waitFor(() => {
       expect(result.current.expenses).toHaveLength(1);
@@ -105,6 +108,7 @@ describe('useTransactions Hook', () => {
       .mockImplementationOnce((resolve) => resolve({ data: [], error: null })); 
 
     const { result } = renderHook(() => useTransactions('user-123'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
     await waitFor(() => {
       expect(result.current.expenses).toHaveLength(1);
@@ -128,6 +132,7 @@ describe('useTransactions Hook', () => {
 
   it('should call upsert on supabase when upsertExpenses is called', async () => {
     const { result } = renderHook(() => useTransactions('user-123'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
     
     chainableMock.upsert.mockClear();
 
@@ -139,5 +144,78 @@ describe('useTransactions Hook', () => {
 
     expect(result.current.expenses).toContainEqual(mockExpenses[0]);
     expect(chainableMock.upsert).toHaveBeenCalledWith(mockExpenses);
+  });
+
+  it('should mark all passed expenses as paid via payMultipleExpenses', async () => {
+    const { result } = renderHook(() => useTransactions('user-123'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    
+    // Setup initial expenses inside the hook by upserting them first
+    const mockExpenses = [
+      { id: 'exp_1', description: 'Normal', amount: 50, type: 'expense', created_at: '2026-05-10T12:00:00Z', is_fixed: false, is_paid: false },
+      { id: 'exp_2', description: 'Fixed', amount: 50, type: 'expense', created_at: '2026-05-10T12:00:00Z', is_fixed: true, paid_months: [] }
+    ];
+    
+    act(() => {
+      result.current.upsertExpenses(mockExpenses as any);
+    });
+    
+    chainableMock.upsert.mockClear();
+
+    await act(async () => {
+      await result.current.payMultipleExpenses(['exp_1', 'exp_2'], '2026-05');
+    });
+
+    const exp1 = result.current.expenses.find(e => e.id === 'exp_1');
+    const exp2 = result.current.expenses.find(e => e.id === 'exp_2');
+
+    expect(exp1?.is_paid).toBe(true);
+    expect(exp2?.paid_months).toContain('2026-05');
+
+    expect(chainableMock.upsert).toHaveBeenCalled();
+  });
+
+  it('should safely remove month string from fixed expenses in unpayMultipleExpenses', async () => {
+    
+    const { result } = renderHook(() => useTransactions('user-123'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const mockExpenses = [
+      { id: 'exp_3', description: 'Normal', amount: 50, type: 'expense', created_at: '2026-05-10T12:00:00Z', is_fixed: false, is_paid: true },
+      { id: 'exp_4', description: 'Fixed', amount: 50, type: 'expense', created_at: '2026-05-10T12:00:00Z', is_fixed: true, paid_months: ['2026-04', '2026-05', '2026-06'] }
+    ];
+    
+    act(() => {
+      result.current.upsertExpenses(mockExpenses as any);
+    });
+    
+    chainableMock.upsert.mockClear();
+
+    await act(async () => {
+      await result.current.unpayMultipleExpenses(['exp_3', 'exp_4'], '2026-05');
+    });
+
+    const exp3 = result.current.expenses.find(e => e.id === 'exp_3');
+    const exp4 = result.current.expenses.find(e => e.id === 'exp_4');
+
+    expect(exp3?.is_paid).toBe(false);
+    expect(exp4?.paid_months).toEqual(['2026-04', '2026-06']); // 2026-05 is removed securely
+
+    expect(chainableMock.upsert).toHaveBeenCalled();
+  });
+
+  it('should call delete on supabase when deleteMultipleExpenses is triggered', async () => {
+    const { result } = renderHook(() => useTransactions('user-123'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    
+    chainableMock.delete.mockClear();
+    
+    await act(async () => {
+      await result.current.deleteMultipleExpenses(['exp_1', 'exp_2']);
+    });
+    
+    expect(chainableMock.delete).toHaveBeenCalled();
   });
 });

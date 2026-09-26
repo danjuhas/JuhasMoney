@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Plus, CreditCard as CardIcon, Trash2, Edit2 } from 'lucide-react';
 import { CreditCardBillModal } from './CreditCardBillModal';
-import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { usePreferences } from '../contexts/PreferencesContext';
 import type { CreditCard } from '../types';
 import { useTranslation } from 'react-i18next';
@@ -19,10 +18,11 @@ interface CreditCardsOverviewProps {
   onEditExpense: (expense: Expense) => void;
   addCard: (card: Omit<CreditCard, 'id' | 'user_id' | 'created_at'>) => void;
   updateCard: (id: string, updates: Partial<Omit<CreditCard, 'id' | 'user_id' | 'created_at'>>) => void;
-  deleteCard: (id: string) => void;
+  deleteCard: (id: string, action?: "keep" | "delete_all") => void;
+  onAddCardPurchase?: (cardId: string) => void;
 }
 
-export function CreditCardsOverview({ cards, expenses, categories, onDeleteExpense, onEditExpense, addCard, updateCard, deleteCard , selectedMonth}: CreditCardsOverviewProps) {
+export function CreditCardsOverview({ cards, expenses, categories, onDeleteExpense, onEditExpense, addCard, updateCard, deleteCard, selectedMonth, onAddCardPurchase }: CreditCardsOverviewProps) {
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<CreditCard | null>(null);
@@ -146,6 +146,7 @@ export function CreditCardsOverview({ cards, expenses, categories, onDeleteExpen
 
       {/* Modal Detalhes da Fatura */}
       <CreditCardBillModal
+        onAddPurchase={() => { if (selectedCardId && onAddCardPurchase) { onAddCardPurchase(selectedCardId); } }}
         cardId={selectedCardId}
         onClose={() => setSelectedCardId(null)}
         expenses={expenses}
@@ -232,15 +233,43 @@ export function CreditCardsOverview({ cards, expenses, categories, onDeleteExpen
         </div>
       )}
 
-      <DeleteConfirmModal
-        isOpen={!!cardToDelete}
-        onClose={() => setCardToDelete(null)}
-        onConfirm={() => {
-          if (cardToDelete) {
-            deleteCard(cardToDelete);
-          }
-        }}
-      />
+            {cardToDelete && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setCardToDelete(null)}></div>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/40 p-6 w-full max-w-md relative z-10 animate-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-semibold text-slate-100 mb-2">{t('modal.delete_card_title')}</h3>
+            
+            {(() => {
+              const cardExpenses = expenses.filter(e => e.credit_card_id === cardToDelete);
+              
+              if (cardExpenses.length === 0) {
+                return (
+                  <>
+                    <p className="text-slate-400 text-sm mb-6">{t('modal.delete_card_desc_empty')}</p>
+                    <div className="flex gap-3 justify-end">
+                      <button onClick={() => setCardToDelete(null)} className="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors">{t('modal.cancel')}</button>
+                      <button onClick={() => { deleteCard(cardToDelete); setCardToDelete(null); }} className="px-4 py-2 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-xl shadow-lg shadow-rose-500/25 transition-colors">{t('modal.delete')}</button>
+                    </div>
+                  </>
+                );
+              }
+
+              return (
+                <>
+                  <p className="text-slate-400 text-sm mb-6">
+                    {t('modal.delete_card_desc_with_expenses', { count: cardExpenses.length })}
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-end">
+                    <button onClick={() => setCardToDelete(null)} className="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors">{t('modal.cancel')}</button>
+                    <button onClick={() => { deleteCard(cardToDelete, 'keep'); setCardToDelete(null); }} className="px-4 py-2 text-sm font-semibold text-white bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors">{t('modal.delete_card_keep')}</button>
+                    <button onClick={() => { deleteCard(cardToDelete, 'delete_all'); setCardToDelete(null); }} className="px-4 py-2 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-xl shadow-lg shadow-rose-500/25 transition-colors">{t('modal.delete_card_delete_all')}</button>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
