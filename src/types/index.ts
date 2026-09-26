@@ -13,6 +13,22 @@ export type Expense = {
   type?: 'income' | 'expense';
   group_id?: string;
   category_id?: string;
+  credit_card_id?: string | null;
+  installments?: {
+    current: number;
+    total: number;
+  };
+};
+
+export type CreditCard = {
+  id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  closing_day: number; // 1-31
+  due_day: number; // 1-31
+  limit?: number;
+  created_at: string;
 };
 
 export type Category = {

@@ -3,6 +3,20 @@ import { describe, it, expect, vi } from 'vitest';
 import { useSpendingEvolution } from '../../src/hooks/useSpendingEvolution';
 import type { Expense, Category } from '../../src/types';
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      if (key === 'dashboard.locale') return 'pt-BR';
+      if (key === 'analytics.search_placeholder') return 'Busque por despesa ou categoria (ex: Uber, Mercado)...';
+      if (key === 'dashboard.bill_empty') return 'Nenhuma despesa para esta fatura.';
+      if (key === 'dashboard.bill_paid') return 'Fatura Paga';
+      return key;
+    },
+    i18n: { language: 'pt' }
+  }),
+  initReactI18next: { type: '3rdParty', init: () => {} }
+}));
+
 describe('useSpendingEvolution', () => {
   const mockCategories: Category[] = [
     { id: 'c1', name: 'Transporte', user_id: 'u1', type: 'expense', icon: 'car', color: '#000' },

@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { PieChart as PieChartIcon, TrendingUp, AlertTriangle } from 'lucide-react';
 import { isActiveInMonth } from '../utils/transactions';
-import type { Expense, Category } from '../types';
+import type { Expense, Category, CreditCard } from '../types';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { formatCurrency } from '../utils/format';
 import { SpendingEvolution } from './SpendingEvolution';
@@ -16,13 +16,14 @@ type Props = {
   categories: Category[];
   totalIncomes: number;
   totalExpenses: number;
+  cards: CreditCard[];
 };
 
 // Pastel colors for the donut chart
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
 export const AnalyticsOverview = ({
-  expenses, allExpenses, selectedMonth, categories, totalIncomes, totalExpenses }: Props) => {
+  expenses, allExpenses, selectedMonth, categories, totalIncomes, totalExpenses, cards }: Props) => {
   const { t } = useTranslation();
   const { preferences } = usePreferences();
   const expenseData = useMemo(() => {
@@ -76,7 +77,7 @@ export const AnalyticsOverview = ({
     for (let i = 0; i < 6; i++) {
       const monthStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       
-      const monthExpenses = allExpenses.filter(e => isActiveInMonth(e, monthStr));
+      const monthExpenses = allExpenses.filter(e => isActiveInMonth(e, monthStr, cards));
       const totalInc = monthExpenses.reduce((acc, curr) => curr.type === 'income' ? acc + curr.amount : acc, 0);
       const totalExp = monthExpenses.reduce((acc, curr) => curr.type !== 'income' ? acc + curr.amount : acc, 0);
       
@@ -100,7 +101,7 @@ export const AnalyticsOverview = ({
 
   return (
     <div id="reports-export-area" className="flex flex-col gap-6 mt-6">
-      <div className="bg-slate-800/60 rounded-2xl p-6 shadow-sm border border-slate-700/50">
+      <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
         <div className="flex items-center gap-2 mb-6">
           <PieChartIcon className="w-5 h-5 text-slate-400" />
           <h2 className="text-lg font-semibold text-slate-100">{t('analytics.insights_month')}</h2>
@@ -179,7 +180,7 @@ export const AnalyticsOverview = ({
               </h3>
               <div className="space-y-3">
                 {topExpenses.map((exp, idx) => (
-                  <div key={exp.id} className="flex justify-between items-center text-sm border-b border-slate-700/50 pb-2 last:border-0 last:pb-0">
+                  <div key={exp.id} className="flex justify-between items-center text-sm border-b border-slate-700 pb-2 last:border-0 last:pb-0">
                     <div className="flex items-center gap-3">
                       <span className="text-slate-500 font-medium">{idx + 1}</span>
                       <span className="text-slate-300 truncate max-w-[150px] sm:max-w-[200px]">{exp.description}</span>
@@ -223,7 +224,7 @@ export const AnalyticsOverview = ({
       <SpendingEvolution 
         allExpenses={allExpenses} 
         categories={categories} 
-        selectedMonth={selectedMonth} 
+        selectedMonth={selectedMonth} cards={cards} 
       />
     </div>
   );

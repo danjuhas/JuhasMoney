@@ -1,12 +1,14 @@
 import { useMemo } from 'react';
-import type { Expense, Category } from '../types';
+import type { Expense, Category, CreditCard } from '../types';
 import { isActiveInMonth } from '../utils/transactions';
+import i18n from '../lib/i18n';
 
 export function useSpendingEvolution(
   expenses: Expense[],
   categories: Category[],
   selectedMonth: string,
-  searchTerm: string
+  searchTerm: string,
+  cards: CreditCard[] = []
 ) {
   return useMemo(() => {
     if (!searchTerm || searchTerm.trim().length < 2) {
@@ -26,7 +28,7 @@ export function useSpendingEvolution(
       months.push(mStr);
       
       // Nome curto do mês em português (Ex: "Jan", "Fev")
-      const monthName = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+      const monthName = d.toLocaleDateString(i18n.t('dashboard.locale') || 'pt-BR', { month: 'short' }).replace('.', '');
       monthNames.push(monthName.charAt(0).toUpperCase() + monthName.slice(1));
     }
 
@@ -44,7 +46,7 @@ export function useSpendingEvolution(
     let total = 0;
     const chartData = months.map((mStr, idx) => {
       const amount = matchedExpenses.reduce((acc, exp) => {
-        if (isActiveInMonth(exp, mStr)) {
+        if (isActiveInMonth(exp, mStr, cards)) {
           return acc + exp.amount;
         }
         return acc;

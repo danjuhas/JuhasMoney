@@ -1,3 +1,4 @@
+import i18n from '../lib/i18n';
 import type { Expense, Category } from '../types';
 
 export async function exportToCSV(expenses: Expense[], categories: Category[], monthStr: string) {
@@ -9,7 +10,7 @@ export async function exportToCSV(expenses: Expense[], categories: Category[], m
 
   const headers = ['Data', 'Descrição', 'Categoria', 'Tipo', 'Valor'];
   const rows = expenses.map(exp => {
-    const date = new Date(exp.created_at).toLocaleDateString('pt-BR');
+    const date = new Date(exp.created_at).toLocaleDateString(i18n.t('dashboard.locale') || 'pt-BR');
     const desc = exp.description.replace(/,/g, ''); // prevent csv break
     const cat = getCategoryName(exp.category_id);
     const type = exp.type === 'income' ? 'Receita' : 'Despesa';

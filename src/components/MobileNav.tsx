@@ -1,16 +1,16 @@
 
-import { Home, PieChart, Settings } from 'lucide-react';
+import { Home, PieChart, Settings, CreditCard } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
-  activeTab: 'home' | 'insights' | 'settings';
-  setActiveTab: (tab: 'home' | 'insights' | 'settings') => void;
+  activeTab: 'home' | 'insights' | 'settings' | 'cards';
+  setActiveTab: (tab: 'home' | 'insights' | 'settings' | 'cards') => void;
 };
 
 export const MobileNav = ({ activeTab, setActiveTab }: Props) => {
   const { t } = useTranslation();
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-slate-900/85 backdrop-blur-md border border-slate-700/60 shadow-lg shadow-black/20 rounded-full z-50 sm:hidden">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm bg-slate-900/85 backdrop-blur-md border border-slate-700 shadow-lg shadow-black/20 rounded-full z-50 sm:hidden">
       <div className="flex justify-around items-center h-14 px-2">
         <button
           onClick={() => setActiveTab('home')}
@@ -20,6 +20,15 @@ export const MobileNav = ({ activeTab, setActiveTab }: Props) => {
         >
           <Home className="w-5 h-5" />
           <span className="text-[10px] font-medium">{t('nav.home')}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('cards')}
+          className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${
+            activeTab === 'cards' ? 'text-emerald-400 font-semibold' : 'text-slate-400 hover:text-slate-300'
+          }`}
+        >
+          <CreditCard className="w-5 h-5" />
+          <span className="text-[10px] font-medium">{t('nav.cards') || 'Cartões'}</span>
         </button>
         <button
           onClick={() => setActiveTab('insights')}

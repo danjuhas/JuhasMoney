@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, YAxis } from 'recharts';
-import type { Expense, Category } from '../types';
+import type { Expense, Category, CreditCard } from '../types';
 import { useSpendingEvolution } from '../hooks/useSpendingEvolution';
 import { formatCurrency } from '../utils/format';
 import { usePreferences } from '../contexts/PreferencesContext';
@@ -11,6 +11,7 @@ interface SpendingEvolutionProps {
   allExpenses: Expense[];
   categories: Category[];
   selectedMonth: string;
+  cards: CreditCard[];
 }
 
 export function SpendingEvolution({ allExpenses, categories, selectedMonth }: SpendingEvolutionProps) {
@@ -35,7 +36,7 @@ export function SpendingEvolution({ allExpenses, categories, selectedMonth }: Sp
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-slate-800 border border-slate-700/50 rounded-xl p-3 shadow-xl backdrop-blur-sm">
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-3 shadow-xl backdrop-blur-sm">
           <p className="text-slate-300 text-sm mb-1">{label}</p>
           <p className="text-emerald-400 font-semibold">
             {formatCurrency(payload[0].value, preferences.currency)}
@@ -47,7 +48,7 @@ export function SpendingEvolution({ allExpenses, categories, selectedMonth }: Sp
   };
 
   return (
-    <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-5 mb-6">
+    <div className="bg-slate-800 border border-slate-700 rounded-2xl p-5 mb-6">
       <h3 className="text-lg font-semibold text-slate-100 mb-4">{t('analytics.spending_evolution')}</h3>
       
       <div className="relative mb-6 max-w-md">
@@ -59,19 +60,19 @@ export function SpendingEvolution({ allExpenses, categories, selectedMonth }: Sp
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder={t('analytics.search_placeholder')}
-          className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 placeholder:text-slate-500 transition-all shadow-inner"
+          className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 placeholder:text-slate-500 transition-all shadow-inner"
         />
       </div>
 
       {!searchTerm || searchTerm.trim().length < 2 ? (
-        <div className="text-center py-10 bg-slate-900/30 rounded-xl border border-dashed border-slate-700/50">
+        <div className="text-center py-10 bg-slate-900/30 rounded-xl border border-dashed border-slate-700">
           <Search className="h-8 w-8 text-slate-500 mx-auto mb-3 opacity-50" />
           <p className="text-slate-400 text-sm">
             {t('analytics.type_to_search')}
           </p>
         </div>
       ) : !hasData ? (
-        <div className="text-center py-10 bg-slate-900/30 rounded-xl border border-dashed border-slate-700/50">
+        <div className="text-center py-10 bg-slate-900/30 rounded-xl border border-dashed border-slate-700">
           <p className="text-slate-400 text-sm">
             {t('analytics.no_history', { term: searchTerm })}
           </p>

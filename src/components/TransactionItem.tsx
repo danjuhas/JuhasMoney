@@ -15,6 +15,8 @@ interface TransactionItemProps {
   onEdit: (expense: Expense) => void;
   onDelete: (id: string) => void;
   isHighlighted?: boolean;
+  hideActions?: boolean;
+  hideCheckbox?: boolean;
 }
 
 export function TransactionItem({
@@ -24,9 +26,11 @@ export function TransactionItem({
   onTogglePaid,
   onEdit,
   onDelete,
-  isHighlighted = false
+  isHighlighted = false,
+  hideCheckbox = false
 }: TransactionItemProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
   const { preferences } = usePreferences();
   const { t } = useTranslation();
   const itemRef = useRef<HTMLLIElement>(null);
@@ -40,23 +44,27 @@ export function TransactionItem({
   return (
     <li 
       ref={itemRef}
-      className={`py-3.5 flex items-center gap-3 transition-all duration-500 px-2 -mx-2 rounded-xl group ${
+      className={`py-3.5 flex items-center gap-3 transition-colors rounded-xl group ${
+        hideCheckbox ? 'pl-6 pr-2' : 'px-2 -mx-2'
+      } ${
         isHighlighted 
-          ? 'bg-slate-800 shadow-sm scale-[1.01] ring-1 ring-emerald-500/30' 
-          : 'hover:bg-slate-800/50'
+          ? 'bg-slate-700/40 shadow-sm scale-[1.01] ring-1 ring-emerald-500/30' 
+          : 'hover:bg-slate-700/40'
       }`}
     >
-      <button
-        onClick={() => onTogglePaid(expense)}
-        className="shrink-0 focus:outline-none transition-colors mt-0.5 self-start"
-        title={isPaid ? t('item.mark_pending') : t('item.mark_paid')}
-      >
-        {isPaid ? (
-          <CheckCircle className="h-[22px] w-[22px] text-emerald-400 fill-emerald-900/50" strokeWidth={2} />
-        ) : (
-          <Circle className="h-[22px] w-[22px] text-slate-600 group-hover:text-slate-500 transition-colors" strokeWidth={1.5} />
-        )}
-      </button>
+      {!hideCheckbox && (
+        <button
+          onClick={() => onTogglePaid(expense)}
+          className="shrink-0 focus:outline-none transition-colors mt-0.5 self-start"
+          title={isPaid ? t('item.mark_pending') : t('item.mark_paid')}
+        >
+          {isPaid ? (
+            <CheckCircle className="h-[22px] w-[22px] text-emerald-400 fill-emerald-900/50" strokeWidth={2} />
+          ) : (
+            <Circle className="h-[22px] w-[22px] text-slate-600 group-hover:text-slate-500 transition-colors" strokeWidth={1.5} />
+          )}
+        </button>
+      )}
       
       <div className="flex-1 min-w-0 flex flex-col gap-1">
         {/* Top Line: Title and Amount */}
@@ -97,6 +105,13 @@ export function TransactionItem({
              <button
                onClick={(e) => {
                  e.stopPropagation();
+                 if (!isMenuOpen) {
+                   const rect = e.currentTarget.getBoundingClientRect();
+                   setMenuPos({
+                     top: rect.bottom,
+                     left: rect.right - 128 // w-32 is 8rem = 128px
+                   });
+                 }
                  setIsMenuOpen(!isMenuOpen);
                }}
                className="p-1 text-slate-400 hover:text-slate-300 transition-colors rounded-full hover:bg-slate-700"
@@ -107,7 +122,10 @@ export function TransactionItem({
              {isMenuOpen && (
                <>
                  <div className="fixed inset-0 z-50" onClick={() => setIsMenuOpen(false)}></div>
-                 <div className="absolute right-0 top-full mt-1 w-32 bg-slate-800 rounded-lg shadow-xl border border-slate-700 py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                 <div 
+                   className="fixed w-32 bg-slate-800 rounded-lg shadow-xl border border-slate-700 py-1 z-50 animate-in fade-in zoom-in-95 duration-100"
+                   style={{ top: `${menuPos.top + 4}px`, left: `${menuPos.left}px` }}
+                 >
                    <button
                      onClick={() => { setIsMenuOpen(false); onEdit(expense); }}
                      className="w-full text-left px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-700/50 flex items-center gap-2 transition-colors"

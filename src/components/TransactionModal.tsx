@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { generateUUID } from '../utils/uuid';
 import { getCurrencySymbol } from '../utils/format';
-import type { Expense, Category } from '../types';
+import type { Expense, Category, CreditCard } from '../types';
 import { useTranslation } from 'react-i18next';
-import { Plus } from 'lucide-react';
+import { TrendingDown, TrendingUp } from 'lucide-react';
 
 type Props = {
   isOpen: boolean;
@@ -12,6 +12,7 @@ type Props = {
   userId: string | null;
   selectedMonth: string;
   categories: Category[];
+  cards: CreditCard[];
   preferences: any;
   editingExpense: Expense | null;
   initialMode: 'quick' | 'fixed';
@@ -28,7 +29,9 @@ export function TransactionModal({
   preferences,
   editingExpense,
   initialMode,
-  initialType = 'expense'
+  initialType = 'expense',
+  // @ts-ignore
+  cards
 }: Props) {
   const { t } = useTranslation();
   
@@ -36,6 +39,7 @@ export function TransactionModal({
   const [amount, setAmount] = useState('');
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense');
   const [categoryId, setCategoryId] = useState('');
+  const [creditCardId, setCreditCardId] = useState<string | null>(null);
   const [isFixed, setIsFixed] = useState(false);
   const [dueDay, setDueDay] = useState('');
   const [transactionDate, setTransactionDate] = useState(() => new Date().toISOString().split('T')[0]);
@@ -51,6 +55,7 @@ export function TransactionModal({
         setAmount(Math.round(editingExpense.amount * 100).toString());
         setTransactionType(editingExpense.type || 'expense');
         setCategoryId(editingExpense.category_id || '');
+      setCreditCardId(editingExpense.credit_card_id || null);
         setIsFixed(editingExpense.is_fixed || false);
         setDueDay(editingExpense.due_day ? editingExpense.due_day.toString() : '');
         setTransactionDate(editingExpense.created_at.split('T')[0]);
@@ -102,6 +107,7 @@ export function TransactionModal({
             amount: numericAmount,
             type: transactionType,
             category_id: categoryId || undefined,
+      credit_card_id: creditCardId || undefined,
             created_at: `${selectedMonth}-01T12:00:00.000Z`,
             is_fixed: true,
             due_day: parsedDueDay,
@@ -123,6 +129,7 @@ export function TransactionModal({
             amount: numericAmount,
             type: transactionType,
             category_id: categoryId || undefined,
+      credit_card_id: creditCardId || undefined,
             created_at: `${selectedMonth}-01T12:00:00.000Z`,
             is_fixed: false, // Override applies only to this month
             due_day: parsedDueDay,
@@ -143,7 +150,8 @@ export function TransactionModal({
           description, 
           amount: numericAmount, 
           type: transactionType,
-          category_id: categoryId || undefined, 
+          category_id: categoryId || undefined,
+      credit_card_id: creditCardId || undefined, 
           is_fixed: isFixed, 
           due_day: isFixed ? parsedDueDay : parseInt(tDay, 10),
           created_at: `${transactionDate}T${editingExpense.created_at.split('T')[1] || '12:00:00.000Z'}`,
@@ -168,6 +176,7 @@ export function TransactionModal({
             amount: numericAmount,
             type: transactionType,
             category_id: categoryId || undefined,
+      credit_card_id: creditCardId || undefined,
             created_at: `${targetMonth}-${tDay}T12:00:00.000Z`,
             is_fixed: false,
             due_day: parseInt(tDay, 10),
@@ -186,6 +195,7 @@ export function TransactionModal({
           amount: numericAmount,
           type: transactionType,
           category_id: categoryId || undefined,
+      credit_card_id: creditCardId || undefined,
           created_at: `${transactionDate}T12:00:00.000Z`,
           is_fixed: isFixed,
           due_day: isFixed ? parsedDueDay : parseInt(tDay, 10),
@@ -204,28 +214,37 @@ export function TransactionModal({
 
   const formatAmountInput = (val: string) => {
     const num = parseInt(val || '0', 10);
-    return (num / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    return (num / 100).toLocaleString(t('dashboard.locale') || 'pt-BR', { minimumFractionDigits: 2 });
   };
 
+
+  const textIcon = transactionType === 'income' ? 'text-emerald-400' : 'text-rose-400';
+  const textIconTint = transactionType === 'income' ? 'text-emerald-500/80' : 'text-rose-500/80';
+  const bgIconTint = transactionType === 'income' ? 'bg-emerald-500/20' : 'bg-rose-500/20';
+  const bgTint = transactionType === 'income' ? 'bg-emerald-500/10' : 'bg-rose-500/10';
+  const borderTint = transactionType === 'income' ? 'border-emerald-500/20' : 'border-rose-500/20';
+  const placeholderTint = transactionType === 'income' ? 'placeholder-emerald-500/30' : 'placeholder-rose-500/30';
+  const focusRing = transactionType === 'income' ? '${focusRing}' : 'focus:ring-rose-500 focus:border-rose-500';
+
   return (
-    <div className="fixed inset-0 bg-slate-900/40 flex items-center justify-center z-[60] p-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4" onClick={onClose}>
       <div 
-        className="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto transform transition-all"
+        className="bg-slate-800 border border-slate-700 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto transform transition-all p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-white">
-              {editingExpense
-                ? (transactionType === 'income' ? t('dashboard.edit_income') : t('dashboard.edit_expense'))
-                : (transactionType === 'income' ? t('dashboard.new_income') : t('dashboard.new_expense'))}
-            </h2>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-300 text-2xl leading-none">&times;</button>
-          </div>
+        
+          <h2 className="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2">
+            <div className={`${bgIconTint} ${textIcon} p-2 rounded-xl`}>
+              {transactionType === 'income' ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+            </div>
+            {editingExpense
+              ? (transactionType === 'income' ? t('dashboard.edit_income') : t('dashboard.edit_expense'))
+              : (transactionType === 'income' ? t('dashboard.new_income') : (transactionMode === 'fixed' ? t('dashboard.new_fixed_expense') : t('dashboard.new_expense')))}
+          </h2>
 
           <form onSubmit={handleAddExpense} className="space-y-5">
             {!editingExpense && transactionMode === 'fixed' && (
-              <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700/60">
+              <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
                 <button
                   type="button"
                   onClick={() => {
@@ -254,10 +273,10 @@ export function TransactionModal({
             )}
             
             {/* Valor em Destaque */}
-            <div className="flex flex-col items-center justify-center py-4 bg-slate-800/30 rounded-2xl border border-slate-700/50 overflow-hidden px-4">
+            <div className={`p-6 mb-6 rounded-2xl border flex flex-col items-center justify-center transition-colors ${bgTint} ${borderTint}`}>
               <div className="flex items-center gap-2 max-w-full">
                 {getCurrencySymbol(preferences.currency || 'BRL').position === 'left' && (
-                  <span className={`text-2xl font-bold ${transactionType === 'income' ? 'text-emerald-500/80' : 'text-rose-500/80'}`}>
+                  <span className={`text-2xl font-bold ${textIconTint}`}>
                     {getCurrencySymbol(preferences.currency || 'BRL').symbol}
                   </span>
                 )}
@@ -266,14 +285,12 @@ export function TransactionModal({
                   inputMode="numeric"
                   value={formatAmountInput(amount)}
                   onChange={handleAmountChange}
-                  className={`bg-transparent text-center text-4xl font-bold outline-none w-full min-w-[50px] ${
-                    transactionType === 'income' ? 'text-emerald-400' : 'text-rose-400'
-                  } placeholder-${transactionType === 'income' ? 'emerald' : 'rose'}-500/30`}
+                  className={`bg-transparent text-center text-4xl sm:text-5xl font-bold outline-none w-full min-w-[50px] ${textIcon} ${placeholderTint}`}
                   placeholder="0,00"
                   required
                 />
                 {getCurrencySymbol(preferences.currency || 'BRL').position === 'right' && (
-                  <span className={`text-2xl font-bold ${transactionType === 'income' ? 'text-emerald-500/80' : 'text-rose-500/80'}`}>
+                  <span className={`text-2xl font-bold ${textIconTint}`}>
                     {getCurrencySymbol(preferences.currency || 'BRL').symbol}
                   </span>
                 )}
@@ -310,7 +327,7 @@ export function TransactionModal({
                       type="date"
                       value={transactionDate}
                       onChange={(e) => setTransactionDate(e.target.value)}
-                      className="flex-1 w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2 sm:p-2.5 border outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                      className={`flex-1 w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2 sm:p-2.5 border outline-none focus:ring-1 ${focusRing}`}
                       required
                     />
                   </div>
@@ -323,7 +340,7 @@ export function TransactionModal({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   translate="no"
-                  className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                  className={`w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 ${focusRing}`}
                   required
                   placeholder={t('dashboard.description_placeholder')}
                 />
@@ -335,7 +352,7 @@ export function TransactionModal({
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
                   translate="no"
-                  className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                  className={`w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 ${focusRing}`}
                 >
                   <option value="">{t('dashboard.no_category')}</option>
                   {categories
@@ -356,8 +373,8 @@ export function TransactionModal({
                     <button
                       type="button"
                       onClick={() => setIsInstallment(!isInstallment)}
-                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
-                        isInstallment ? 'bg-emerald-500' : 'bg-slate-700'
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
+                        isInstallment ? 'bg-rose-500' : 'bg-slate-700'
                       }`}
                     >
                       <span
@@ -378,7 +395,7 @@ export function TransactionModal({
                     min="2"
                     value={installmentsCount}
                     onChange={(e) => setInstallmentsCount(e.target.value)}
-                    className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                    className={`w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 ${focusRing}`}
                     required
                     placeholder="Ex: 3"
                   />
@@ -394,7 +411,7 @@ export function TransactionModal({
                     max="31"
                     value={dueDay}
                     onChange={(e) => setDueDay(e.target.value)}
-                    className="w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                    className={`w-full bg-slate-800 border-slate-700 text-slate-100 rounded-lg shadow-sm p-2.5 border outline-none focus:ring-1 ${focusRing}`}
                     placeholder="Ex: 5"
                     required
                   />
@@ -427,23 +444,26 @@ export function TransactionModal({
               </div>
             )}
 
-            <div className="pt-2">
+            <div className="pt-4 flex gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm font-medium transition-colors"
+              >
+                {t('dashboard.cancel')}
+              </button>
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 bg-emerald-500 text-white px-4 py-3 rounded-xl hover:bg-emerald-600 shadow-lg shadow-emerald-500/25 text-sm font-bold transition-colors"
+                className={`flex-1 px-4 py-2.5 text-white rounded-xl text-sm font-medium transition-colors ${
+                  transactionType === 'income' 
+                    ? 'bg-emerald-500 hover:bg-emerald-600' 
+                    : 'bg-rose-500 hover:bg-rose-600'
+                }`}
               >
-                {editingExpense ? (
-                  t('dashboard.save')
-                ) : (
-                  <>
-                    <Plus className="w-5 h-5" />
-                    {t('dashboard.add')}
-                  </>
-                )}
+                {editingExpense ? t('dashboard.save') : t('dashboard.add')}
               </button>
             </div>
           </form>
-        </div>
       </div>
     </div>
   );

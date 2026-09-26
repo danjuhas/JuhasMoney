@@ -164,7 +164,7 @@ export default function Onboarding() {
   const formatAmountInput = (val: string) => {
     const raw = val.replace(/\D/g, '');
     const num = parseInt(raw, 10) || 0;
-    return (num / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    return (num / 100).toLocaleString(t('dashboard.locale') || 'pt-BR', { minimumFractionDigits: 2 });
   };
 
   return (
@@ -317,13 +317,13 @@ export default function Onboarding() {
             {onboardingExpenses.length > 0 && (
               <div className="space-y-2 mb-4 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
                 {onboardingExpenses.map(exp => (
-                  <div key={exp.id} className="flex justify-between items-center bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                  <div key={exp.id} className="flex justify-between items-center bg-slate-800/50 p-3 rounded-lg border border-slate-700">
                     <div>
                       <p className="text-sm font-medium text-slate-200">{exp.name}</p>
                       <p className="text-xs text-slate-400">Dia {exp.day}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-semibold text-rose-400">{(exp.amount).toLocaleString('pt-BR', { style: 'currency', currency })}</span>
+                      <span className="text-sm font-semibold text-rose-400">{(exp.amount).toLocaleString(t('dashboard.locale') || 'pt-BR', { style: 'currency', currency })}</span>
                       <button onClick={() => setOnboardingExpenses(prev => prev.filter(e => e.id !== exp.id))} className="text-slate-500 hover:text-rose-400 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>

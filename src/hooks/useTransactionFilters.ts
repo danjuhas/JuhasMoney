@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { Expense, Category } from '../types';
 import { isActiveInMonth, isExpensePaid } from '../utils/transactions';
-
+import { groupExpensesIntoBills} from '../utils/creditCards';
 export type SortOption = 'default' | 'date_desc' | 'date_asc' | 'name_asc' | 'amount_desc' | 'amount_asc';
 
-export function useTransactionFilters(expenses: Expense[], categories: Category[], selectedMonth: string) {
+import type { CreditCard } from '../types';
+export function useTransactionFilters(expenses: Expense[], categories: Category[], selectedMonth: string, cards: CreditCard[] = []) {
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'pending'>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -24,7 +25,7 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
 
   // Step 1: Month filter
   const monthExpenses = useMemo(() => {
-    return expenses.filter(exp => isActiveInMonth(exp, selectedMonth));
+    return expenses.filter(exp => isActiveInMonth(exp, selectedMonth, cards));
   }, [expenses, selectedMonth]);
 
   // Step 2: Calculate Totals (always based on month only, ignoring filters)
@@ -156,7 +157,9 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
     setSortBy('default');
   };
 
+  const dashboardItems = useMemo(() => groupExpensesIntoBills(finalExpenses, cards, selectedMonth), [finalExpenses, cards, selectedMonth]);
   return {
+    dashboardItems,
     filterType,
     setFilterType,
     filterStatus,
