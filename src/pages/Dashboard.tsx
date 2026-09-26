@@ -555,7 +555,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="flow-root">
-                  <ul className="-my-5 divide-y divide-slate-700/40">
+                  <ul className="divide-y divide-slate-700/40 -my-2">
                     {dashboardItems.map((item) => {
                       if (item.type === 'expense') {
                         return (
