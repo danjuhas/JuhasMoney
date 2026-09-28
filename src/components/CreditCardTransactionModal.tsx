@@ -113,26 +113,26 @@ export function CreditCardTransactionModal({
     
     for (let i = 0; i < installments; i++) {
       // For each installment, we shift the "purchase date" conceptually by 1 month so it hits the next bill
-      // Wait, getEffectiveMonth uses the purchase date. 
-      // If we just add +i months to the purchaseDate, it will naturally fall into the Nth bill!
       const currentInstDate = new Date(baseDate);
       currentInstDate.setMonth(currentInstDate.getMonth() + i);
       
       const desc = installments > 1 ? `${description} (${i + 1}/${installments})` : description;
 
       expenses.push({
-        id: generateUUID(),
+        id: editingExpense && installments === 1 ? editingExpense.id : generateUUID(),
         user_id: userId,
         description: desc,
         amount: amountPerInstallment,
         category_id: categoryId || undefined,
         credit_card_id: creditCardId,
         type: 'expense',
-        is_paid: false, // Credit card bills are paid on the dashboard
-        is_fixed: false, // Credit card installments are NOT "is_fixed" in the recurring sense, they are exact entries
-        created_at: currentInstDate.toISOString(),
-        installments: installments > 1 ? { current: i + 1, total: installments } : undefined,
-        group_id: groupId
+        is_paid: editingExpense ? editingExpense.is_paid : false, // Maintain paid status if editing
+        is_fixed: false,
+        created_at: editingExpense && installments === 1 
+          ? `${purchaseDate}T${editingExpense.created_at.split('T')[1] || '12:00:00.000Z'}` 
+          : currentInstDate.toISOString(),
+        installments: installments > 1 ? { current: i + 1, total: installments } : (editingExpense ? editingExpense.installments : undefined),
+        group_id: editingExpense ? editingExpense.group_id : groupId
       });
     }
 
@@ -155,7 +155,7 @@ export function CreditCardTransactionModal({
           <div className="bg-purple-500/20 text-purple-400 p-2 rounded-xl">
             <CreditCardIcon className="w-5 h-5" />
           </div>
-          Compra no Cartão
+          {t('dashboard.new_card_expense')}
         </h2>
 
         {error && (

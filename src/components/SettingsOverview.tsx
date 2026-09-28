@@ -114,8 +114,8 @@ export const SettingsOverview = ({
                       className="bg-slate-900 border-slate-700 text-slate-100 rounded-lg px-3 py-1.5 text-sm border focus:ring-1 focus:ring-emerald-500 outline-none w-full max-w-[220px]"
                       autoFocus
                     />
-                    <button type="submit" className="text-xs bg-emerald-500 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-600 font-medium transition-colors">Salvar</button>
-                    <button type="button" onClick={() => setIsEditingName(false)} className="text-xs text-slate-400 hover:text-white px-2 transition-colors">Cancelar</button>
+                    <button type="submit" className="text-xs bg-emerald-500 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-600 font-medium transition-colors">{t('dashboard.save')}</button>
+                    <button type="button" onClick={() => setIsEditingName(false)} className="text-xs text-slate-400 hover:text-white px-2 transition-colors">{t('dashboard.cancel')}</button>
                   </form>
                 ) : (
                   <div className="flex items-center gap-2">
@@ -182,14 +182,14 @@ export const SettingsOverview = ({
         <section>
           <div className="flex items-center gap-2 mb-4">
             <Settings className="w-5 h-5 text-sky-400" />
-            <h3 className="font-medium text-slate-100">Dados</h3>
+            <h3 className="font-medium text-slate-100">{t('import.data_section')}</h3>
           </div>
           <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
              <button
                 onClick={() => setIsCSVModalOpen(true)}
                 className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium transition-colors text-sm"
              >
-                Importar Dados (CSV)
+                {t('import.button')}
              </button>
           </div>
         </section>

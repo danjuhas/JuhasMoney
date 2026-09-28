@@ -98,4 +98,91 @@ describe('CreditCardTransactionModal Component', () => {
     const inputAfter = screen.getByPlaceholderText('dashboard.description_placeholder') as HTMLInputElement;
     expect(inputAfter.value).toBe('');
   });
+
+  it('uses editingExpense.id and preserves properties when editing an expense', () => {
+    const mockExpense = {
+      id: 'existing-uuid-123',
+      user_id: 'user1',
+      description: 'Old expense',
+      amount: 50,
+      type: 'expense' as const,
+      created_at: '2026-09-01T10:00:00.000Z',
+      is_paid: true, // Should preserve is_paid
+      credit_card_id: 'card1'
+    };
+
+    render(
+      <CreditCardTransactionModal
+        isOpen={true}
+        onClose={onCloseMock}
+        onSave={onSaveMock}
+        userId="user1"
+        categories={mockCategories}
+        cards={mockCards}
+        preferences={{ currency: 'BRL' }}
+        editingExpense={mockExpense}
+      />
+    );
+
+    // Find submit button and submit form
+    const submitBtn = screen.getByText('dashboard.save');
+    fireEvent.click(submitBtn);
+
+    expect(onSaveMock).toHaveBeenCalledTimes(1);
+    expect(onSaveMock).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'existing-uuid-123',
+          is_paid: true,
+          description: 'Old expense',
+          amount: 50
+        })
+      ])
+    );
+  });
+
+  it('creates an installment expense generating N transactions with shifted dates', () => {
+    render(
+      <CreditCardTransactionModal
+        isOpen={true}
+        onClose={onCloseMock}
+        onSave={onSaveMock}
+        userId="user1"
+        categories={mockCategories}
+        cards={mockCards}
+        preferences={{ currency: 'BRL' }}
+      />
+    );
+
+    const descInput = screen.getByPlaceholderText('dashboard.description_placeholder');
+    fireEvent.change(descInput, { target: { value: 'Parcelada' } });
+
+    const amountInput = screen.getByPlaceholderText('0,00');
+    fireEvent.change(amountInput, { target: { value: '30000' } });
+
+    const selects = screen.getAllByRole('combobox');
+    fireEvent.change(selects[1], { target: { value: 'card1' } });
+    fireEvent.change(selects[2], { target: { value: '3' } });
+
+    const submitBtn = screen.getByText('dashboard.save');
+    fireEvent.click(submitBtn);
+
+    expect(onSaveMock).toHaveBeenCalledTimes(1);
+    
+    const savedExpenses = onSaveMock.mock.calls[0][0];
+    expect(savedExpenses).toHaveLength(3);
+    
+    expect(savedExpenses[0].amount).toBe(100);
+    expect(savedExpenses[0].description).toBe('Parcelada (1/3)');
+    expect(savedExpenses[0].installments).toEqual({ current: 1, total: 3 });
+
+    expect(savedExpenses[1].amount).toBe(100);
+    expect(savedExpenses[1].description).toBe('Parcelada (2/3)');
+    expect(savedExpenses[1].installments).toEqual({ current: 2, total: 3 });
+    
+    const date1 = new Date(savedExpenses[0].created_at);
+    const date2 = new Date(savedExpenses[1].created_at);
+    expect(date2.getMonth()).toBe((date1.getMonth() + 1) % 12);
+  });
 });
+
