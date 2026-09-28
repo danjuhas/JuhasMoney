@@ -109,7 +109,7 @@ export function CreditCardTransactionModal({
     const amountPerInstallment = numAmount / installments;
     
     // Create N expenses
-    const baseDate = new Date(purchaseDate);
+    const baseDate = new Date(`${purchaseDate}T12:00:00.000Z`);
     
     for (let i = 0; i < installments; i++) {
       // For each installment, we shift the "purchase date" conceptually by 1 month so it hits the next bill
