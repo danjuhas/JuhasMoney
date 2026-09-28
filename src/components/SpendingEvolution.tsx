@@ -56,6 +56,7 @@ export function SpendingEvolution({ allExpenses, categories, selectedMonth }: Sp
           <Search className="h-4 w-4 text-slate-400" />
         </div>
         <input
+          translate="no"
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}

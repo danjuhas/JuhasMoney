@@ -287,6 +287,7 @@ export function TransactionModal({
                   </span>
                 )}
                 <input
+                  translate="no"
                   type="text"
                   inputMode="numeric"
                   value={formatAmountInput(amount)}
