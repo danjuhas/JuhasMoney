@@ -63,6 +63,7 @@ export default function Dashboard() {
   const [selectedBillCardId, setSelectedBillCardId] = useState<string | null>(null);
   const [transactionMode, setTransactionMode] = useState<'quick' | 'fixed'>('quick');
   const [initialType, setInitialType] = useState<'income' | 'expense'>('expense');
+  const [isGlobalEdit, setIsGlobalEdit] = useState(false);
 
 
 
@@ -208,8 +209,9 @@ export default function Dashboard() {
     handleCancelEdit();
   };
 
-  const handleEditExpense = (expense: Expense) => {
+  const handleEditExpense = (expense: Expense, isGlobal: boolean = false) => {
     setEditingId(expense.id);
+    setIsGlobalEdit(isGlobal);
     if (expense.credit_card_id) {
       setIsCardModalOpen(true);
     } else {
@@ -221,6 +223,7 @@ export default function Dashboard() {
 
   const handleCancelEdit = () => {
     setEditingId(null);
+    setIsGlobalEdit(false);
     setIsModalOpen(false);
     setIsCardModalOpen(false);
   };
@@ -229,6 +232,7 @@ export default function Dashboard() {
     setTransactionMode(mode);
     setInitialType(type);
     setEditingId(null);
+    setIsGlobalEdit(false);
     setIsModalOpen(true);
   };
 
@@ -516,9 +520,9 @@ export default function Dashboard() {
         <div className={`md:col-span-3 ${activeTab !== 'settings' ? 'hidden' : ''}`}>
             <SettingsOverview 
               categories={categories}
-              fixedExpenses={expenses.filter(e => e.is_fixed)}
+              fixedExpenses={expenses.filter(e => e.is_fixed && !e.end_month)}
               openFixedModal={() => openModal('expense', 'fixed')}
-              handleEditFixedExpense={handleEditExpense}
+              handleEditFixedExpense={(expense) => handleEditExpense(expense, true)}
               handleDeleteFixedExpense={(id) => setDeleteConfirmId({ id, deleteAll: true })}
               addCategory={addCategory}
               updateCategory={updateCategory}
@@ -670,6 +674,7 @@ export default function Dashboard() {
         editingExpense={expenses.find(e => e.id === editingId) || null}
         initialMode={transactionMode}
         initialType={initialType}
+        isGlobalEdit={isGlobalEdit}
       />
 )}
 
