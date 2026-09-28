@@ -101,6 +101,7 @@ export const SettingsOverview = ({
                     setIsEditingName(false);
                   }}>
                     <input 
+                      translate="no"
                       type="text" 
                       value={editNameValue} 
                       onChange={(e) => setEditNameValue(e.target.value)} 
