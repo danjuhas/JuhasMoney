@@ -173,7 +173,8 @@
     "completed": "Completados",
     "pending": "Pendientes",
     "clear": "Limpiar",
-    "show_results": "Mostrar Resultados"
+    "show_results": "Mostrar Resultados",
+    "filtered": "Filtrado"
   },
   "modal": {
     "delete_title": "Eliminar transacción",
@@ -260,6 +261,26 @@
   },
   "categories": {
     "icon": "Ícono",
-    "color": "Color"
+    "color": "Color",
+    "edit_category": "Editar Categoría",
+    "new_category": "Nueva Categoría",
+    "save_changes": "Guardar Cambios"
+  },
+  "import": {
+    "title": "Importar Transacciones (CSV)",
+    "button": "Importar Datos (CSV)",
+    "data_section": "Datos",
+    "drag_drop": "Haz clic o arrastra tu archivo CSV aquí",
+    "format_help": "El archivo debe contener: Fecha, Beneficiario, Categoría, Pago, Ingreso, Notas",
+    "loading": "Importando datos...",
+    "loading_desc": "Esto puede tardar unos segundos.",
+    "ready_title": "Archivo listo para importación",
+    "ready_desc": "Encontramos {{expenses}} gastos e {{incomes}} ingresos. {{categories}} categorías fueron identificadas en el archivo.",
+    "warning": "Atención: La importación añadirá estas transacciones a tus datos actuales. Asegúrate de no importar el mismo archivo dos veces.",
+    "confirm": "Confirmar Importación",
+    "error_csv": "Por favor, selecciona un archivo CSV.",
+    "success": "¡Importación completada con éxito!",
+    "error_read": "Error al leer el archivo CSV: {{message}}",
+    "error_generic": "Error durante la importación."
   }
 }

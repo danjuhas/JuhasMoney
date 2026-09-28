@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Papa from 'papaparse';
 import { supabase } from '../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
 import type { Expense, Category } from '../types';
 
 export function useCSVImport(userId: string | null, onSuccess?: () => void, onError?: (msg: string) => void) {
+  const { t } = useTranslation();
   const [isImporting, setIsImporting] = useState(false);
   const [importSummary, setImportSummary] = useState<{ expenses: number; incomes: number; newCategories: number } | null>(null);
   const [parsedData, setParsedData] = useState<any[]>([]);
@@ -42,7 +44,7 @@ export function useCSVImport(userId: string | null, onSuccess?: () => void, onEr
         setFileToImport(file);
       },
       error: (error) => {
-        if (onError) onError('Erro ao ler arquivo CSV: ' + error.message);
+        if (onError) onError(t('import.error_read', { message: error.message }));
       }
     });
   };
@@ -127,7 +129,7 @@ export function useCSVImport(userId: string | null, onSuccess?: () => void, onEr
 
     } catch (err: any) {
       console.error(err);
-      if (onError) onError(err.message || 'Erro durante a importação.');
+      if (onError) onError(err.message || t('import.error_generic'));
     } finally {
       setIsImporting(false);
       setFileToImport(null);

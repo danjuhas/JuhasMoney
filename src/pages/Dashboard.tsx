@@ -520,7 +520,7 @@ export default function Dashboard() {
         <div className={`md:col-span-3 ${activeTab !== 'settings' ? 'hidden' : ''}`}>
             <SettingsOverview upsertExpenses={upsertExpenses}
               onImportSuccess={() => {
-                addToast('Importação concluída com sucesso!');
+                addToast(t('import.success'));
                 refreshTransactions();
               }} 
               categories={categories}
@@ -544,7 +544,7 @@ export default function Dashboard() {
                 <h3 className="font-semibold text-slate-100">{t('dashboard.month_transactions')}</h3>
                 {isFilterActive && (
                   <span className="text-xs font-medium bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full">
-                    Filtrado
+                    {t('filter.filtered')}
                   </span>
                 )}
               </div>
