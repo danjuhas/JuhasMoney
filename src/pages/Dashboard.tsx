@@ -49,7 +49,7 @@ export default function Dashboard() {
     deleteCategory, 
     deleteExpense, 
     togglePaid,
-    payMultipleExpenses, unpayMultipleExpenses, deleteMultipleExpenses,
+    payMultipleExpenses, unpayMultipleExpenses, deleteMultipleExpenses, refreshTransactions,
   } = useTransactions(userId, addToast);
   const { cards, addCard, updateCard, deleteCard: deleteCreditCard } = useCreditCards(userId);
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -518,7 +518,11 @@ export default function Dashboard() {
         </div>
 
         <div className={`md:col-span-3 ${activeTab !== 'settings' ? 'hidden' : ''}`}>
-            <SettingsOverview 
+            <SettingsOverview upsertExpenses={upsertExpenses}
+              onImportSuccess={() => {
+                addToast('Importação concluída com sucesso!');
+                refreshTransactions();
+              }} 
               categories={categories}
               fixedExpenses={expenses.filter(e => e.is_fixed && !e.end_month)}
               openFixedModal={() => openModal('expense', 'fixed')}

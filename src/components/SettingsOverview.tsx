@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { CategoryModal } from './CategoryModal';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { getCategoryStyle } from '../constants/categories';
+import { CSVImportModal } from './CSVImportModal';
 
 type Props = {
   categories: Category[];
@@ -19,6 +20,8 @@ type Props = {
   updateCategory: (id: string, updates: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
   handleSignOut: () => void;
+  upsertExpenses: (items: Expense[]) => Promise<void>;
+  onImportSuccess: () => void;
   userId: string;
 };
 
@@ -32,6 +35,8 @@ export const SettingsOverview = ({
   updateCategory,
   deleteCategory,
   handleSignOut,
+  upsertExpenses,
+  onImportSuccess,
   userId
 }: Props) => {
   const { preferences, updatePreferences } = usePreferences();
@@ -41,6 +46,7 @@ export const SettingsOverview = ({
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   
+  const [isCSVModalOpen, setIsCSVModalOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string>('');
   const [isEditingName, setIsEditingName] = useState(false);
   const [editNameValue, setEditNameValue] = useState(preferences.name || '');
@@ -169,6 +175,22 @@ export const SettingsOverview = ({
                 <option value="EUR">EUR (€)</option>
               </Select>
             </div>
+          </div>
+        </section>
+
+        {/* Dados Section */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <Settings className="w-5 h-5 text-sky-400" />
+            <h3 className="font-medium text-slate-100">Dados</h3>
+          </div>
+          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+             <button
+                onClick={() => setIsCSVModalOpen(true)}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium transition-colors text-sm"
+             >
+                Importar Dados (CSV)
+             </button>
           </div>
         </section>
 
@@ -317,6 +339,15 @@ export const SettingsOverview = ({
             setCategoryToDelete(null);
           }
         }}
+      />
+      
+      <CSVImportModal
+        isOpen={isCSVModalOpen}
+        onClose={() => setIsCSVModalOpen(false)}
+        userId={userId}
+        categories={categories}
+        upsertExpenses={upsertExpenses}
+        onSuccess={onImportSuccess}
       />
     </>
   );

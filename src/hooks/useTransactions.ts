@@ -262,5 +262,6 @@ export function useTransactions(userId: string | null, onError?: (message: strin
     togglePaid,
     payMultipleExpenses,
     unpayMultipleExpenses,
+    refreshTransactions: fetchAll,
   };
 }
