@@ -55,7 +55,9 @@
     "category_name": "Nombre de la categoría",
     "new_password": "Nueva Contraseña",
     "new_password_placeholder": "Nueva contraseña (mín. 6 caracteres)",
-    "my_account": "Mi Cuenta"
+    "my_account": "Mi Cuenta",
+    "initial_balance": "Saldo Inicial / Cuenta (Opcional)",
+    "initial_balance_help": "Ingresa el dinero que tenías antes de registrar transacciones aquí, para que la app refleje tu saldo real."
   },
   "dashboard": {
     "home": "Inicio",
@@ -239,7 +241,10 @@
     "pending": "Pendientes",
     "accumulated": "Acumulado",
     "accumulated_tooltip": "Incluye saldo de meses anteriores: {{amount}}",
-    "projected": "Proyección final del mes:"
+    "projected": "Proyección final del mes:",
+    "projection_short": "Proyección",
+    "month_balance": "Balance del Mes",
+    "real_balance": "Saldo Actual en Cuenta"
   },
   "notifications": {
     "title": "Notificaciones",

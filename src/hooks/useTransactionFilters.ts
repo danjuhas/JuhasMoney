@@ -5,7 +5,7 @@ import { groupExpensesIntoBills} from '../utils/creditCards';
 export type SortOption = 'default' | 'date_desc' | 'date_asc' | 'name_asc' | 'amount_desc' | 'amount_asc';
 
 import type { CreditCard } from '../types';
-export function useTransactionFilters(expenses: Expense[], categories: Category[], selectedMonth: string, cards: CreditCard[] = []) {
+export function useTransactionFilters(expenses: Expense[], categories: Category[], selectedMonth: string, cards: CreditCard[] = [], initialBalance: number = 0) {
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'pending'>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -34,8 +34,8 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
     const totalExpenses = monthExpenses.reduce((acc, curr) => curr.type !== 'income' ? acc + curr.amount : acc, 0);
     
     // Calculate accumulated balance from past months
-    let accumulatedPaid = 0;
-    let accumulatedProjected = 0;
+    let accumulatedPaid = initialBalance;
+    let accumulatedProjected = initialBalance;
 
     for (const exp of expenses) {
       const expDate = new Date(exp.created_at);
@@ -96,7 +96,7 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
       currentBalance,
       projectedBalance
     };
-  }, [monthExpenses, expenses, selectedMonth]);
+  }, [monthExpenses, expenses, selectedMonth, initialBalance]);
 
   // Step 3: Apply User Filters (Type, Status, Category)
   const filteredExpenses = useMemo(() => {

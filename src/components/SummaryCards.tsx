@@ -16,30 +16,30 @@ export function SummaryCards({ totalIncomes, totalExpenses, balance, totalPendin
   const { preferences } = usePreferences();
   const { t } = useTranslation();
   
+  const monthNet = totalIncomes - totalExpenses;
+  const isMonthNetPositive = monthNet >= 0;
   const isProjectedPositive = projectedBalance >= 0;
   
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4">
       
-      {/* Saldo Destaque (Full Width) */}
+      {/* Balanço do Mês (Full Width) */}
       <div className="col-span-2 bg-slate-800 border border-slate-700 shadow-lg shadow-black/20 rounded-2xl p-5 flex flex-col justify-center relative overflow-hidden">
          <div className="flex justify-between items-start mb-2">
-           <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">{t('summary.balance')}</h2>
-           {accumulatedBalance !== 0 && (
-             <div className="flex items-center gap-1 text-xs text-slate-500 bg-slate-900/50 px-2 py-1 rounded-full" title={t('summary.accumulated_tooltip', { amount: formatCurrency(accumulatedBalance, preferences.currency) })}>
-               <Info className="w-3 h-3" />
-               <span>{t('summary.accumulated')}</span>
-             </div>
-           )}
+           <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">{t('summary.month_balance', 'Balanço do Mês')}</h2>
+           <div className="flex items-center gap-1 text-xs text-slate-500 bg-slate-900/50 px-2 py-1 rounded-full" title={t('summary.projected')}>
+             <Info className="w-3 h-3" />
+             <span>{t('summary.projection_short', 'Projeção')}: {isProjectedPositive ? '+' : ''}{formatCurrency(projectedBalance, preferences.currency)}</span>
+           </div>
          </div>
-         <p className={`text-3xl sm:text-4xl font-extrabold tracking-tight truncate ${balance >= 0 ? 'text-emerald-400' : 'text-rose-400'}`} title={balance.toString()}>
-            {balance >= 0 ? '+ ' : ''}{formatCurrency(balance, preferences.currency)}
+         <p className={`text-3xl sm:text-4xl font-extrabold tracking-tight truncate ${isMonthNetPositive ? 'text-emerald-400' : 'text-rose-400'}`} title={monthNet.toString()}>
+            {isMonthNetPositive ? '+ ' : ''}{formatCurrency(monthNet, preferences.currency)}
          </p>
          
          <div className="mt-4 pt-3 border-t border-slate-700 flex justify-between items-center">
-            <span className="text-xs text-slate-400 uppercase font-medium">{t('summary.projected')}</span>
-            <span className={`text-sm font-bold ${isProjectedPositive ? 'text-emerald-500' : 'text-rose-500'}`}>
-              {isProjectedPositive ? '+' : ''}{formatCurrency(projectedBalance, preferences.currency)}
+            <span className="text-xs text-slate-400 uppercase font-medium">{t('summary.real_balance', 'Saldo Atual em Contas')}</span>
+            <span className={`text-sm font-bold ${balance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+              {balance >= 0 ? '+' : ''}{formatCurrency(balance, preferences.currency)}
             </span>
          </div>
       </div>
