@@ -173,7 +173,8 @@
     "completed": "Completed",
     "pending": "Pending",
     "clear": "Clear",
-    "show_results": "Show Results"
+    "show_results": "Show Results",
+    "filtered": "Filtered"
   },
   "modal": {
     "delete_title": "Delete transaction",
@@ -260,6 +261,26 @@
   },
   "categories": {
     "icon": "Icon",
-    "color": "Color"
+    "color": "Color",
+    "edit_category": "Edit Category",
+    "new_category": "New Category",
+    "save_changes": "Save Changes"
+  },
+  "import": {
+    "title": "Import Transactions (CSV)",
+    "button": "Import Data (CSV)",
+    "data_section": "Data",
+    "drag_drop": "Click or drag your CSV file here",
+    "format_help": "The file must contain: Date, Payee, Category, Payment, Receipt, Notes",
+    "loading": "Importing data...",
+    "loading_desc": "This may take a few seconds.",
+    "ready_title": "File ready for import",
+    "ready_desc": "We found {{expenses}} expenses and {{incomes}} incomes. {{categories}} categories were identified in the file.",
+    "warning": "Warning: The import will add these transactions to your current data. Make sure you don't import the same file twice.",
+    "confirm": "Confirm Import",
+    "error_csv": "Please select a CSV file.",
+    "success": "Import completed successfully!",
+    "error_read": "Error reading CSV file: {{message}}",
+    "error_generic": "Error during import."
   }
 }

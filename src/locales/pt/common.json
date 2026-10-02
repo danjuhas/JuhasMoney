@@ -173,7 +173,8 @@
     "completed": "Concluídos",
     "pending": "Pendentes",
     "clear": "Limpar",
-    "show_results": "Mostrar Resultados"
+    "show_results": "Mostrar Resultados",
+    "filtered": "Filtrado"
   },
   "modal": {
     "delete_title": "Excluir lançamento",
@@ -260,6 +261,26 @@
   },
   "categories": {
     "icon": "Ícone",
-    "color": "Cor"
+    "color": "Cor",
+    "edit_category": "Editar Categoria",
+    "new_category": "Nova Categoria",
+    "save_changes": "Salvar Alterações"
+  },
+  "import": {
+    "title": "Importar Transações (CSV)",
+    "button": "Importar Dados (CSV)",
+    "data_section": "Dados",
+    "drag_drop": "Clique ou arraste seu arquivo CSV aqui",
+    "format_help": "O arquivo deve conter: Data, Beneficiário, Categoria, Pagamento, Recebimento, Observações",
+    "loading": "Importando dados...",
+    "loading_desc": "Isso pode levar alguns segundos.",
+    "ready_title": "Arquivo pronto para importação",
+    "ready_desc": "Encontramos {{expenses}} despesas e {{incomes}} receitas. {{categories}} categorias foram identificadas no arquivo.",
+    "warning": "Atenção: A importação irá adicionar essas transações aos seus dados atuais. Certifique-se de não importar o mesmo arquivo duas vezes.",
+    "confirm": "Confirmar Importação",
+    "error_csv": "Por favor, selecione um arquivo CSV.",
+    "success": "Importação concluída com sucesso!",
+    "error_read": "Erro ao ler arquivo CSV: {{message}}",
+    "error_generic": "Erro durante a importação."
   }
 }

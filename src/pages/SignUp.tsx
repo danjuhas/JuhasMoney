@@ -92,6 +92,7 @@ export default function SignUp() {
               </label>
               <div className="mt-1">
                 <input
+                  translate="no"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}

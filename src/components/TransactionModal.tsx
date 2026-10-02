@@ -22,6 +22,7 @@ type Props = {
   editingExpense: Expense | null;
   initialMode: 'quick' | 'fixed';
   initialType?: 'income' | 'expense';
+  isGlobalEdit?: boolean;
 };
 
 export function TransactionModal({
@@ -35,6 +36,7 @@ export function TransactionModal({
   editingExpense,
   initialMode,
   initialType = 'expense',
+  isGlobalEdit = false,
   // @ts-ignore
   cards
 }: Props) {
@@ -92,11 +94,30 @@ export function TransactionModal({
     let targetMonthStr: string | undefined = undefined;
 
     if (editingExpense) {
-      const isDifferentMonth = !editingExpense.created_at.startsWith(selectedMonth);
+      const todayStr = new Date().toISOString().split('T')[0];
+      const currentRealMonth = todayStr.substring(0, 7);
+      
+      let effectiveMonth = selectedMonth;
+      if (isGlobalEdit && editingExpense.is_fixed) {
+        effectiveMonth = currentRealMonth;
+        // Se o mês atual já estiver pago, a alteração só deve valer a partir do próximo mês não pago
+        while (editingExpense.paid_months?.includes(effectiveMonth)) {
+          const [y, m] = effectiveMonth.split('-');
+          let year = parseInt(y, 10);
+          let month = parseInt(m, 10) + 1;
+          if (month > 12) {
+            month = 1;
+            year += 1;
+          }
+          effectiveMonth = `${year}-${String(month).padStart(2, '0')}`;
+        }
+      }
+
+      const isDifferentMonth = !editingExpense.created_at.startsWith(effectiveMonth);
 
       if (editingExpense.is_fixed && isDifferentMonth) {
-        if (applyToFuture) {
-          const [year, month] = selectedMonth.split('-');
+        if (applyToFuture || isGlobalEdit) {
+          const [year, month] = effectiveMonth.split('-');
           const m = parseInt(month, 10);
           const y = parseInt(year, 10);
           const prevMonth = m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, '0')}`;
@@ -112,8 +133,8 @@ export function TransactionModal({
             amount: numericAmount,
             type: transactionType,
             category_id: categoryId || undefined,
-      credit_card_id: creditCardId || undefined,
-            created_at: `${selectedMonth}-01T12:00:00.000Z`,
+            credit_card_id: creditCardId || undefined,
+            created_at: `${effectiveMonth}-01T12:00:00.000Z`,
             is_fixed: true,
             due_day: parsedDueDay,
             is_paid: false,
@@ -125,7 +146,7 @@ export function TransactionModal({
           // We are editing a fixed expense from a different (future) month. Create a one-off override.
           const updatedOriginal = {
             ...editingExpense,
-            excluded_months: [...(editingExpense.excluded_months || []), selectedMonth]
+            excluded_months: [...(editingExpense.excluded_months || []), effectiveMonth]
           };
           const overrideExpense: Expense = {
             id: generateUUID(),
@@ -134,8 +155,8 @@ export function TransactionModal({
             amount: numericAmount,
             type: transactionType,
             category_id: categoryId || undefined,
-      credit_card_id: creditCardId || undefined,
-            created_at: `${selectedMonth}-01T12:00:00.000Z`,
+            credit_card_id: creditCardId || undefined,
+            created_at: `${effectiveMonth}-01T12:00:00.000Z`,
             is_fixed: false, // Override applies only to this month
             due_day: parsedDueDay,
             is_paid: false,
@@ -266,6 +287,7 @@ export function TransactionModal({
                   </span>
                 )}
                 <input
+                  translate="no"
                   type="text"
                   inputMode="numeric"
                   value={formatAmountInput(amount)}
@@ -371,7 +393,7 @@ export function TransactionModal({
               )}
             </div>
 
-            {editingExpense?.is_fixed && !editingExpense.created_at.startsWith(selectedMonth) && (
+            {editingExpense?.is_fixed && !isGlobalEdit && !editingExpense.created_at.startsWith(selectedMonth) && (
               <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mt-4">
                 <p className="text-sm text-amber-200/80 mb-3">{t('dashboard.fixed_edit_warning')}</p>
                 <div className="flex items-center gap-3">

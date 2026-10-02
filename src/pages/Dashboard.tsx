@@ -49,7 +49,7 @@ export default function Dashboard() {
     deleteCategory, 
     deleteExpense, 
     togglePaid,
-    payMultipleExpenses, unpayMultipleExpenses, deleteMultipleExpenses,
+    payMultipleExpenses, unpayMultipleExpenses, deleteMultipleExpenses, refreshTransactions,
   } = useTransactions(userId, addToast);
   const { cards, addCard, updateCard, deleteCard: deleteCreditCard } = useCreditCards(userId);
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -63,6 +63,7 @@ export default function Dashboard() {
   const [selectedBillCardId, setSelectedBillCardId] = useState<string | null>(null);
   const [transactionMode, setTransactionMode] = useState<'quick' | 'fixed'>('quick');
   const [initialType, setInitialType] = useState<'income' | 'expense'>('expense');
+  const [isGlobalEdit, setIsGlobalEdit] = useState(false);
 
 
 
@@ -208,8 +209,9 @@ export default function Dashboard() {
     handleCancelEdit();
   };
 
-  const handleEditExpense = (expense: Expense) => {
+  const handleEditExpense = (expense: Expense, isGlobal: boolean = false) => {
     setEditingId(expense.id);
+    setIsGlobalEdit(isGlobal);
     if (expense.credit_card_id) {
       setIsCardModalOpen(true);
     } else {
@@ -221,6 +223,7 @@ export default function Dashboard() {
 
   const handleCancelEdit = () => {
     setEditingId(null);
+    setIsGlobalEdit(false);
     setIsModalOpen(false);
     setIsCardModalOpen(false);
   };
@@ -229,6 +232,7 @@ export default function Dashboard() {
     setTransactionMode(mode);
     setInitialType(type);
     setEditingId(null);
+    setIsGlobalEdit(false);
     setIsModalOpen(true);
   };
 
@@ -514,11 +518,15 @@ export default function Dashboard() {
         </div>
 
         <div className={`md:col-span-3 ${activeTab !== 'settings' ? 'hidden' : ''}`}>
-            <SettingsOverview 
+            <SettingsOverview upsertExpenses={upsertExpenses}
+              onImportSuccess={() => {
+                addToast(t('import.success'));
+                refreshTransactions();
+              }} 
               categories={categories}
-              fixedExpenses={expenses.filter(e => e.is_fixed)}
+              fixedExpenses={expenses.filter(e => e.is_fixed && !e.end_month)}
               openFixedModal={() => openModal('expense', 'fixed')}
-              handleEditFixedExpense={handleEditExpense}
+              handleEditFixedExpense={(expense) => handleEditExpense(expense, true)}
               handleDeleteFixedExpense={(id) => setDeleteConfirmId({ id, deleteAll: true })}
               addCategory={addCategory}
               updateCategory={updateCategory}
@@ -536,7 +544,7 @@ export default function Dashboard() {
                 <h3 className="font-semibold text-slate-100">{t('dashboard.month_transactions')}</h3>
                 {isFilterActive && (
                   <span className="text-xs font-medium bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full">
-                    Filtrado
+                    {t('filter.filtered')}
                   </span>
                 )}
               </div>
@@ -670,6 +678,7 @@ export default function Dashboard() {
         editingExpense={expenses.find(e => e.id === editingId) || null}
         initialMode={transactionMode}
         initialType={initialType}
+        isGlobalEdit={isGlobalEdit}
       />
 )}
 

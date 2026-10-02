@@ -41,13 +41,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
             {icon}
           </div>
-          <input ref={ref} className={finalClassName} {...props} />
+          <input translate="no" ref={ref} className={finalClassName} {...props} />
         </div>
       );
     }
 
     return (
       <input
+        translate="no"
         ref={ref}
         className={finalClassName}
         {...props}

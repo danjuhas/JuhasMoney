@@ -62,7 +62,7 @@ export function CategoryModal({ isOpen, onClose, onSave, editingCategory, userId
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="md" className="p-6 sm:p-8 max-h-[90vh] overflow-y-auto" zIndex="z-[60]">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-slate-100">
-            {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
+            {editingCategory ? t('categories.edit_category') : t('categories.new_category')}
           </h2>
           <button type="button" onClick={onClose} className="p-2 text-slate-400 hover:text-slate-300 hover:bg-slate-800 rounded-full transition-colors"><X className="w-5 h-5" /></button>
         </div>
@@ -120,7 +120,7 @@ export function CategoryModal({ isOpen, onClose, onSave, editingCategory, userId
             </div>
           </div>
 
-          <Button type="submit" variant="primary" fullWidth className="mt-4">{editingCategory ? 'Salvar Alterações' : t('settings.add')}</Button>
+          <Button type="submit" variant="primary" fullWidth className="mt-4">{editingCategory ? t('categories.save_changes') : t('settings.add')}</Button>
         </form>
           </Modal>
   );

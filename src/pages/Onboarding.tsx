@@ -272,6 +272,7 @@ export default function Onboarding() {
                     <span className="text-slate-500">{currency === 'USD' ? '$' : currency === 'EUR' ? '€' : 'R$'}</span>
                   </div>
                   <input
+                    translate="no"
                     type="text"
                     inputMode="numeric"
                     value={formatAmountInput(incomeAmount)}
@@ -339,6 +340,7 @@ export default function Onboarding() {
               <div>
                 <label className="block text-xs font-medium text-slate-400 mb-1">{t('onboarding.expense_name')}</label>
                 <input
+                  translate="no"
                   type="text"
                   value={draftExpenseName}
                   onChange={(e) => setDraftExpenseName(e.target.value)}
@@ -350,6 +352,7 @@ export default function Onboarding() {
                 <div className="flex-1">
                   <label className="block text-xs font-medium text-slate-400 mb-1">{t('onboarding.value')}</label>
                   <input
+                    translate="no"
                     type="text"
                     inputMode="numeric"
                     value={formatAmountInput(draftExpenseAmount)}
