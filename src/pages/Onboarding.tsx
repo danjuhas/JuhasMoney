@@ -41,7 +41,8 @@ export default function Onboarding() {
   const [draftExpenseName, setDraftExpenseName] = useState('');
   const [draftExpenseAmount, setDraftExpenseAmount] = useState('');
   const [draftExpenseDay, setDraftExpenseDay] = useState('');
-  const [onboardingExpenses, setOnboardingExpenses] = useState<Array<{ id: string, name: string, amount: number, day: number }>>([]);
+  const [draftExpenseCategory, setDraftExpenseCategory] = useState('');
+  const [onboardingExpenses, setOnboardingExpenses] = useState<Array<{ id: string, name: string, amount: number, day: number, category_id?: string }>>([]);
 
   useEffect(() => {
     if (preferences.onboarding_completed) {
@@ -85,12 +86,14 @@ export default function Onboarding() {
       id: generateUUID(),
       name: draftExpenseName,
       amount: amountNum,
-      day: parseInt(draftExpenseDay, 10) || 1
+      day: parseInt(draftExpenseDay, 10) || 1,
+      category_id: draftExpenseCategory || undefined
     }]);
     
     setDraftExpenseName('');
     setDraftExpenseAmount('');
     setDraftExpenseDay('');
+    setDraftExpenseCategory('');
   };
 
   const finishOnboarding = async () => {
@@ -107,7 +110,8 @@ export default function Onboarding() {
              id: generateUUID(),
              name: draftExpenseName,
              amount: amountNum,
-             day: parseInt(draftExpenseDay || '1', 10)
+             day: parseInt(draftExpenseDay || '1', 10),
+             category_id: draftExpenseCategory || undefined
            });
         }
       }
@@ -137,6 +141,7 @@ export default function Onboarding() {
               description: exp.name,
               amount: exp.amount,
               type: 'expense',
+              category_id: exp.category_id,
               created_at: `${currentMonth}-01T12:00:00.000Z`,
               is_fixed: true,
               due_day: exp.day,
@@ -347,6 +352,22 @@ export default function Onboarding() {
                   className="w-full px-3 py-2 bg-slate-900 border border-slate-700 text-slate-100 rounded-lg text-sm focus:outline-none focus:border-emerald-500"
                   placeholder={t("onboarding.expense_name_ph")}
                 />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1">{t('dashboard.category_optional', 'Categoria (Opcional)')}</label>
+                <Select 
+                  value={draftExpenseCategory} 
+                  onChange={(e) => setDraftExpenseCategory(e.target.value)}
+                  className="!bg-slate-900 !rounded-lg !py-2 !pl-3 !pr-10 !text-sm"
+                  focusColor="emerald"
+                >
+                  <option value="">{t('dashboard.no_category', 'Sem Categoria')}</option>
+                  {categories
+                    .filter(c => c.type === 'expense')
+                    .map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                </Select>
               </div>
               <div className="flex gap-3">
                 <div className="flex-1">
