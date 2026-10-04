@@ -72,6 +72,7 @@ export default function Dashboard() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<{ id: string, deleteAll: boolean, isInstallment?: boolean } | null>(null);
   const [billConfirm, setBillConfirm] = useState<{ids: string[], action: 'pay' | 'unpay'} | null>(null);
   const [highlightedIds, setHighlightedIds] = useState<string[]>([]);
+  const { preferences, loading: prefsLoading } = usePreferences();
 
   const {
     filterType,
@@ -82,18 +83,17 @@ export default function Dashboard() {
     clearFilters,
     filteredExpenses,
     finalExpenses,
-    totals: { totalIncomes, totalExpenses, totalPending, accumulatedBalance, currentBalance, projectedBalance },
+    totals: { totalIncomes, totalExpenses, totalPending, currentBalance, projectedBalance },
     filterCategory,
     setFilterCategory,
     sortBy,
     setSortBy,
     dashboardItems
-    } = useTransactionFilters(expenses, categories, selectedMonth, cards);
+    } = useTransactionFilters(expenses, categories, selectedMonth, cards, preferences.initial_balance);
   
 
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { preferences, loading: prefsLoading } = usePreferences();
 
   const [showExport, setShowExport] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -472,7 +472,6 @@ export default function Dashboard() {
               totalExpenses={totalExpenses} 
               balance={currentBalance} 
               totalPending={totalPending}
-              accumulatedBalance={accumulatedBalance}
               projectedBalance={projectedBalance}
             />
           </div>

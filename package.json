@@ -50,6 +50,7 @@
     "vitest": "^3.0.0"
   },
   "allowScripts": {
-    "esbuild": true
+    "esbuild": true,
+    "core-js": false
   }
 }

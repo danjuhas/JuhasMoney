@@ -55,7 +55,9 @@
     "category_name": "Category name",
     "new_password": "New Password",
     "new_password_placeholder": "New password (min. 6 chars)",
-    "my_account": "My Account"
+    "my_account": "My Account",
+    "initial_balance": "Initial / Bank Balance (Optional)",
+    "initial_balance_help": "Enter the amount of money you had before recording transactions here, so the app reflects your real balance."
   },
   "dashboard": {
     "home": "Home",
@@ -239,7 +241,10 @@
     "pending": "Pending",
     "accumulated": "Rollover",
     "accumulated_tooltip": "Includes rollover from previous months: {{amount}}",
-    "projected": "End of month projection:"
+    "projected": "End of month projection:",
+    "projection_short": "Projection",
+    "month_balance": "Month's Balance",
+    "real_balance": "Current Bank Balance"
   },
   "notifications": {
     "title": "Notifications",

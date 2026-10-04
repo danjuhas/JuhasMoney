@@ -12,6 +12,18 @@ class ResizeObserver {
 }
 window.ResizeObserver = ResizeObserver;
 
+vi.mock('recharts', async () => {
+  const OriginalRecharts = await vi.importActual('recharts') as any;
+  return {
+    ...OriginalRecharts,
+    ResponsiveContainer: ({ children }: any) => (
+      <OriginalRecharts.ResponsiveContainer width={800} height={300}>
+        {children}
+      </OriginalRecharts.ResponsiveContainer>
+    )
+  };
+});
+
 // Mock the preferences context to provide a currency
 vi.mock('../../src/contexts/PreferencesContext', () => ({
   usePreferences: () => ({
