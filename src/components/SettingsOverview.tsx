@@ -1,5 +1,6 @@
 import { Select } from './ui/Select';
 import { Input } from './ui/Input';
+import { supabase } from '../lib/supabase';
 import { useState, useEffect } from 'react';
 import { Settings, LogOut, Tags, Trash2, Calendar, Edit2, Plus, User } from 'lucide-react';
 import type { Category, Expense } from '../types';
@@ -53,10 +54,8 @@ export const SettingsOverview = ({
   const [editNameValue, setEditNameValue] = useState(preferences.name || '');
 
   useEffect(() => {
-    import('../lib/supabase').then(({ supabase }) => {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data?.user?.email) setUserEmail(data.user.email);
-      });
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user?.email) setUserEmail(data.user.email);
     });
   }, []);
 

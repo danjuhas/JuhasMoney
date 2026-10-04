@@ -83,7 +83,7 @@ export default function Dashboard() {
     clearFilters,
     filteredExpenses,
     finalExpenses,
-    totals: { totalIncomes, totalExpenses, totalPending, accumulatedBalance, currentBalance, projectedBalance },
+    totals: { totalIncomes, totalExpenses, totalPending, currentBalance, projectedBalance },
     filterCategory,
     setFilterCategory,
     sortBy,
@@ -472,7 +472,6 @@ export default function Dashboard() {
               totalExpenses={totalExpenses} 
               balance={currentBalance} 
               totalPending={totalPending}
-              accumulatedBalance={accumulatedBalance}
               projectedBalance={projectedBalance}
             />
           </div>

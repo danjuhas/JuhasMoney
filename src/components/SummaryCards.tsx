@@ -8,11 +8,10 @@ interface SummaryCardsProps {
   totalExpenses: number;
   balance: number;
   totalPending: number;
-  accumulatedBalance?: number;
   projectedBalance?: number;
 }
 
-export function SummaryCards({ totalIncomes, totalExpenses, balance, totalPending, accumulatedBalance = 0, projectedBalance = 0 }: SummaryCardsProps) {
+export function SummaryCards({ totalIncomes, totalExpenses, balance, totalPending, projectedBalance = 0 }: SummaryCardsProps) {
   const { preferences } = usePreferences();
   const { t } = useTranslation();
   
