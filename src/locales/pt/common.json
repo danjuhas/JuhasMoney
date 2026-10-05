@@ -55,9 +55,7 @@
     "category_name": "Nome da categoria",
     "new_password": "Nova Senha",
     "new_password_placeholder": "Nova senha (mín. 6 caracteres)",
-    "my_account": "Minha Conta",
-    "initial_balance": "Saldo Inicial / Conta (Opcional)",
-    "initial_balance_help": "Informe quanto dinheiro você tinha antes de registrar transações aqui, para o aplicativo refletir seu saldo real."
+    "my_account": "Minha Conta"
   },
   "dashboard": {
     "home": "Início",

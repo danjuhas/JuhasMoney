@@ -20,8 +20,24 @@ export default function Onboarding() {
   // Global
   const [userId, setUserId] = useState<string | null>(null);
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user?.id || null));
-  }, []);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate('/login');
+      } else {
+        setUserId(session.user.id);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate('/login');
+      } else {
+        setUserId(session.user.id);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const [step, setStep] = useState(1);
   

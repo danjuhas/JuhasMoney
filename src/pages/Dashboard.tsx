@@ -89,7 +89,7 @@ export default function Dashboard() {
     sortBy,
     setSortBy,
     dashboardItems
-    } = useTransactionFilters(expenses, categories, selectedMonth, cards, preferences.initial_balance);
+    } = useTransactionFilters(expenses, categories, selectedMonth, cards);
   
 
   const navigate = useNavigate();
@@ -245,9 +245,8 @@ export default function Dashboard() {
     togglePaid(expense, selectedMonth);
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/login');
+  const handleSignOut = () => {
+    navigate('/logout');
   };
 
   const handlePreviousMonth = () => {

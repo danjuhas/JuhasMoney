@@ -55,9 +55,7 @@
     "category_name": "Category name",
     "new_password": "New Password",
     "new_password_placeholder": "New password (min. 6 chars)",
-    "my_account": "My Account",
-    "initial_balance": "Initial / Bank Balance (Optional)",
-    "initial_balance_help": "Enter the amount of money you had before recording transactions here, so the app reflects your real balance."
+    "my_account": "My Account"
   },
   "dashboard": {
     "home": "Home",
