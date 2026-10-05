@@ -1,4 +1,6 @@
 import { Select } from './ui/Select';
+import { Input } from './ui/Input';
+import { supabase } from '../lib/supabase';
 import { useState, useEffect } from 'react';
 import { Settings, LogOut, Tags, Trash2, Calendar, Edit2, Plus, User } from 'lucide-react';
 import type { Category, Expense } from '../types';
@@ -52,10 +54,8 @@ export const SettingsOverview = ({
   const [editNameValue, setEditNameValue] = useState(preferences.name || '');
 
   useEffect(() => {
-    import('../lib/supabase').then(({ supabase }) => {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data?.user?.email) setUserEmail(data.user.email);
-      });
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user?.email) setUserEmail(data.user.email);
     });
   }, []);
 
@@ -156,7 +156,7 @@ export const SettingsOverview = ({
               <Select 
                 value={preferences.language}
                 onChange={(e) => updatePreferences({ language: e.target.value })}
-                className="w-full bg-slate-900 border-slate-700 text-slate-100 rounded-md shadow-sm p-3 border outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
+                focusColor="emerald"
               >
                 <option value="pt">Português</option>
                 <option value="en">English</option>
@@ -168,12 +168,29 @@ export const SettingsOverview = ({
               <Select 
                 value={preferences.currency}
                 onChange={(e) => updatePreferences({ currency: e.target.value })}
-                className="w-full bg-slate-900 border-slate-700 text-slate-100 rounded-md shadow-sm p-3 border outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
+                focusColor="emerald"
               >
                 <option value="BRL">BRL (R$)</option>
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
               </Select>
+            </div>
+          </div>
+          
+          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 mt-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-400 mb-1">{t('settings.initial_balance', 'Saldo Inicial / Conta (Opcional)')}</label>
+              <div className="text-xs text-slate-500 mb-2">
+                {t('settings.initial_balance_help', 'Informe quanto dinheiro você tinha antes de registrar transações aqui, para o aplicativo refletir seu saldo real.')}
+              </div>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={preferences.initial_balance || ''}
+                onChange={(e) => updatePreferences({ initial_balance: parseFloat(e.target.value) || 0 })}
+                focusColor="emerald"
+              />
             </div>
           </div>
         </section>
@@ -213,12 +230,12 @@ export const SettingsOverview = ({
             </button>
           </div>
           
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+          <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
             <div>
               {categories.length === 0 ? (
-                <p className="text-sm text-slate-500 italic">{t('settings.no_categories')}</p>
+                <p className="text-sm text-slate-500 italic p-4">{t('settings.no_categories')}</p>
               ) : (
-                <ul className="divide-y divide-slate-700/50 bg-slate-800/80 border border-slate-700 rounded-lg overflow-hidden shadow-sm">
+                <ul className="divide-y divide-slate-700/50">
                   {categories.map(cat => {
                     const { Icon: IconComponent, bgColor } = getCategoryStyle(cat);
 
@@ -277,11 +294,11 @@ export const SettingsOverview = ({
             </button>
           </div>
           
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+          <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
             {fixedExpenses.length === 0 ? (
-              <p className="text-sm text-slate-500 italic">{t('settings.no_fixed')}</p>
+              <p className="text-sm text-slate-500 italic p-4">{t('settings.no_fixed')}</p>
             ) : (
-              <ul className="divide-y divide-slate-700/50 bg-slate-800/80 border border-slate-700 rounded-lg overflow-hidden shadow-sm">
+              <ul className="divide-y divide-slate-700/50">
                 {fixedExpenses.map(expense => (
                   <li key={expense.id} className="flex justify-between items-center p-4 hover:bg-slate-700/30 transition-colors">
                     <div className="flex flex-col">

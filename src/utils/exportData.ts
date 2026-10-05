@@ -44,7 +44,6 @@ export async function exportToImage(elementId: string, monthStr: string) {
     const filename = `JuhasMoney_Relatorio_${monthStr}.png`;
     await tryShareOrDownload(blob, filename, 'image/png');
   } catch (error) {
-    console.error('Error exporting image:', error);
     throw error;
   }
 }
@@ -84,7 +83,6 @@ export async function exportToPDF(elementId: string, monthStr: string) {
 
     await tryShareOrDownload(blob, filename, 'application/pdf');
   } catch (error) {
-    console.error('Error exporting PDF:', error);
     throw error;
   }
 }
