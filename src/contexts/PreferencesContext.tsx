@@ -8,7 +8,6 @@ interface Preferences {
   language: string;
   currency: string;
   onboarding_completed: boolean;
-  initial_balance?: number;
 }
 
 interface PreferencesContextType {
@@ -39,8 +38,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
           name: metadata.name || '',
           language: metadata.language || 'pt',
           currency: metadata.currency || 'BRL',
-          onboarding_completed: metadata.onboarding_completed || false,
-          initial_balance: metadata.initial_balance || 0,
+          onboarding_completed: metadata.onboarding_completed || false
         });
         if (metadata.language) {
           i18n.changeLanguage(metadata.language);
@@ -58,8 +56,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
           name: metadata.name || '',
           language: metadata.language || 'pt',
           currency: metadata.currency || 'BRL',
-          onboarding_completed: metadata.onboarding_completed || false,
-          initial_balance: metadata.initial_balance || 0,
+          onboarding_completed: metadata.onboarding_completed || false
         });
         if (metadata.language) {
           i18n.changeLanguage(metadata.language);

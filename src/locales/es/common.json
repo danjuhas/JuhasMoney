@@ -55,9 +55,7 @@
     "category_name": "Nombre de la categoría",
     "new_password": "Nueva Contraseña",
     "new_password_placeholder": "Nueva contraseña (mín. 6 caracteres)",
-    "my_account": "Mi Cuenta",
-    "initial_balance": "Saldo Inicial / Cuenta (Opcional)",
-    "initial_balance_help": "Ingresa el dinero que tenías antes de registrar transacciones aquí, para que la app refleje tu saldo real."
+    "my_account": "Mi Cuenta"
   },
   "dashboard": {
     "home": "Inicio",
