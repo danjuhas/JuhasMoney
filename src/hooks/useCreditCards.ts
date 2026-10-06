@@ -119,5 +119,5 @@ export function useCreditCards(userId: string | null) {
     }
   };
 
-  return { cards, loading, addCard, updateCard, deleteCard };
+  return { cards, loading, addCard, updateCard, deleteCard, refreshCards: loadCards };
 }
