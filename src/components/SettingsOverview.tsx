@@ -1,5 +1,5 @@
 import { Select } from './ui/Select';
-import { Input } from './ui/Input';
+
 import { supabase } from '../lib/supabase';
 import { useState, useEffect } from 'react';
 import { Settings, LogOut, Tags, Trash2, Calendar, Edit2, Plus, User } from 'lucide-react';
@@ -174,23 +174,6 @@ export const SettingsOverview = ({
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
               </Select>
-            </div>
-          </div>
-          
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 mt-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1">{t('settings.initial_balance', 'Saldo Inicial / Conta (Opcional)')}</label>
-              <div className="text-xs text-slate-500 mb-2">
-                {t('settings.initial_balance_help', 'Informe quanto dinheiro você tinha antes de registrar transações aqui, para o aplicativo refletir seu saldo real.')}
-              </div>
-              <Input
-                type="number"
-                step="0.01"
-                placeholder="0.00"
-                value={preferences.initial_balance || ''}
-                onChange={(e) => updatePreferences({ initial_balance: parseFloat(e.target.value) || 0 })}
-                focusColor="emerald"
-              />
             </div>
           </div>
         </section>

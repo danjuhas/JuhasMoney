@@ -4,6 +4,7 @@ import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
 import Onboarding from './pages/Onboarding';
 import UpdatePassword from './pages/UpdatePassword';
+import Logout from './pages/Logout';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/update-password" element={<UpdatePassword />} />
+      <Route path="/logout" element={<Logout />} />
       <Route path="/" element={<Dashboard />} />
     </Routes>
   );

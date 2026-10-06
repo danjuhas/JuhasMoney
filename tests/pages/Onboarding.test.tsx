@@ -2,6 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Onboarding from '../../src/pages/Onboarding';
+import { supabase } from '../../src/lib/supabase';
 
 // Mocks
 vi.mock('react-i18next', () => ({
@@ -34,7 +35,9 @@ const mockAddCategory = vi.fn();
 const mockUpsertExpenses = vi.fn();
 vi.mock('../../src/hooks/useTransactions', () => ({
   useTransactions: () => ({
-    categories: [],
+    categories: [
+      { id: 'cat1', name: 'Alimentação', type: 'expense', user_id: 'user123', icon: 'pizza', color: '#ff0000' }
+    ],
     addCategory: mockAddCategory,
     deleteCategory: vi.fn(),
     upsertExpenses: mockUpsertExpenses,
@@ -45,6 +48,9 @@ vi.mock('../../src/lib/supabase', () => ({
   supabase: {
     auth: {
       getSession: vi.fn().mockResolvedValue({ data: { session: { user: { id: 'user123', user_metadata: { first_name: 'Danilo' } } } } }),
+      onAuthStateChange: vi.fn().mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      }),
     },
   },
 }));
@@ -109,6 +115,66 @@ describe('Onboarding Component', () => {
     
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
+  });
+
+  it('should redirect to login if session is null', async () => {
+    (supabase.auth.getSession as any).mockResolvedValueOnce({ data: { session: null } });
+    
+    render(<Onboarding />);
+    
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/login');
+    });
+  });
+
+  it('should allow adding a category to a draft expense in step 4', async () => {
+    render(<Onboarding />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('onboarding.next')).toBeInTheDocument();
+    });
+
+    // Jump to step 4
+    fireEvent.click(screen.getByText('onboarding.next'));
+    await waitFor(() => expect(screen.getByText('onboarding.categories_title')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('onboarding.next'));
+    await waitFor(() => expect(screen.getByText('onboarding.income_title')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('onboarding.skip'));
+    await waitFor(() => expect(screen.getByText('onboarding.fixed_expenses_title')).toBeInTheDocument());
+
+    // Fill the quick form
+    fireEvent.change(screen.getByPlaceholderText('onboarding.expense_name_ph'), { target: { value: 'Netflix' } });
+    
+    // There are a few inputs that might match '0,00' or similar, we use the value specifically
+    const valueInputs = screen.getAllByRole('textbox');
+    // The first textbox might be the name, the second is value (inputMode="numeric")
+    // It's safer to query by label or placeholder
+    const amountInput = screen.getByPlaceholderText('0,00');
+    fireEvent.change(amountInput, { target: { value: '5000' } });
+    
+    const dayInput = screen.getByPlaceholderText('onboarding.due_ph');
+    fireEvent.change(dayInput, { target: { value: '15' } });
+
+    // Select category (Alimentação from mock)
+    const categorySelect = screen.getByDisplayValue('dashboard.no_category');
+    fireEvent.change(categorySelect, { target: { value: 'cat1' } });
+
+    // Click finish to trigger upsertExpenses with category_id
+    const finishBtn = screen.getByText('onboarding.finish_save');
+    fireEvent.click(finishBtn);
+
+    await waitFor(() => {
+      expect(mockUpsertExpenses).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            description: 'Netflix',
+            amount: 50,
+            due_day: 15,
+            category_id: 'cat1'
+          })
+        ])
+      );
     });
   });
 });
