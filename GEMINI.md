@@ -46,3 +46,8 @@ You are an AI assistant working on **JuhasMoney**, a personal finance and cash-f
   - **Unit Tests:** Focus on pure functions and complex business logic (e.g., financial calculations, data filters) using **Vitest**.
   - **Component / UI Tests:** Focus on rendering, accessibility, and state changes (loading, error, empty) isolated from the backend using **React Testing Library**.
   - **E2E Tests:** Focus on critical user journeys using tools like **Playwright** or **Cypress** (when configured).
+
+## 8. Workspace Hygiene & Temporary Files (CRITICAL)
+- **NO Leftover Scripts:** You must **NEVER** leave temporary scripts (e.g., `patch_*.js`, `test.ts`, python parsers) in the project root or any application directories.
+- **Use Scratch Directory:** If you must create a temporary file to run a script, you MUST create it inside the `<appDataDir>/brain/<conversation-id>/scratch/` directory, which is specifically designed for this purpose.
+- **Immediate Cleanup:** If for some unavoidable reason you must create a temporary file in the workspace, you MUST explicitly delete it (e.g., using `rm`) in the exact same execution step or immediately after it serves its purpose.

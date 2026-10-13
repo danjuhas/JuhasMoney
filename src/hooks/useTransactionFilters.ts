@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { Expense, Category } from '../types';
 import { isActiveInMonth, isExpensePaid } from '../utils/transactions';
-import { groupExpensesIntoBills} from '../utils/creditCards';
+import { groupExpensesIntoBills, type DashboardItem } from '../utils/creditCards';
 export type SortOption = 'default' | 'date_desc' | 'date_asc' | 'name_asc' | 'amount_desc' | 'amount_asc';
 
 import type { CreditCard } from '../types';
@@ -157,7 +157,58 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
     setSortBy('default');
   };
 
-  const dashboardItems = useMemo(() => groupExpensesIntoBills(finalExpenses, cards, selectedMonth), [finalExpenses, cards, selectedMonth]);
+  const dashboardItems = useMemo(() => {
+    const grouped = groupExpensesIntoBills(finalExpenses, cards, selectedMonth);
+    
+    const isItemPaid = (item: DashboardItem) => {
+      if (item.type === 'expense') return isExpensePaid(item.expense, selectedMonth);
+      return item.is_paid;
+    };
+    
+    const getItemDueDay = (item: DashboardItem) => {
+      if (item.type === 'expense') return item.expense.due_day || 99;
+      return item.card.due_day;
+    };
+    
+    const getItemDate = (item: DashboardItem) => {
+      if (item.type === 'expense') return new Date(item.expense.created_at).getTime();
+      return Math.max(...item.expenses.map((e) => new Date(e.created_at).getTime()));
+    };
+    
+    const getItemName = (item: DashboardItem) => {
+      if (item.type === 'expense') return item.expense.description;
+      return item.card.name;
+    };
+    
+    const getItemAmount = (item: DashboardItem) => {
+      if (item.type === 'expense') return item.expense.amount;
+      return item.total;
+    };
+
+    return grouped.sort((a, b) => {
+      if (sortBy === 'default') {
+        const aPaid = isItemPaid(a);
+        const bPaid = isItemPaid(b);
+
+        if (aPaid !== bPaid) return aPaid ? 1 : -1;
+
+        if (!aPaid) {
+          const aDue = getItemDueDay(a);
+          const bDue = getItemDueDay(b);
+          if (aDue !== bDue) return aDue - bDue;
+        }
+
+        return getItemDate(b) - getItemDate(a);
+      }
+      
+      if (sortBy === 'date_desc') return getItemDate(b) - getItemDate(a);
+      if (sortBy === 'date_asc') return getItemDate(a) - getItemDate(b);
+      if (sortBy === 'name_asc') return getItemName(a).localeCompare(getItemName(b));
+      if (sortBy === 'amount_desc') return getItemAmount(b) - getItemAmount(a);
+      if (sortBy === 'amount_asc') return getItemAmount(a) - getItemAmount(b);
+      return 0;
+    });
+  }, [finalExpenses, cards, selectedMonth, sortBy]);
   return {
     dashboardItems,
     filterType,

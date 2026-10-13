@@ -25,6 +25,7 @@ import { NotificationBell } from '../components/NotificationBell';
 import { useTransactions } from '../hooks/useTransactions';
 import { useCreditCards } from '../hooks/useCreditCards';
 import { useTransactionFilters } from '../hooks/useTransactionFilters';
+import { PullToRefresh } from '../components/ui/PullToRefresh';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { isExpensePaid } from '../utils/transactions';
 import { formatCurrency } from '../utils/format';
@@ -51,7 +52,7 @@ export default function Dashboard() {
     togglePaid,
     payMultipleExpenses, unpayMultipleExpenses, deleteMultipleExpenses, refreshTransactions,
   } = useTransactions(userId, addToast);
-  const { cards, addCard, updateCard, deleteCard: deleteCreditCard } = useCreditCards(userId);
+  const { cards, addCard, updateCard, deleteCard: deleteCreditCard, refreshCards } = useCreditCards(userId);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -297,9 +298,17 @@ export default function Dashboard() {
     return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-400">{t('dashboard.loading')}</div>;
   }
 
+  const handleRefresh = async () => {
+    await Promise.all([
+      refreshTransactions(),
+      refreshCards()
+    ]);
+  };
+
   return (
-    <div className="min-h-screen bg-slate-900">
-      <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+    <div className="min-h-screen bg-slate-900 pb-24 sm:pb-0">
+      <PullToRefresh onRefresh={handleRefresh}>
+        <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
         <div className="flex justify-between items-center relative">
           <div className="flex items-center gap-2.5 sm:gap-2">
             <Infinity className="w-10 h-10 sm:w-8 sm:h-8 text-emerald-500" />
@@ -723,6 +732,9 @@ export default function Dashboard() {
         categories={categories}
         clearFilters={clearFilters}
       />
+        </main>
+      </PullToRefresh>
+
       {/* Floating Action Button (FAB) */}
       {activeTab === 'home' && (
         <>
@@ -768,7 +780,7 @@ export default function Dashboard() {
           )}
         </>
       )}
-</main>
+
       <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
