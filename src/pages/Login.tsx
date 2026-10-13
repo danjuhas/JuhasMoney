@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Infinity } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { PWAInstallBanner } from '../components/PWAInstallBanner';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -163,6 +164,8 @@ export default function Login() {
             </div>
           </div>
         </div>
+
+        <PWAInstallBanner />
       </div>
     </div>
   );
