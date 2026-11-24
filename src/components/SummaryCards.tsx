@@ -9,13 +9,21 @@ interface SummaryCardsProps {
   balance: number;
   totalPending: number;
   projectedBalance?: number;
+  totalInvestedMonth?: number;
 }
 
-export function SummaryCards({ totalIncomes, totalExpenses, balance, totalPending, projectedBalance = 0 }: SummaryCardsProps) {
+export function SummaryCards({
+  totalIncomes,
+  totalExpenses,
+  balance,
+  totalPending,
+  projectedBalance = 0,
+  totalInvestedMonth = 0,
+}: SummaryCardsProps) {
   const { preferences } = usePreferences();
   const { t } = useTranslation();
   
-  const monthNet = totalIncomes - totalExpenses;
+  const monthNet = totalIncomes - totalExpenses - totalInvestedMonth;
   const isMonthNetPositive = monthNet >= 0;
   const isProjectedPositive = projectedBalance >= 0;
   
@@ -57,11 +65,17 @@ export function SummaryCards({ totalIncomes, totalExpenses, balance, totalPendin
          </p>
       </div>
 
-      {/* Total Pendente */}
-      <div className="col-span-2 bg-slate-800 border border-slate-700 shadow-lg shadow-black/20 rounded-2xl p-4 flex flex-col justify-center">
+      {/* Total Pendente e Investido no Mês */}
+      <div className="bg-slate-800 border border-slate-700 shadow-lg shadow-black/20 rounded-2xl p-4 flex flex-col justify-center">
          <h2 className="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">{t('summary.pending')}</h2>
          <p className="text-lg sm:text-2xl font-bold tracking-tight text-rose-400 truncate" title={totalPending.toString()}>
             - {formatCurrency(totalPending, preferences.currency)}
+         </p>
+      </div>
+      <div className="bg-slate-800 border border-slate-700 shadow-lg shadow-black/20 rounded-2xl p-4 flex flex-col justify-center">
+         <h2 className="text-xs font-semibold text-sky-400 mb-1 uppercase tracking-wider">{t('summary.invested_month', 'Investido no Mês')}</h2>
+         <p className="text-lg sm:text-2xl font-bold tracking-tight text-sky-400 truncate" title={totalInvestedMonth.toString()}>
+            {totalInvestedMonth >= 0 ? '' : '- '}{formatCurrency(Math.abs(totalInvestedMonth), preferences.currency)}
          </p>
       </div>
     </div>

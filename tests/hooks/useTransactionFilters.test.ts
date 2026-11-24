@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useTransactionFilters } from '../../src/hooks/useTransactionFilters';
-import type { Expense, Category } from '../../src/types';
+import type { Expense, Category, Investment, InvestmentTransaction } from '../../src/types';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -95,5 +95,83 @@ describe('useTransactionFilters Hook', () => {
     expect(result.current.totals.currentBalance).toBe(2800);
     // Saldo Projetado = Accumulated Projected (500) + Current Total (2000) = 2500
     expect(result.current.totals.projectedBalance).toBe(2500);
+  });
+
+  it('should deduct investment contributions and add withdrawals to balance while ignoring initial balance and yield', () => {
+    const investments: Investment[] = [
+      {
+        id: 'inv-1',
+        user_id: 'u',
+        name: 'Emergency Fund',
+        category: 'emergency',
+        color: '#0ea5e9',
+        created_at: '2026-05-01T10:00:00Z',
+      },
+    ];
+
+    const invTxs: InvestmentTransaction[] = [
+      // Initial balance -> should NOT deduct from month balance
+      {
+        id: 'itx-init',
+        investment_id: 'inv-1',
+        user_id: 'u',
+        type: 'contribution',
+        amount: 10000,
+        date: '2026-05-01T10:00:00Z',
+        notes: 'investments.note_initial_balance',
+        created_at: '2026-05-01T10:00:00Z',
+      },
+      // Active deposit -> SHOULD deduct 1000 from month balance
+      {
+        id: 'itx-contrib',
+        investment_id: 'inv-1',
+        user_id: 'u',
+        type: 'contribution',
+        amount: 1000,
+        date: '2026-05-12T10:00:00Z',
+        notes: 'Monthly savings',
+        created_at: '2026-05-12T10:00:00Z',
+      },
+      // Active withdrawal -> SHOULD add 300 back to month balance
+      {
+        id: 'itx-withdraw',
+        investment_id: 'inv-1',
+        user_id: 'u',
+        type: 'withdrawal',
+        amount: 300,
+        date: '2026-05-18T10:00:00Z',
+        created_at: '2026-05-18T10:00:00Z',
+      },
+      // Yield adjustment -> should NOT affect checking account balance
+      {
+        id: 'itx-yield',
+        investment_id: 'inv-1',
+        user_id: 'u',
+        type: 'yield',
+        amount: 150,
+        date: '2026-05-25T10:00:00Z',
+        notes: 'investments.note_yield_positive',
+        created_at: '2026-05-25T10:00:00Z',
+      },
+    ];
+
+    const { result } = renderHook(() =>
+      useTransactionFilters(mockExpenses, mockCategories, '2026-05', [], investments, invTxs)
+    );
+
+    // Net invested this month = 1000 - 300 = 700
+    expect(result.current.totals.totalInvestedMonth).toBe(700);
+    // Incomes (5000) - Paid Expenses (1500) - Net Invested (700) = 2800
+    expect(result.current.totals.currentBalance).toBe(2800);
+    // Incomes (5000) - Total Expenses (1600) - Net Invested (700) = 2700
+    expect(result.current.totals.projectedBalance).toBe(2700);
+    // Expenses metric itself remains untouched (1600)
+    expect(result.current.totals.totalExpenses).toBe(1600);
+
+    // Dashboard items should include the 2 cash-flow investment transactions (contribution + withdrawal)
+    const invItems = result.current.dashboardItems.filter(
+      (i) => i.type === 'investment_transaction'
+    );
+    expect(invItems).toHaveLength(2);
   });
 });

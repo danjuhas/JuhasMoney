@@ -53,3 +53,34 @@ export type AppNotification = {
   hidden?: boolean;
 };
 
+export type InvestmentCategory =
+  | 'emergency'
+  | 'fixed_income'
+  | 'variable_income'
+  | 'crypto'
+  | 'other';
+
+export type Investment = {
+  id: string;
+  user_id: string;
+  name: string;
+  category: InvestmentCategory;
+  color: string;
+  target_amount?: number | null;
+  created_at: string;
+};
+
+export type InvestmentTransactionType = 'contribution' | 'withdrawal' | 'yield';
+
+export type InvestmentTransaction = {
+  id: string;
+  investment_id: string;
+  user_id: string;
+  type: InvestmentTransactionType;
+  amount: number;
+  date: string;
+  notes?: string;
+  created_at: string;
+};
+
+
