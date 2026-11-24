@@ -1,4 +1,4 @@
-import type { Expense, CreditCard } from '../types';
+import type { Expense, CreditCard, Investment, InvestmentTransaction } from '../types';
 
 /**
  * Calculates the effective billing month ("YYYY-MM") for a credit card purchase.
@@ -52,7 +52,8 @@ export function getEffectiveMonth(purchaseDate: string | Date, closingDay: numbe
 
 export type DashboardItem = 
   | { type: 'expense'; expense: Expense }
-  | { type: 'credit_card_bill'; card: CreditCard; expenses: Expense[]; total: number; is_paid: boolean; month: string };
+  | { type: 'credit_card_bill'; card: CreditCard; expenses: Expense[]; total: number; is_paid: boolean; month: string }
+  | { type: 'investment_transaction'; transaction: InvestmentTransaction; investment: Investment };
 
 export function groupExpensesIntoBills(
   expenses: Expense[], 

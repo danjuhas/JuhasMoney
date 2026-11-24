@@ -6,12 +6,13 @@ import type { Expense } from '../types';
 
 
 
-import { Plus, CreditCard as CreditCardIcon, CheckCircle, Circle, ChevronLeft, ChevronRight, Calendar, Filter, Infinity, Download, FileText, Image as ImageIcon, Table, Loader2 } from 'lucide-react';
+import { Plus, CreditCard as CreditCardIcon, CheckCircle, Circle, ChevronLeft, ChevronRight, Calendar, Filter, Infinity, Download, FileText, Image as ImageIcon, Table, Loader2, TrendingUp } from 'lucide-react';
 import { exportToCSV, exportToImage, exportToPDF } from '../utils/exportData';
 import { SummaryCards } from '../components/SummaryCards';
 import { AnalyticsOverview } from '../components/AnalyticsOverview';
 import { SettingsOverview } from '../components/SettingsOverview';
 import { CreditCardsOverview } from '../components/CreditCardsOverview';
+import { InvestmentsOverview } from '../components/InvestmentsOverview';
 import { Modal } from '../components/ui/Modal';
 import { Button } from '../components/ui/Button';
 import { CreditCardBillModal } from '../components/CreditCardBillModal';
@@ -20,10 +21,11 @@ import { TransactionModal } from '../components/TransactionModal';
 import { CreditCardTransactionModal } from '../components/CreditCardTransactionModal';
 import { TransactionItem } from '../components/TransactionItem';
 import { DeleteConfirmModal } from '../components/DeleteConfirmModal';
-import { MobileNav } from '../components/MobileNav';
+import { MobileNav, type DashboardTab } from '../components/MobileNav';
 import { NotificationBell } from '../components/NotificationBell';
 import { useTransactions } from '../hooks/useTransactions';
 import { useCreditCards } from '../hooks/useCreditCards';
+import { useInvestments } from '../hooks/useInvestments';
 import { useTransactionFilters } from '../hooks/useTransactionFilters';
 import { PullToRefresh } from '../components/ui/PullToRefresh';
 import { usePreferences } from '../contexts/PreferencesContext';
@@ -36,7 +38,7 @@ import { useToast } from '../contexts/ToastContext';
 
 export default function Dashboard() {
   const [userId, setUserId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'home' | 'insights' | 'settings' | 'cards'>('home');
+  const [activeTab, setActiveTab] = useState<DashboardTab>('home');
   
   const { addToast } = useToast();
 
@@ -53,6 +55,17 @@ export default function Dashboard() {
     payMultipleExpenses, unpayMultipleExpenses, deleteMultipleExpenses, refreshTransactions,
   } = useTransactions(userId, addToast);
   const { cards, addCard, updateCard, deleteCard: deleteCreditCard, refreshCards } = useCreditCards(userId);
+  const {
+    investments,
+    transactions: investmentTransactions,
+    addInvestment,
+    updateInvestment,
+    deleteInvestment,
+    addInvestmentTransaction,
+    adjustInvestmentBalance,
+    deleteInvestmentTransaction,
+    refreshInvestments,
+  } = useInvestments(userId, addToast);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -83,14 +96,13 @@ export default function Dashboard() {
     isFilterActive,
     clearFilters,
     filteredExpenses,
-    finalExpenses,
-    totals: { totalIncomes, totalExpenses, totalPending, currentBalance, projectedBalance },
+    totals: { totalIncomes, totalExpenses, totalPending, totalInvestedMonth, currentBalance, projectedBalance },
     filterCategory,
     setFilterCategory,
     sortBy,
     setSortBy,
     dashboardItems
-    } = useTransactionFilters(expenses, categories, selectedMonth, cards);
+    } = useTransactionFilters(expenses, categories, selectedMonth, cards, investments, investmentTransactions);
   
 
   const navigate = useNavigate();
@@ -301,7 +313,8 @@ export default function Dashboard() {
   const handleRefresh = async () => {
     await Promise.all([
       refreshTransactions(),
-      refreshCards()
+      refreshCards(),
+      refreshInvestments()
     ]);
   };
 
@@ -328,6 +341,12 @@ export default function Dashboard() {
                   className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === 'cards' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-slate-300'}`}
                 >
                   {t('nav.cards') || 'Cartões'}
+                </button>
+                <button
+                  onClick={() => setActiveTab('investments')}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeTab === 'investments' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400 hover:text-slate-300'}`}
+                >
+                  {t('nav.investments') || 'Investimento'}
                 </button>
                 <button
                   onClick={() => setActiveTab('insights')}
@@ -481,6 +500,7 @@ export default function Dashboard() {
               balance={currentBalance} 
               totalPending={totalPending}
               projectedBalance={projectedBalance}
+              totalInvestedMonth={totalInvestedMonth}
             />
           </div>
           
@@ -524,6 +544,19 @@ export default function Dashboard() {
             />
         </div>
 
+        <div className={`md:col-span-3 ${activeTab !== 'investments' ? 'hidden' : ''}`}>
+          <InvestmentsOverview
+            investments={investments}
+            transactions={investmentTransactions}
+            addInvestment={addInvestment}
+            updateInvestment={updateInvestment}
+            deleteInvestment={deleteInvestment}
+            addInvestmentTransaction={addInvestmentTransaction}
+            adjustInvestmentBalance={adjustInvestmentBalance}
+            deleteInvestmentTransaction={deleteInvestmentTransaction}
+          />
+        </div>
+
         <div className={`md:col-span-3 ${activeTab !== 'settings' ? 'hidden' : ''}`}>
             <SettingsOverview upsertExpenses={upsertExpenses}
               onImportSuccess={() => {
@@ -559,11 +592,11 @@ export default function Dashboard() {
               
               {loading ? (
                 <div className="text-center py-10 text-slate-400">{t('dashboard.loading')}</div>
-              ) : filteredExpenses.length === 0 ? (
+              ) : filteredExpenses.length === 0 && dashboardItems.length === 0 ? (
                 <div className="text-center py-10 text-slate-400">
                   Nenhum lançamento registrado ainda neste mês.
                 </div>
-              ) : finalExpenses.length === 0 ? (
+              ) : dashboardItems.length === 0 ? (
                 <div className="text-center py-10 text-slate-500">
                   <p>{t('dashboard.no_filter_results')}</p>
                   <button onClick={() => { clearFilters() }} className="mt-4 text-emerald-500 hover:text-emerald-400 font-medium">{t('dashboard.clear_filters')}</button>
@@ -584,6 +617,59 @@ export default function Dashboard() {
                             onDelete={(id) => { const target = expenses.find(e => e.id === id); setDeleteConfirmId({ id, deleteAll: false, isInstallment: !!target?.group_id }); }}
                             isHighlighted={highlightedIds.includes(item.expense.id)}
                           />
+                        );
+                      } else if (item.type === 'investment_transaction') {
+                        const isContribution = item.transaction.type === 'contribution';
+                        const txDate = new Date(item.transaction.date);
+                        return (
+                          <li
+                            key={`inv-tx-${item.transaction.id}`}
+                            onClick={() => setActiveTab('investments')}
+                            className="py-3.5 flex items-center gap-3 transition-colors px-2 -mx-2 rounded-xl group hover:bg-slate-700/40 cursor-pointer"
+                          >
+                            <div className="shrink-0 mt-0.5 self-start">
+                              <CheckCircle className="h-[22px] w-[22px] text-sky-400 fill-sky-900/50" strokeWidth={2} />
+                            </div>
+
+                            <div className="flex-1 min-w-0 flex flex-col gap-1">
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex items-center gap-2 overflow-hidden">
+                                  <div
+                                    className="w-5 h-5 rounded flex items-center justify-center text-white shrink-0"
+                                    style={{ backgroundColor: item.investment.color || '#0ea5e9' }}
+                                  >
+                                    <TrendingUp className="w-3 h-3" />
+                                  </div>
+                                  <p translate="no" className="text-base tracking-tight truncate text-slate-100 font-medium">
+                                    {t(`investments.tx_${item.transaction.type}`)} - {item.investment.name}
+                                  </p>
+                                </div>
+                                <span className="text-base font-semibold tracking-tight shrink-0 text-sky-400">
+                                  {isContribution ? '- ' : '+ '}
+                                  {formatCurrency(item.transaction.amount, preferences.currency)}
+                                </span>
+                              </div>
+
+                              <div className="flex justify-between items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-sky-500/20 text-sky-300">
+                                    {t(`investments.cat_${item.investment.category}`)}
+                                  </span>
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/80 text-slate-300">
+                                    {t('item.day')} {txDate.getDate()}
+                                  </span>
+                                  {item.transaction.notes && (
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-slate-700/50 text-slate-400 truncate max-w-[160px]">
+                                      {t(item.transaction.notes)}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center shrink-0 ml-2 relative">
+                                  <div className="p-1 w-7 h-7"></div>
+                                </div>
+                              </div>
+                            </div>
+                          </li>
                         );
                       } else if (item.type === 'credit_card_bill') {
                         return (

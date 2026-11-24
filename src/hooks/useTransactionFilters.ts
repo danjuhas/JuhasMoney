@@ -1,11 +1,18 @@
 import { useState, useMemo, useEffect } from 'react';
-import type { Expense, Category } from '../types';
+import type { Expense, Category, CreditCard, Investment, InvestmentTransaction } from '../types';
 import { isActiveInMonth, isExpensePaid } from '../utils/transactions';
 import { groupExpensesIntoBills, type DashboardItem } from '../utils/creditCards';
+import { isCashFlowInvestmentTransaction, getInvestmentTransactionMonth } from '../utils/investments';
 export type SortOption = 'default' | 'date_desc' | 'date_asc' | 'name_asc' | 'amount_desc' | 'amount_asc';
 
-import type { CreditCard } from '../types';
-export function useTransactionFilters(expenses: Expense[], categories: Category[], selectedMonth: string, cards: CreditCard[] = []) {
+export function useTransactionFilters(
+  expenses: Expense[],
+  categories: Category[],
+  selectedMonth: string,
+  cards: CreditCard[] = [],
+  investments: Investment[] = [],
+  investmentTransactions: InvestmentTransaction[] = []
+) {
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'pending'>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -26,13 +33,33 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
   // Step 1: Month filter
   const monthExpenses = useMemo(() => {
     return expenses.filter(exp => isActiveInMonth(exp, selectedMonth, cards));
-  }, [expenses, selectedMonth]);
+  }, [expenses, selectedMonth, cards]);
+
+  // Step 1b: Cash-flow investment transactions (contributions & withdrawals, excluding initial balance & yields)
+  const cashFlowInvTxs = useMemo(() => {
+    return investmentTransactions.filter(isCashFlowInvestmentTransaction);
+  }, [investmentTransactions]);
+
+  const monthInvestmentTxs = useMemo(() => {
+    return cashFlowInvTxs.filter(tx => getInvestmentTransactionMonth(tx) === selectedMonth);
+  }, [cashFlowInvTxs, selectedMonth]);
 
   // Step 2: Calculate Totals (always based on month only, ignoring filters)
   const totals = useMemo(() => {
     const totalIncomes = monthExpenses.reduce((acc, curr) => curr.type === 'income' ? acc + curr.amount : acc, 0);
     const totalExpenses = monthExpenses.reduce((acc, curr) => curr.type !== 'income' ? acc + curr.amount : acc, 0);
     
+    const monthContributions = monthInvestmentTxs.reduce(
+      (acc, tx) => (tx.type === 'contribution' ? acc + tx.amount : acc),
+      0
+    );
+    const monthWithdrawals = monthInvestmentTxs.reduce(
+      (acc, tx) => (tx.type === 'withdrawal' ? acc + tx.amount : acc),
+      0
+    );
+    // Net invested in the month: positive means net outflow into investments, negative means net withdrawal back to checking
+    const totalInvestedMonth = monthContributions - monthWithdrawals;
+
     // Calculate accumulated balance from past months
     let accumulatedPaid = 0;
     let accumulatedProjected = 0;
@@ -74,14 +101,24 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
         }
       }
     }
+
+    // Past months investment cash-flow impact (contributions reduce checking balance, withdrawals increase it)
+    for (const tx of cashFlowInvTxs) {
+      const txMonth = getInvestmentTransactionMonth(tx);
+      if (txMonth < selectedMonth) {
+        const impact = tx.type === 'withdrawal' ? tx.amount : -tx.amount;
+        accumulatedPaid += impact;
+        accumulatedProjected += impact;
+      }
+    }
     
-    // Projeção futura total
-    const projectedBalance = accumulatedProjected + totalIncomes - totalExpenses;
+    // Projeção futura total (Incomes - Expenses - Contributions + Withdrawals)
+    const projectedBalance = accumulatedProjected + totalIncomes - totalExpenses - totalInvestedMonth;
     
     // Saldo físico atual
     const paidIncomes = monthExpenses.reduce((acc, curr) => (curr.type === 'income' && isExpensePaid(curr, selectedMonth)) ? acc + curr.amount : acc, 0);
     const paidExpenses = monthExpenses.reduce((acc, curr) => (curr.type !== 'income' && isExpensePaid(curr, selectedMonth)) ? acc + curr.amount : acc, 0);
-    const currentBalance = accumulatedPaid + paidIncomes - paidExpenses;
+    const currentBalance = accumulatedPaid + paidIncomes - paidExpenses - totalInvestedMonth;
     
     const totalPending = monthExpenses.reduce((acc, curr) => {
       if (curr.type === 'income') return acc;
@@ -92,11 +129,12 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
       totalIncomes, 
       totalExpenses, 
       totalPending,
+      totalInvestedMonth,
       accumulatedBalance: accumulatedPaid,
       currentBalance,
       projectedBalance
     };
-  }, [monthExpenses, expenses, selectedMonth]);
+  }, [monthExpenses, expenses, selectedMonth, monthInvestmentTxs, cashFlowInvTxs]);
 
   // Step 3: Apply User Filters (Type, Status, Category)
   const filteredExpenses = useMemo(() => {
@@ -158,30 +196,56 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
   };
 
   const dashboardItems = useMemo(() => {
-    const grouped = groupExpensesIntoBills(finalExpenses, cards, selectedMonth);
+    const grouped: DashboardItem[] = groupExpensesIntoBills(finalExpenses, cards, selectedMonth);
+
+    // Include month's investment contributions & withdrawals in the transaction list
+    // Respect user filters: investment cash-flows are completed movements without regular expense categories
+    const shouldIncludeInvTxs =
+      filterCategory === 'all' && filterStatus !== 'pending';
+
+    if (shouldIncludeInvTxs) {
+      for (const tx of monthInvestmentTxs) {
+        if (filterType === 'income' && tx.type !== 'withdrawal') continue;
+        if (filterType === 'expense' && tx.type !== 'contribution') continue;
+
+        const inv = investments.find((i) => i.id === tx.investment_id);
+        if (inv) {
+          grouped.push({
+            type: 'investment_transaction',
+            transaction: tx,
+            investment: inv,
+          });
+        }
+      }
+    }
     
     const isItemPaid = (item: DashboardItem) => {
       if (item.type === 'expense') return isExpensePaid(item.expense, selectedMonth);
+      if (item.type === 'investment_transaction') return true;
       return item.is_paid;
     };
     
     const getItemDueDay = (item: DashboardItem) => {
       if (item.type === 'expense') return item.expense.due_day || 99;
+      if (item.type === 'investment_transaction') return new Date(item.transaction.date).getDate();
       return item.card.due_day;
     };
     
     const getItemDate = (item: DashboardItem) => {
       if (item.type === 'expense') return new Date(item.expense.created_at).getTime();
+      if (item.type === 'investment_transaction') return new Date(item.transaction.date).getTime();
       return Math.max(...item.expenses.map((e) => new Date(e.created_at).getTime()));
     };
     
     const getItemName = (item: DashboardItem) => {
       if (item.type === 'expense') return item.expense.description;
+      if (item.type === 'investment_transaction') return item.investment.name;
       return item.card.name;
     };
     
     const getItemAmount = (item: DashboardItem) => {
       if (item.type === 'expense') return item.expense.amount;
+      if (item.type === 'investment_transaction') return item.transaction.amount;
       return item.total;
     };
 
@@ -208,7 +272,7 @@ export function useTransactionFilters(expenses: Expense[], categories: Category[
       if (sortBy === 'amount_asc') return getItemAmount(a) - getItemAmount(b);
       return 0;
     });
-  }, [finalExpenses, cards, selectedMonth, sortBy]);
+  }, [finalExpenses, cards, selectedMonth, sortBy, monthInvestmentTxs, investments, filterCategory, filterStatus, filterType]);
   return {
     dashboardItems,
     filterType,
