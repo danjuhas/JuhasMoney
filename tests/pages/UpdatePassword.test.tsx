@@ -24,14 +24,8 @@ vi.mock('../../src/lib/supabase', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => {
-      if (key === 'dashboard.locale') return 'pt-BR';
-      if (key === 'analytics.search_placeholder') return 'Busque por despesa ou categoria (ex: Uber, Mercado)...';
-      if (key === 'dashboard.bill_empty') return 'Nenhuma despesa para esta fatura.';
-      if (key === 'dashboard.bill_paid') return 'Fatura Paga';
-      return key;
-    },
-    i18n: { language: 'pt' }
+    t: (key: string) => key,
+    i18n: { language: 'pt', changeLanguage: vi.fn() }
   }),
   initReactI18next: { type: '3rdParty', init: () => {} }
 }));
@@ -47,23 +41,23 @@ describe('UpdatePassword Component', () => {
     render(<UpdatePassword />);
     
     await waitFor(() => {
-      expect(screen.getByText('Redefina sua senha')).toBeInTheDocument();
+      expect(screen.getByText('auth.update_password_title')).toBeInTheDocument();
     });
   });
 
   it('should show error if passwords do not match', async () => {
     render(<UpdatePassword />);
     
-    const passwordInputs = screen.getAllByPlaceholderText('No mínimo 6 caracteres');
-    const confirmInput = screen.getByPlaceholderText('Digite a nova senha novamente');
+    const passwordInputs = screen.getAllByPlaceholderText('auth.new_password_min_chars');
+    const confirmInput = screen.getByPlaceholderText('auth.confirm_new_password_placeholder');
 
     fireEvent.change(passwordInputs[0], { target: { value: 'newpass123' } });
     fireEvent.change(confirmInput, { target: { value: 'newpass456' } });
     
-    fireEvent.click(screen.getByRole('button', { name: /Salvar Nova Senha/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'auth.save_new_password' }));
 
     await waitFor(() => {
-      expect(screen.getByText('As senhas não coincidem.')).toBeInTheDocument();
+      expect(screen.getByText('auth.error_password_mismatch')).toBeInTheDocument();
     });
     
     expect(mockUpdateUser).not.toHaveBeenCalled();
@@ -74,13 +68,13 @@ describe('UpdatePassword Component', () => {
     
     render(<UpdatePassword />);
     
-    const passwordInputs = screen.getAllByPlaceholderText('No mínimo 6 caracteres');
-    const confirmInput = screen.getByPlaceholderText('Digite a nova senha novamente');
+    const passwordInputs = screen.getAllByPlaceholderText('auth.new_password_min_chars');
+    const confirmInput = screen.getByPlaceholderText('auth.confirm_new_password_placeholder');
 
     fireEvent.change(passwordInputs[0], { target: { value: 'newpass123' } });
     fireEvent.change(confirmInput, { target: { value: 'newpass123' } });
     
-    fireEvent.click(screen.getByRole('button', { name: /Salvar Nova Senha/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'auth.save_new_password' }));
 
     await waitFor(() => {
       expect(mockUpdateUser).toHaveBeenCalledWith({ password: 'newpass123' });

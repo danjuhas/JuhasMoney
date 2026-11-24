@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Infinity } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 export default function UpdatePassword() {
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,12 +36,12 @@ export default function UpdatePassword() {
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres.');
+      setError(t('auth.error_password_length'));
       return;
     }
     
     if (password !== confirmPassword) {
-      setError('As senhas não coincidem.');
+      setError(t('auth.error_password_mismatch'));
       return;
     }
     
@@ -52,7 +55,7 @@ export default function UpdatePassword() {
       // Successfully updated password, navigate to home
       navigate('/');
     } catch (err: any) {
-      setError(err.message || 'Erro ao atualizar senha.');
+      setError(err.message || t('auth.update_password_error'));
     } finally {
       setLoading(false);
     }
@@ -60,6 +63,7 @@ export default function UpdatePassword() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-slate-950 to-slate-950">
+      <LanguageSwitcher />
       <div className="sm:mx-auto sm:w-full sm:max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="flex justify-center">
           <div className="bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
@@ -67,10 +71,10 @@ export default function UpdatePassword() {
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-white">
-          Redefina sua senha
+          {t('auth.update_password_title')}
         </h2>
         <p className="mt-2 text-center text-sm text-slate-400">
-          Digite sua nova senha abaixo
+          {t('auth.update_password_subtitle')}
         </p>
       </div>
 
@@ -84,7 +88,7 @@ export default function UpdatePassword() {
             )}
             
             <div>
-              <label className="block text-sm font-medium text-slate-300">Nova Senha</label>
+              <label className="block text-sm font-medium text-slate-300">{t('auth.new_password')}</label>
               <div className="mt-1">
                 <input
                   type="password"
@@ -93,13 +97,13 @@ export default function UpdatePassword() {
                   className="block w-full appearance-none rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-slate-100 placeholder-slate-500 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm transition-colors"
                   required
                   minLength={6}
-                  placeholder="No mínimo 6 caracteres"
+                  placeholder={t('auth.new_password_min_chars')}
                 />
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-slate-300">Confirmar Nova Senha</label>
+              <label className="block text-sm font-medium text-slate-300">{t('auth.confirm_new_password')}</label>
               <div className="mt-1">
                 <input
                   type="password"
@@ -108,7 +112,7 @@ export default function UpdatePassword() {
                   className="block w-full appearance-none rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-slate-100 placeholder-slate-500 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm transition-colors"
                   required
                   minLength={6}
-                  placeholder="Digite a nova senha novamente"
+                  placeholder={t('auth.confirm_new_password_placeholder')}
                 />
               </div>
             </div>
@@ -119,7 +123,7 @@ export default function UpdatePassword() {
                 disabled={loading}
                 className="flex w-full justify-center rounded-xl border border-transparent bg-emerald-500 py-3 px-4 text-sm font-medium text-white shadow-lg shadow-emerald-500/25 hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Salvando...' : 'Salvar Nova Senha'}
+                {loading ? t('auth.saving') : t('auth.save_new_password')}
               </button>
             </div>
           </form>

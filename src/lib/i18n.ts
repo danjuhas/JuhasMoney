@@ -11,11 +11,33 @@ const resources = {
   es: { common: es },
 };
 
+const SUPPORTED_LANGUAGES = ['pt', 'en', 'es'] as const;
+export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
+export const LANGUAGE_STORAGE_KEY = 'juhasmoney_language';
+
+function detectInitialLanguage(): SupportedLanguage {
+  try {
+    const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    if (saved && (SUPPORTED_LANGUAGES as readonly string[]).includes(saved)) {
+      return saved as SupportedLanguage;
+    }
+    if (import.meta.env.MODE !== 'test' && typeof navigator !== 'undefined' && navigator.language) {
+      const browserLang = navigator.language.split('-')[0].toLowerCase();
+      if ((SUPPORTED_LANGUAGES as readonly string[]).includes(browserLang)) {
+        return browserLang as SupportedLanguage;
+      }
+    }
+  } catch {
+    // Fallback if localStorage is blocked
+  }
+  return 'pt';
+}
+
 i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'pt',
+    lng: detectInitialLanguage(),
     fallbackLng: 'en',
     defaultNS: 'common',
     interpolation: {

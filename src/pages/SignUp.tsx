@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Infinity } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { usePreferences } from '../contexts/PreferencesContext';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 export default function SignUp() {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSuccessMessage, setIsSuccessMessage] = useState(false);
   const navigate = useNavigate();
   const { updatePreferences } = usePreferences();
 
@@ -23,18 +27,19 @@ export default function SignUp() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSuccessMessage(false);
     if (!name || !email || !password) {
-      setError('Preencha todos os campos para se cadastrar.');
+      setError(t('auth.error_fill_all'));
       return;
     }
     
     if (password.length < 6) {
-      setError('A senha deve ter no mínimo 6 caracteres.');
+      setError(t('auth.error_password_length'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('As senhas não coincidem.');
+      setError(t('auth.error_password_mismatch'));
       return;
     }
 
@@ -59,10 +64,11 @@ export default function SignUp() {
         await updatePreferences({ name });
         navigate('/onboarding');
       } else {
-        setError('Cadastro realizado! Verifique sua caixa de e-mail para confirmar a conta.');
+        setIsSuccessMessage(true);
+        setError(t('auth.signup_success_check_email'));
       }
     } catch (err: any) {
-      setError(err.message || 'Erro ao fazer cadastro.');
+      setError(err.message || t('auth.signup_error'));
     } finally {
       setLoading(false);
     }
@@ -70,15 +76,16 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-4">
+      <LanguageSwitcher />
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center items-center gap-2">
           <Infinity className="h-12 w-12 text-emerald-500" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-white tracking-tight">
-          Criar Conta
+          {t('auth.signup_title')}
         </h2>
         <p className="mt-2 text-center text-sm text-slate-400">
-          Comece a organizar suas finanças hoje mesmo.
+          {t('auth.signup_subtitle')}
         </p>
       </div>
 
@@ -88,7 +95,7 @@ export default function SignUp() {
             
             <div>
               <label className="block text-sm font-medium text-slate-300">
-                Nome completo
+                {t('auth.full_name')}
               </label>
               <div className="mt-1">
                 <input
@@ -97,7 +104,7 @@ export default function SignUp() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="appearance-none block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition-colors"
-                  placeholder="Seu nome"
+                  placeholder={t('auth.full_name_placeholder')}
                   required
                 />
               </div>
@@ -105,7 +112,7 @@ export default function SignUp() {
 
             <div>
               <label className="block text-sm font-medium text-slate-300">
-                E-mail
+                {t('auth.email')}
               </label>
               <div className="mt-1">
                 <input
@@ -113,7 +120,7 @@ export default function SignUp() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="appearance-none block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition-colors"
-                  placeholder="seu@email.com"
+                  placeholder={t('auth.email_placeholder')}
                   required
                 />
               </div>
@@ -121,7 +128,7 @@ export default function SignUp() {
 
             <div>
               <label className="block text-sm font-medium text-slate-300">
-                Senha
+                {t('auth.password')}
               </label>
               <div className="mt-1">
                 <input
@@ -129,7 +136,7 @@ export default function SignUp() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="appearance-none block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition-colors"
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder={t('auth.min_6_chars')}
                   required
                   minLength={6}
                 />
@@ -138,7 +145,7 @@ export default function SignUp() {
 
             <div>
               <label className="block text-sm font-medium text-slate-300">
-                Confirmar Senha
+                {t('auth.confirm_password')}
               </label>
               <div className="mt-1">
                 <input
@@ -146,7 +153,7 @@ export default function SignUp() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="appearance-none block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition-colors"
-                  placeholder="Digite sua senha novamente"
+                  placeholder={t('auth.confirm_password_placeholder')}
                   required
                   minLength={6}
                 />
@@ -155,7 +162,7 @@ export default function SignUp() {
 
             {error && (
               <div className={`text-sm p-4 rounded-xl border ${
-                error.includes('Cadastro realizado') 
+                isSuccessMessage 
                   ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' 
                   : 'text-rose-400 bg-rose-500/10 border-rose-500/20'
               }`}>
@@ -169,7 +176,7 @@ export default function SignUp() {
                 disabled={loading}
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-emerald-500/25 text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-slate-900 disabled:opacity-50 transition-all"
               >
-                {loading ? 'Carregando...' : 'Cadastrar'}
+                {loading ? t('auth.loading') : t('auth.sign_up_btn')}
               </button>
             </div>
           </form>
@@ -181,7 +188,7 @@ export default function SignUp() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-slate-900 text-slate-400">
-                  Já tem uma conta?
+                  {t('auth.already_have_account')}
                 </span>
               </div>
             </div>
@@ -191,7 +198,7 @@ export default function SignUp() {
                 to="/login"
                 className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
               >
-                Faça login
+                {t('auth.sign_in_link')}
               </Link>
             </div>
           </div>
