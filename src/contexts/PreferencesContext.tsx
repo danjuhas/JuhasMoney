@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
-import i18n from '../lib/i18n';
+import i18n, { LANGUAGE_STORAGE_KEY } from '../lib/i18n';
 
 interface Preferences {
   name: string;
@@ -18,7 +18,7 @@ interface PreferencesContextType {
 
 const defaultPreferences: Preferences = {
   name: '',
-  language: 'pt',
+  language: i18n.language || 'pt',
   currency: 'BRL',
   onboarding_completed: false,
 };
@@ -36,12 +36,17 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         const metadata = session.user.user_metadata;
         setPreferences({
           name: metadata.name || '',
-          language: metadata.language || 'pt',
+          language: metadata.language || i18n.language || 'pt',
           currency: metadata.currency || 'BRL',
           onboarding_completed: metadata.onboarding_completed || false
         });
         if (metadata.language) {
           i18n.changeLanguage(metadata.language);
+          try {
+            localStorage.setItem(LANGUAGE_STORAGE_KEY, metadata.language);
+          } catch {
+            // ignore
+          }
         }
       }
       setLoading(false);
@@ -54,12 +59,17 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
         const metadata = session.user.user_metadata;
         setPreferences({
           name: metadata.name || '',
-          language: metadata.language || 'pt',
+          language: metadata.language || i18n.language || 'pt',
           currency: metadata.currency || 'BRL',
           onboarding_completed: metadata.onboarding_completed || false
         });
         if (metadata.language) {
           i18n.changeLanguage(metadata.language);
+          try {
+            localStorage.setItem(LANGUAGE_STORAGE_KEY, metadata.language);
+          } catch {
+            // ignore
+          }
         }
       }
     });
@@ -72,6 +82,11 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     setPreferences(updated);
     if (newPrefs.language) {
       i18n.changeLanguage(newPrefs.language);
+      try {
+        localStorage.setItem(LANGUAGE_STORAGE_KEY, newPrefs.language);
+      } catch {
+        // ignore
+      }
     }
     
     // Update Supabase metadata

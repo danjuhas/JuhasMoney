@@ -30,14 +30,8 @@ vi.mock('../../src/lib/supabase', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => {
-      if (key === 'dashboard.locale') return 'pt-BR';
-      if (key === 'analytics.search_placeholder') return 'Busque por despesa ou categoria (ex: Uber, Mercado)...';
-      if (key === 'dashboard.bill_empty') return 'Nenhuma despesa para esta fatura.';
-      if (key === 'dashboard.bill_paid') return 'Fatura Paga';
-      return key;
-    },
-    i18n: { language: 'pt' }
+    t: (key: string) => key,
+    i18n: { language: 'pt', changeLanguage: vi.fn() }
   }),
   initReactI18next: { type: '3rdParty', init: () => {} }
 }));
@@ -49,27 +43,27 @@ describe('SignUp Component', () => {
 
   it('should render the signup form', () => {
     render(<SignUp />);
-    expect(screen.getByText('Criar Conta')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Seu nome')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('seu@email.com')).toBeInTheDocument();
+    expect(screen.getByText('auth.signup_title')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('auth.full_name_placeholder')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('auth.email_placeholder')).toBeInTheDocument();
   });
 
   it('should show error if passwords do not match', async () => {
     render(<SignUp />);
     
-    fireEvent.change(screen.getByPlaceholderText('Seu nome'), { target: { value: 'Test User' } });
-    fireEvent.change(screen.getByPlaceholderText('seu@email.com'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByPlaceholderText('auth.full_name_placeholder'), { target: { value: 'Test User' } });
+    fireEvent.change(screen.getByPlaceholderText('auth.email_placeholder'), { target: { value: 'test@example.com' } });
     
-    const passwordInputs = screen.getAllByPlaceholderText('Mínimo 6 caracteres');
-    const confirmInput = screen.getByPlaceholderText('Digite sua senha novamente');
+    const passwordInputs = screen.getAllByPlaceholderText('auth.min_6_chars');
+    const confirmInput = screen.getByPlaceholderText('auth.confirm_password_placeholder');
 
     fireEvent.change(passwordInputs[0], { target: { value: 'password123' } });
     fireEvent.change(confirmInput, { target: { value: 'password456' } });
     
-    fireEvent.click(screen.getByRole('button', { name: /Cadastrar/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'auth.sign_up_btn' }));
 
     await waitFor(() => {
-      expect(screen.getByText('As senhas não coincidem.')).toBeInTheDocument();
+      expect(screen.getByText('auth.error_password_mismatch')).toBeInTheDocument();
     });
     
     expect(mockSignUp).not.toHaveBeenCalled();
@@ -80,16 +74,16 @@ describe('SignUp Component', () => {
     
     render(<SignUp />);
     
-    fireEvent.change(screen.getByPlaceholderText('Seu nome'), { target: { value: 'Test User' } });
-    fireEvent.change(screen.getByPlaceholderText('seu@email.com'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByPlaceholderText('auth.full_name_placeholder'), { target: { value: 'Test User' } });
+    fireEvent.change(screen.getByPlaceholderText('auth.email_placeholder'), { target: { value: 'test@example.com' } });
     
-    const passwordInputs = screen.getAllByPlaceholderText('Mínimo 6 caracteres');
-    const confirmInput = screen.getByPlaceholderText('Digite sua senha novamente');
+    const passwordInputs = screen.getAllByPlaceholderText('auth.min_6_chars');
+    const confirmInput = screen.getByPlaceholderText('auth.confirm_password_placeholder');
 
     fireEvent.change(passwordInputs[0], { target: { value: 'password123' } });
     fireEvent.change(confirmInput, { target: { value: 'password123' } });
     
-    fireEvent.click(screen.getByRole('button', { name: /Cadastrar/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'auth.sign_up_btn' }));
 
     await waitFor(() => {
       expect(mockSignUp).toHaveBeenCalledWith({

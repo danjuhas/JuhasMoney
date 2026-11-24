@@ -26,16 +26,11 @@ vi.mock('../../src/lib/supabase', () => ({
   },
 }));
 
+const mockChangeLanguage = vi.fn();
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => {
-      if (key === 'dashboard.locale') return 'pt-BR';
-      if (key === 'analytics.search_placeholder') return 'Busque por despesa ou categoria (ex: Uber, Mercado)...';
-      if (key === 'dashboard.bill_empty') return 'Nenhuma despesa para esta fatura.';
-      if (key === 'dashboard.bill_paid') return 'Fatura Paga';
-      return key;
-    },
-    i18n: { language: 'pt' }
+    t: (key: string) => key,
+    i18n: { language: 'pt', changeLanguage: mockChangeLanguage }
   }),
   initReactI18next: { type: '3rdParty', init: () => {} }
 }));
@@ -45,9 +40,18 @@ describe('Login Component', () => {
     vi.clearAllMocks();
   });
 
-  it('should render the login form', () => {
+  it('should render the login form and language switcher', () => {
     render(<Login />);
     expect(screen.getByText('JuhasMoney')).toBeInTheDocument();
+    expect(screen.getByText('PT')).toBeInTheDocument();
+    expect(screen.getByText('EN')).toBeInTheDocument();
+    expect(screen.getByText('ES')).toBeInTheDocument();
+  });
+
+  it('should allow switching language from the login screen before onboarding', () => {
+    render(<Login />);
+    fireEvent.click(screen.getByText('EN'));
+    expect(mockChangeLanguage).toHaveBeenCalledWith('en');
   });
 
   it('should handle successful login', async () => {
@@ -55,17 +59,16 @@ describe('Login Component', () => {
     
     render(<Login />);
     
-    fireEvent.change(screen.getByPlaceholderText('seu@email.com'), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByPlaceholderText('Sua senha'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByPlaceholderText('auth.email_placeholder'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByPlaceholderText('auth.password_placeholder'), { target: { value: 'password123' } });
     
-    fireEvent.click(screen.getByRole('button', { name: /Entrar/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'auth.sign_in' }));
 
     await waitFor(() => {
       expect(mockSignIn).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123',
       });
-      
     });
   });
 
@@ -74,15 +77,15 @@ describe('Login Component', () => {
     
     render(<Login />);
     
-    fireEvent.change(screen.getByPlaceholderText('seu@email.com'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByPlaceholderText('auth.email_placeholder'), { target: { value: 'test@example.com' } });
     
-    fireEvent.click(screen.getByText('Esqueceu a senha?'));
+    fireEvent.click(screen.getByText('auth.forgot_password'));
 
     await waitFor(() => {
       expect(mockResetPassword).toHaveBeenCalledWith('test@example.com', {
         redirectTo: expect.stringContaining('/update-password'),
       });
-      expect(screen.getByText('Se o e-mail existir, você receberá um link de redefinição de senha.')).toBeInTheDocument();
+      expect(screen.getByText('auth.reset_sent')).toBeInTheDocument();
     });
   });
 });
