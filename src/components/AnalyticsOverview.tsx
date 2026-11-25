@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { PieChart as PieChartIcon, TrendingUp, AlertTriangle } from 'lucide-react';
 import { isActiveInMonth } from '../utils/transactions';
@@ -17,13 +17,14 @@ type Props = {
   totalIncomes: number;
   totalExpenses: number;
   cards: CreditCard[];
+  aiSection?: ReactNode;
 };
 
 // Pastel colors for the donut chart
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
 export const AnalyticsOverview = ({
-  expenses, allExpenses, selectedMonth, categories, totalIncomes, totalExpenses, cards }: Props) => {
+  expenses, allExpenses, selectedMonth, categories, totalIncomes, totalExpenses, cards, aiSection }: Props) => {
   const { t } = useTranslation();
   const { preferences } = usePreferences();
   const expenseData = useMemo(() => {
@@ -100,7 +101,9 @@ export const AnalyticsOverview = ({
   const progressColor = progressPercent >= 80 ? 'bg-red-500' : (progressPercent > 50 ? 'bg-yellow-500' : 'bg-emerald-500');
 
   return (
-    <div id="reports-export-area" className="flex flex-col gap-6 mt-6">
+    <div className="flex flex-col gap-6 mt-6">
+      {aiSection}
+      <div id="reports-export-area" className="flex flex-col gap-6">
       <div className="bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-700">
         <div className="flex items-center gap-2 mb-6">
           <PieChartIcon className="w-5 h-5 text-slate-400" />
@@ -226,6 +229,7 @@ export const AnalyticsOverview = ({
         categories={categories} 
         selectedMonth={selectedMonth} cards={cards} 
       />
+      </div>
     </div>
   );
 };

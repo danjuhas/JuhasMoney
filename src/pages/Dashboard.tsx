@@ -6,10 +6,12 @@ import type { Expense } from '../types';
 
 
 
-import { Plus, CreditCard as CreditCardIcon, CheckCircle, Circle, ChevronLeft, ChevronRight, Calendar, Filter, Infinity, Download, FileText, Image as ImageIcon, Table, Loader2, TrendingUp } from 'lucide-react';
+import { Plus, CreditCard as CreditCardIcon, CheckCircle, Circle, ChevronLeft, ChevronRight, Calendar, Filter, Infinity, Download, FileText, Image as ImageIcon, Table, Loader2, TrendingUp, Sparkles } from 'lucide-react';
 import { exportToCSV, exportToImage, exportToPDF } from '../utils/exportData';
 import { SummaryCards } from '../components/SummaryCards';
 import { AnalyticsOverview } from '../components/AnalyticsOverview';
+import { AIInsightsCard } from '../components/AIInsightsCard';
+import { AIAssistantDrawer } from '../components/AIAssistantDrawer';
 import { SettingsOverview } from '../components/SettingsOverview';
 import { CreditCardsOverview } from '../components/CreditCardsOverview';
 import { InvestmentsOverview } from '../components/InvestmentsOverview';
@@ -27,6 +29,7 @@ import { useTransactions } from '../hooks/useTransactions';
 import { useCreditCards } from '../hooks/useCreditCards';
 import { useInvestments } from '../hooks/useInvestments';
 import { useTransactionFilters } from '../hooks/useTransactionFilters';
+import { useFinancialAI } from '../hooks/useFinancialAI';
 import { PullToRefresh } from '../components/ui/PullToRefresh';
 import { usePreferences } from '../contexts/PreferencesContext';
 import { isExpensePaid } from '../utils/transactions';
@@ -82,6 +85,7 @@ export default function Dashboard() {
 
 
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
+  const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<{ id: string, deleteAll: boolean, isInstallment?: boolean } | null>(null);
   const [billConfirm, setBillConfirm] = useState<{ids: string[], action: 'pay' | 'unpay'} | null>(null);
@@ -103,6 +107,25 @@ export default function Dashboard() {
     setSortBy,
     dashboardItems
     } = useTransactionFilters(expenses, categories, selectedMonth, cards, investments, investmentTransactions);
+
+  const financialAI = useFinancialAI({
+    selectedMonth,
+    currency: preferences.currency || 'BRL',
+    allExpenses: expenses,
+    monthExpenses: filteredExpenses,
+    categories,
+    cards,
+    investments,
+    investmentTransactions,
+    totals: {
+      totalIncomes,
+      totalExpenses,
+      totalPending,
+      totalInvestedMonth,
+      currentBalance,
+      projectedBalance,
+    },
+  });
   
 
   const navigate = useNavigate();
@@ -363,7 +386,19 @@ export default function Dashboard() {
               </div>
             </div>
             {/* The right action buttons were removed as they are now in the Settings view */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                type="button"
+                onClick={() => setIsAIAssistantOpen(true)}
+                className="relative inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 transition-colors"
+                title={t('ai.assistant_title')}
+                aria-label={t('ai.assistant_title')}
+              >
+                <Sparkles className="w-4 h-4 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm font-medium hidden sm:inline">
+                  {t('ai.assistant_short')}
+                </span>
+              </button>
               <NotificationBell 
                 userId={userId} 
                 onNotificationClick={(ids) => {
@@ -510,7 +545,18 @@ export default function Dashboard() {
               expenses={filteredExpenses} allExpenses={expenses} selectedMonth={selectedMonth} 
               categories={categories} 
               totalIncomes={totalIncomes} 
-              totalExpenses={totalExpenses} cards={cards} 
+              totalExpenses={totalExpenses} cards={cards}
+              aiSection={
+                <AIInsightsCard
+                  isConfigured={financialAI.isConfigured}
+                  hasTransactions={filteredExpenses.length > 0}
+                  insights={financialAI.insights}
+                  isLoading={financialAI.isInsightsLoading}
+                  error={financialAI.insightsError}
+                  onGenerate={financialAI.generateInsights}
+                  onOpenAssistant={() => setIsAIAssistantOpen(true)}
+                />
+              }
             />
           </div>
 
@@ -757,6 +803,7 @@ export default function Dashboard() {
         categories={categories}
         cards={cards}
         preferences={preferences}
+        pastExpenses={expenses}
       />
       {isModalOpen && (
       <TransactionModal
@@ -772,6 +819,7 @@ export default function Dashboard() {
         initialMode={transactionMode}
         initialType={initialType}
         isGlobalEdit={isGlobalEdit}
+        pastExpenses={expenses}
       />
 )}
 
@@ -866,6 +914,18 @@ export default function Dashboard() {
           )}
         </>
       )}
+
+      <AIAssistantDrawer
+        isOpen={isAIAssistantOpen}
+        onClose={() => setIsAIAssistantOpen(false)}
+        isConfigured={financialAI.isConfigured}
+        selectedMonthLabel={formatMonthYear(selectedMonth)}
+        messages={financialAI.messages}
+        isLoading={financialAI.isChatLoading}
+        error={financialAI.chatError}
+        onSendMessage={financialAI.sendMessage}
+        onClearChat={financialAI.clearChat}
+      />
 
       <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>

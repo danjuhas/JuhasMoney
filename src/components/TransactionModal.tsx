@@ -8,7 +8,8 @@ import { generateUUID } from '../utils/uuid';
 import { getCurrencySymbol } from '../utils/format';
 import type { Expense, Category, CreditCard } from '../types';
 import { useTranslation } from 'react-i18next';
-import { TrendingDown, TrendingUp } from 'lucide-react';
+import { TrendingDown, TrendingUp, Sparkles, Loader2 } from 'lucide-react';
+import { useSmartCategorySuggestion } from '../hooks/useSmartCategorySuggestion';
 
 type Props = {
   isOpen: boolean;
@@ -23,6 +24,7 @@ type Props = {
   initialMode: 'quick' | 'fixed';
   initialType?: 'income' | 'expense';
   isGlobalEdit?: boolean;
+  pastExpenses?: Expense[];
 };
 
 export function TransactionModal({
@@ -37,6 +39,7 @@ export function TransactionModal({
   initialMode,
   initialType = 'expense',
   isGlobalEdit = false,
+  pastExpenses = [],
   // @ts-ignore
   cards
 }: Props) {
@@ -46,6 +49,7 @@ export function TransactionModal({
   const [amount, setAmount] = useState('');
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense');
   const [categoryId, setCategoryId] = useState('');
+  const [hasManualCategory, setHasManualCategory] = useState(false);
   const [creditCardId, setCreditCardId] = useState<string | null>(null);
   const [isFixed, setIsFixed] = useState(false);
   const [dueDay, setDueDay] = useState('');
@@ -55,6 +59,17 @@ export function TransactionModal({
   const [applyToFuture, setApplyToFuture] = useState(false);
   const [transactionMode, setTransactionMode] = useState<'quick' | 'fixed'>('quick');
 
+  const { suggestedSource, isSuggestingAI } = useSmartCategorySuggestion({
+    enabled: isOpen && !editingExpense,
+    description,
+    type: transactionType,
+    categories,
+    pastExpenses,
+    currentCategoryId: categoryId,
+    hasManualSelection: hasManualCategory,
+    onSuggest: (suggestedId) => setCategoryId(suggestedId),
+  });
+
   useEffect(() => {
     if (isOpen) {
       if (editingExpense) {
@@ -62,6 +77,7 @@ export function TransactionModal({
         setAmount(Math.round(editingExpense.amount * 100).toString());
         setTransactionType(editingExpense.type || 'expense');
         setCategoryId(editingExpense.category_id || '');
+        setHasManualCategory(Boolean(editingExpense.category_id));
       setCreditCardId(editingExpense.credit_card_id || null);
         setIsFixed(editingExpense.is_fixed || false);
         setDueDay(editingExpense.due_day ? editingExpense.due_day.toString() : '');
@@ -73,6 +89,7 @@ export function TransactionModal({
         setTransactionType(initialType);
         setTransactionDate(new Date().toISOString().split('T')[0]);
         setCategoryId('');
+        setHasManualCategory(false);
         setIsFixed(initialMode === 'fixed');
         setTransactionMode(initialMode);
       }
@@ -340,8 +357,29 @@ export function TransactionModal({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.category_optional')}</label>
-                <Select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} translate="no" focusColor={transactionType === 'income' ? 'emerald' : 'rose'}>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-slate-300">{t('dashboard.category_optional')}</label>
+                  {isSuggestingAI ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      {t('ai.suggesting_category')}
+                    </span>
+                  ) : suggestedSource && categoryId ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/15 text-emerald-400">
+                      <Sparkles className="w-3 h-3" />
+                      {t('ai.suggested_badge')}
+                    </span>
+                  ) : null}
+                </div>
+                <Select
+                  value={categoryId}
+                  onChange={(e) => {
+                    setCategoryId(e.target.value);
+                    setHasManualCategory(true);
+                  }}
+                  translate="no"
+                  focusColor={transactionType === 'income' ? 'emerald' : 'rose'}
+                >
                   <option value="">{t('dashboard.no_category')}</option>
                   {categories
                     .filter(c => c.type === transactionType)

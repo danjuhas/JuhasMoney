@@ -6,8 +6,9 @@ import { Input } from './ui/Input';
 import { generateUUID } from '../utils/uuid';
 import type { Expense, Category, CreditCard } from '../types';
 import { useTranslation } from 'react-i18next';
-import { CreditCard as CreditCardIcon, AlertCircle } from 'lucide-react';
+import { CreditCard as CreditCardIcon, AlertCircle, Sparkles, Loader2 } from 'lucide-react';
 import { formatCurrency, getCurrencySymbol } from '../utils/format';
+import { useSmartCategorySuggestion } from '../hooks/useSmartCategorySuggestion';
 
 type Props = {
   isOpen: boolean;
@@ -19,6 +20,7 @@ type Props = {
   preferences: any;
   initialCardId?: string;
   editingExpense?: Expense | null;
+  pastExpenses?: Expense[];
 };
 
 export function CreditCardTransactionModal({
@@ -30,7 +32,8 @@ export function CreditCardTransactionModal({
   cards,
   preferences,
   initialCardId,
-  editingExpense
+  editingExpense,
+  pastExpenses = []
 }: Props) {
   const { t } = useTranslation();
 
@@ -48,9 +51,21 @@ export function CreditCardTransactionModal({
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [hasManualCategory, setHasManualCategory] = useState(false);
   const [creditCardId, setCreditCardId] = useState('');
   const [installments, setInstallments] = useState(1);
   const [purchaseDate, setPurchaseDate] = useState(() => new Date().toISOString().split('T')[0]);
+
+  const { suggestedSource, isSuggestingAI } = useSmartCategorySuggestion({
+    enabled: isOpen && !editingExpense,
+    description,
+    type: 'expense',
+    categories,
+    pastExpenses,
+    currentCategoryId: categoryId,
+    hasManualSelection: hasManualCategory,
+    onSuggest: (suggestedId) => setCategoryId(suggestedId),
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -58,6 +73,7 @@ export function CreditCardTransactionModal({
         setDescription(editingExpense.description);
         setAmount(Math.round(editingExpense.amount * 100).toString());
         setCategoryId(editingExpense.category_id || '');
+        setHasManualCategory(Boolean(editingExpense.category_id));
         setCreditCardId(editingExpense.credit_card_id || initialCardId || '');
         setPurchaseDate(editingExpense.created_at.split('T')[0]);
         setInstallments(1); // Usually we don't edit installments count once created, or it's represented by group_id
@@ -65,6 +81,7 @@ export function CreditCardTransactionModal({
         setDescription('');
         setAmount('');
         setCategoryId('');
+        setHasManualCategory(false);
         setCreditCardId(initialCardId || '');
         setInstallments(1);
         setPurchaseDate(new Date().toISOString().split('T')[0]);
@@ -224,9 +241,30 @@ export function CreditCardTransactionModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">{t('dashboard.category_optional')}</label>
-            <Select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} translate="no" focusColor="purple">
-              <option value="">Selecione...</option>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium text-slate-300">{t('dashboard.category_optional')}</label>
+              {isSuggestingAI ? (
+                <span className="inline-flex items-center gap-1 text-xs text-purple-400">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  {t('ai.suggesting_category')}
+                </span>
+              ) : suggestedSource && categoryId ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-500/15 text-purple-300">
+                  <Sparkles className="w-3 h-3" />
+                  {t('ai.suggested_badge')}
+                </span>
+              ) : null}
+            </div>
+            <Select
+              value={categoryId}
+              onChange={(e) => {
+                setCategoryId(e.target.value);
+                setHasManualCategory(true);
+              }}
+              translate="no"
+              focusColor="purple"
+            >
+              <option value="">{t('dashboard.no_category')}</option>
               {expenseCategories.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}

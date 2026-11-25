@@ -13,6 +13,7 @@
     "test:visual:update": "playwright test tests/e2e/visual*.spec.ts --update-snapshots"
   },
   "dependencies": {
+    "@google/genai": "^3.6.1",
     "@sentry/react": "^10.73.0",
     "@supabase/supabase-js": "^2.114.0",
     "html-to-image": "^1.11.13",
